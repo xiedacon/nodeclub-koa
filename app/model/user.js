@@ -2,6 +2,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
+const _ = require('lodash');
+const crypto = require('crypto');
 
 let UserSchema = new Schema({
   name: {type: String},
@@ -42,3 +44,41 @@ let UserSchema = new Schema({
 
   accessToken: {type: String}
 });
+
+UserSchema.virtual('avatar_url').get(function (){
+  let url = this.avatar || ('https://gravatar.com/avatar/' + crypto.createHash('md5').update(this.email.toLowerCase()).digest('hex') + '?size=`48');
+
+  // www.gravatar.com 被墙
+  // 现在不是了
+  // url = url.replace('www.gravatar.com', 'gravatar.com');
+
+  // 让协议自适应 protocol，使用 `//` 开头
+  if (url.indexOf('http:') === 0) {
+    url = url.slice(5);
+  }
+
+  // 如果是 github 的头像，则限制大小
+  if (url.indexOf('githubusercontent') !== -1) {
+    url += '&s=120';
+  }
+
+  return url;
+});
+
+UserSchema.virtual('isAdvanced').get(function (){
+  // 积分高于 700 则认为是高级用户
+  return this.score > 700 || this.is_star;
+});
+
+UserSchema.index({loginname: 1}, {unique: true});
+UserSchema.index({email: 1}, {unique: true});
+UserSchema.index({score: -1});
+UserSchema.index({githubId: 1});
+UserSchema.index({accessToken: 1});
+
+UserSchema.pre('save', function(next){
+  this.update_at = new Date();
+  next();
+});
+
+module.exports = mongoose.model('User', UserSchema);

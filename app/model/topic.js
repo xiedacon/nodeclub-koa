@@ -2,8 +2,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
-//
-const tabs = require('').tabs;
+const tabs = require('config-lite').site.tabs;
 const _ = require('loadsh');
 
 let TopicSchema = new Schema({
