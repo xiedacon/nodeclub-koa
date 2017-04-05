@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "bluebird": "^3.5.0",
     "config-lite": "^1.5.0",
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
@@ -35,5 +36,9 @@
   "bugs": {
     "url": "https://github.com/xiedacon/nodeclub-koa/issues"
   },
-  "homepage": "https://github.com/xiedacon/nodeclub-koa#readme"
+  "homepage": "https://github.com/xiedacon/nodeclub-koa#readme",
+  "devDependencies": {
+    "mocha": "^3.2.0",
+    "power-assert": "^1.4.2"
+  }
 }
