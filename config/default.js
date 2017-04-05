@@ -5,6 +5,11 @@
 
 const path = require('path');
 const log4js = require('log4js');
+const redis = require('koa-redis');
+const mongoose = require('mongoose');
+const Promiss = require('bluebird');
+Promiss.promisifyAll(redis);
+Promiss.promisifyAll(mongoose);
 
 // debug 为 true 时，用于本地调试
 let debug = true;
@@ -39,10 +44,17 @@ let redis_config = {
   redis_db: 0,
   redis_password: ''
 };
+let redisClient = redis(redis_config);
+redisClient.on('error', (err) => {
+  if(err){
+    logger.error('connect to redis error, check your redis config', err);
+    process.exit(1);
+  }
+});
 
 module.exports = {
   logger: logger,
-  redisClient: require('koa-redis')(redis_config),
+  redisClient: redisClient,
 
   mini_assets: !debug, // 是否启用静态文件的合并压缩，详见视图中的Loader
 
