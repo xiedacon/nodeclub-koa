@@ -31,5 +31,21 @@ describe('test/service/topic.js', ()=>{
           done();
         });
     });
-  })
+  });
+
+  describe('#getCountByQuery()', () => {
+
+  });
+
+  describe('#getTopicsByQuery()', () => {
+
+  });
+
+  describe('#getLimit5w()', () => {
+
+  });
+
+  describe('#getFullTopic()', () => {
+
+  });
 })
