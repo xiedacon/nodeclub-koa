@@ -11,28 +11,28 @@ module.exports = {
   findByNames: (names) => {
     if(names.length === 0) return [];
 
-    return User.findAync({loginname: {$in: names}}, callback);
+    return User.find({loginname: {$in: names}});
   },
   /**
    * 根据登录名查找用户
    * @param {String} loginName 登录名
    */
   getByLoginName: (loginName) => {
-    return User.findOneAsync({loginname: new RegExp(`^${loginName}$`, 'i')});
+    return User.findOne({loginname: new RegExp(`^${loginName}$`, 'i')});
   },
   /**
    * 根据用户ID，查找用户
    * @param {String} id 用户ID
    */
   getById: (id) => {
-    return User.findOneAsync({_id: id});
+    return User.findOne({_id: id});
   },
   /**
    * 根据邮箱，查找用户
    * @param {String} email 邮箱地址
    */
   getByMail: (email) => {
-    return User.findOneAsync({email: email});
+    return User.findOne({email: email});
   },
   /**
    * 根据用户ID列表，获取一组用户
@@ -41,7 +41,7 @@ module.exports = {
   findByIds: (ids) => {
     if(ids.length === 0) return [];
 
-    return User.findAync({_id: {$in: ids}}, callback);
+    return User.find({_id: {$in: ids}});
   },
   /**
    * 根据关键字，获取一组用户
@@ -57,7 +57,7 @@ module.exports = {
    * @param {String} key 激活码
    */
   getByNameAndKey: (loginname, key) => {
-    return User.findOneAsync({loginname: loginname, retrieve_key: key});
+    return User.findOne({loginname: loginname, retrieve_key: key});
   },
   /**
    * 保存用户
@@ -77,7 +77,7 @@ module.exports = {
       avatar: avatar_url,
       active: active || false,
       accessToken: uuid.v4()
-    }).saveAsync();
+    }).save();
   },
   makeGravatar: makeGravatar,
   getGravatar: (user) => {
