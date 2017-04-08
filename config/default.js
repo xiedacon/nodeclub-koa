@@ -5,11 +5,6 @@
 
 const path = require('path');
 const log4js = require('log4js');
-const redis = require('koa-redis');
-const mongoose = require('mongoose');
-const Promiss = require('bluebird');
-Promiss.promisifyAll(redis);
-Promiss.promisifyAll(mongoose);
 
 // debug 为 true 时，用于本地调试
 let debug = true;
@@ -23,38 +18,21 @@ log4js.configure({
 let logger = log4js.getLogger('cheese');
 logger.setLevel(debug ? 'DEBUG' : 'ERROR');
 
-// mongodb 配置
-let db = {
-  uri: 'mongodb://127.0.0.1/node_club_dev',
-  options: {
-    poolSize: 20
-  }
-};
-mongoose.connect(db.uri, db.options, (err) => {
-  if(err){
-    config.logger.error('connect to %s error: ', db.uri, err.message);
-    process.exit(1);
-  }
-});
-
-// redis 配置，默认是本地
-let redis_config = {
-  redis_host: '127.0.0.1',
-  redis_port: 6379,
-  redis_db: 0,
-  redis_password: ''
-};
-let redisClient = redis(redis_config);
-redisClient.on('error', (err) => {
-  if(err){
-    logger.error('connect to redis error, check your redis config', err);
-    process.exit(1);
-  }
-});
-
 module.exports = {
   logger: logger,
-  redisClient: redisClient,
+  // redis 配置，默认是本地
+  redis_config: {
+    host: '192.168.199.182',
+    port: 6379,
+    db: 0
+  },
+  // mongodb 配置
+  db : {
+    uri: 'mongodb://192.168.199.182/node_club_koa_dev',
+    options: {
+      poolSize: 20
+    }
+  },
 
   mini_assets: !debug, // 是否启用静态文件的合并压缩，详见视图中的Loader
 
@@ -88,11 +66,13 @@ module.exports = {
     ],
     list_topic_count: 20, // 话题列表显示的话题数量
     // 版块
-    tabs: [
-      ['share', '分享'],
-      ['ask', '问答'],
-      ['job', '招聘'],
-    ]
+    tabs: {
+      all: '全部',
+      good: '精华',
+      share: '分享',
+      ask: '回答',
+      job: '招聘'
+    }
   },
 
   // RSS配置
@@ -128,7 +108,7 @@ module.exports = {
       clientSecret: 'your GITHUB_CLIENT_SECRET',
       callbackURL: 'http://cnodejs.org/auth/github/callback'
     }
-  }
+  },
 
   // 是否允许直接注册（否则只能走 github 的方式）
   allow_sign_up: true,
