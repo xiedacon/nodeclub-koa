@@ -1,8 +1,8 @@
 'use strict'
-const api_router = require('./api_router_v1.js');
-const mount = require('koa-mount');
-const router = require('koa-router');
+const api_router = require('./api_router.js');
+const Router = require('koa-router');
 const config = require('config-lite');
+const passport = require('koa-passport');
 
 const site = require('./controller/site.js');
 const sign = require('./controller/sign.js');
@@ -14,6 +14,8 @@ const rss = require('./controller/rss.js');
 const staticController = require('./controller/static.js');
 const github = require('./controller/github.js');
 const search = require('./controller/search.js');
+
+const router = new Router();
 
 // site
 // home page
@@ -29,8 +31,9 @@ if(config.allow_sign_up){
   router.post('/signup', sign.signup);  // 提交注册信息
 }else{
   // 进行github验证
-  router.get('/signup', function (ctx, next) {
-    ctx.redirect('/auth/github');
+  router.get('/signup', async (ctx, next) => {
+    await ctx.redirect('/auth/github');
+    next();
   });
 }
 router.post('/signout', sign.signout); // 登出
