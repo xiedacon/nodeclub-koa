@@ -1,33 +1,41 @@
 'use strict'
-const redis = require('config-lite').redisClient;
+const redis_config = require('config-lite').redis_config;
+const redis = require('redis');
+const logger = require('config-lite').logger;
 const Promiss = require('bluebird');
+
+const client = redis.createClient(redis_config);
+
+client.on('error', (err) => {
+  if(err){
+    logger.error('connect to redis error, check your redis config', err);
+    process.exit(1);
+  }
+});
 
 module.exports = {
   // key未命中执行getDate
   // time 参数可选，秒为单位
-  get: (key, getDate, time) => {
-    let t = new Date();
-    return redis.getAsync(key).then((data) => {
-      data = JSON.parse(data);
-      logger.debug('Cache', 'get', key, ((new Date() - t) + 'ms').green);
-      if(!data && getDate && typeof getDate === 'function'){
-        return getDate().then((data) => {
-          return this.set(key, data, time);
-        });
-      }else{
-        return Promiss.resolve(data);
-      }
-    });
+  get: async (key, getDate, time) => {
+    let t = Date.now();
+    let data = JSON.parse(await client.get(key));
+    logger.debug('Cache', 'get', key, ((Date.now() - t) + 'ms').green);
+
+    if(!data && typeof getDate === 'function'){
+      data = await getDate();
+      this.set(key, data, time);
+    }
+
+    return data;
   },
   // time 参数可选，秒为单位
-  set: (key, value, time) => {
-    let t = new Date();
-    return (time
-        ? redis.setexAsync(key, time, value)
-        : redis.setAsync(key, time)
-    ).then(() => {
-      logger.debug("Cache", "set", key, ((new Date() - t) + 'ms').green);
-      return Promiss.resolve(value);
-    });
+  set: async (key, value, time) => {
+    let t = Date.now();
+    value = JSON.stringify(value);
+
+    await client.set(key, value);
+    if(time) await client.expire(key, time);
+
+    logger.debug("Cache", "set", key, ((Date.now() - t) + 'ms').green);
   }
 }
