@@ -4,12 +4,20 @@ const config = require('config-lite');
 const logger = config.logger;
 const views = require('koa-views');
 const router = require('./app/router.js');
+const session = require('koa-session2');
+const Store = require('./app/middleware/store.js');
 require('colors');
 
 const app = new koa();
 
 app.use(views('./app/view', {
-  map: {html: 'ejs'}
+  extension: 'ejs',
+  options: {
+    config: config.site
+  }
+}));
+app.use(session({
+  store: new Store()
 }));
 app.use(router.routes());
 app.use(router.allowedMethods());
