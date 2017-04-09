@@ -47,6 +47,7 @@ module.exports = {
 
       (topics, tops, no_reply_topics, pages) => {
         let tabName = config.site.tabs[tab];
+        console.log(ctx)
         return ctx.render('index', {
           topics: topics,
           current_page: page,
