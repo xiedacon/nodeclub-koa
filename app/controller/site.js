@@ -46,8 +46,9 @@ module.exports = {
       // END 取分页数据
 
       (topics, tops, no_reply_topics, pages) => {
-        let tabName = config.site.tabs[tab];
-        console.log(ctx)
+        let tabName = config.site.tabs.find((part) => {
+          return part[0] === tab;
+        });
         return ctx.render('index', {
           topics: topics,
           current_page: page,
@@ -55,9 +56,9 @@ module.exports = {
           tops: tops,
           no_reply_topics: no_reply_topics,
           pages: pages,
-          tabs: config.tabs,
           tab: tab,
           pageTitle: tabName && `${tabName}版块`,
+          current_user: undefined
         });
       }
     );
