@@ -6,6 +6,9 @@ const views = require('koa-views');
 const router = require('./app/router.js');
 const session = require('koa-session2');
 const Store = require('./app/middleware/store.js');
+
+const mount = require('koa-mount');
+
 require('colors');
 
 const app = new koa();
@@ -21,7 +24,7 @@ app.use(session({
 }));
 app.use(router.routes());
 app.use(router.allowedMethods());
-app.use(require('koa-static')('./app/public'));
+app.use(mount('/public', require('koa-static')(config.staticPath)));
 
 app.listen(config.port, () => {
   logger.info('NodeClub listening on port', config.port);

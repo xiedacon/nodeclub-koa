@@ -33,6 +33,7 @@ module.exports = {
       poolSize: 20
     }
   },
+  staticPath: path.join(__dirname, '../app/public'),
 
   mini_assets: !debug, // 是否启用静态文件的合并压缩，详见视图中的Loader
 
@@ -66,13 +67,13 @@ module.exports = {
     ],
     list_topic_count: 20, // 话题列表显示的话题数量
     // 版块
-    tabs: {
-      all: '全部',
-      good: '精华',
-      share: '分享',
-      ask: '回答',
-      job: '招聘'
-    }
+    tabs: [
+      ['all', '全部'],
+      ['good', '精华'],
+      ['share', '分享'],
+      ['ask', '回答'],
+      ['job', '招聘']
+    ]
   },
 
   // RSS配置
