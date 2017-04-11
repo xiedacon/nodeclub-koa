@@ -2,10 +2,11 @@
 const koa = require('koa');
 const config = require('config-lite');
 const logger = config.logger;
-const views = require('koa-views');
 const router = require('./app/router.js');
 const session = require('koa-session2');
 const Store = require('./app/middleware/store.js');
+const render = require('./app/middleware/render.js');
+const template = require('./app/middleware/template.js');
 
 const mount = require('koa-mount');
 
@@ -13,12 +14,12 @@ require('colors');
 
 const app = new koa();
 
-app.use(views('./app/view', {
-  extension: 'ejs',
-  options: {
+app.use(render(
+  template(config.viewPath, '.html'), {
     config: config.site
   }
-}));
+));
+
 app.use(session({
   store: new Store()
 }));
