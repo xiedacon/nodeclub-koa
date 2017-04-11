@@ -1,0 +1,20 @@
+{{ include 'sidebar'}}
+<div id="content">
+  <div class="panel">
+    <div class="header">
+      {{each config.tabs as part}}
+        <a href="/?tab={{part[0]}}"
+          class="topic-tab {{if part[0] === tab}}current-tab{{/if}}">{{part[1]}}</a>
+      {{/each}}
+    </div>
+    {{if topics && topics.length > 0}}
+    <div class="inner no-padding">
+      {{include 'topic/list'}}
+    </div>
+    {{else}}
+    <div class="inner">
+      <p>无话题</p>
+    </div>
+    {{/if}}
+  </div>
+</div>

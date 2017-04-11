@@ -1,16 +1,16 @@
 <div id='sidebar'>
 
   <div class='panel'>
-    <% if (current_user) { %>
+    {{if current_user}}
     <div class='header'>
       <span class='col_fade'>个人信息</span>
     </div>
     <div class='inner'>
-      <%- include('user/card',{ object: typeof(user) === 'undefined' ? current_user : user, as: 'user' }) %>
+      {{include 'user/card'}}
     </div>
-    <% } else { %>
+    {{else}}
     <div class='inner'>
-      <p><%= config.description %></p>
+      <p>{{config.description}}</p>
 
       <div>
         您可以
@@ -25,10 +25,10 @@
         </a>
       </div>
     </div>
-    <% } %>
+    {{/if}}
   </div>
 
-  <% if (current_user) { %>
+  {{if current_user}}
   <div class="panel">
     <div class='inner'>
       <a href='/topic/create' id='create_topic_btn'>
@@ -36,30 +36,30 @@
       </a>
     </div>
   </div>
-  <% } %>
+  {{/if}}
 
-  <% if (!current_user || !current_user.isAdvanced) { %>
-    <%- include('./_ads') %>
-  <% } %>
+  {{if !current_user || !current_user.isAdvanced}}
+    {{include '_ads'}}
+  {{/if}}
 
-  <% if (typeof(no_reply_topics) !== 'undefined') { %>
+  {{if no_reply_topics}}
   <div class='panel'>
     <div class='header'>
       <span class='col_fade'>无人回复的话题</span>
     </div>
     <div class='inner'>
-      <% if (no_reply_topics.length > 0) { %>
+      {{if no_reply_topics.length > 0}}
       <ul class="unstyled">
-        <%- include('topic/small', { collection: no_reply_topics, as: 'topic' }) %>
+        {{include 'topic/smail' {topic: no_reply_topics} }}
       </ul>
-      <% } else { %>
+      {{else}}
       <p>无</p>
-      <% } %>
+      {{/if}}
     </div>
   </div>
-  <% } %>
+  {{/if}}
 
-  <% if (typeof(tops) !== 'undefined') { %>
+  {{if tops}}
   <div class='panel'>
     <div class='header'>
       <span class='col_fade'>积分榜</span>
@@ -67,16 +67,16 @@
       <a class='dark' href='/users/top100'>TOP 100 &gt;&gt;</a>
     </div>
     <div class='inner'>
-      <% if (tops.length > 0) { %>
+      {{if tops.length > 0}}
       <ol>
-        <%- include('user/top', { collection: tops, as: 'user' }) %>
+        {{include 'user/top' {user: tops} }}
       </ol>
-      <% } else { %>
+      {{else}}
       <p>无</p>
-      <% } %>
+      {{/if}}
     </div>
   </div>
-  <% } %>
+  {{/if}}
 
   <div class='panel'>
     <div class='header'>
