@@ -62,8 +62,7 @@ module.exports = {
         });
       }
     );
-
-    next();
+    return next();
   },
   sitemap: (ctx, next) => {
     next();
