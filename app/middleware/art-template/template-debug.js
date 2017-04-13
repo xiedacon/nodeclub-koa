@@ -286,7 +286,7 @@ var compile = template.compile = function (source, options) {
                 options.debug = true;
                 return compile(source, options)(data);
             }
-            
+
             return showDebugInfo(e)();
             
         }
