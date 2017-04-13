@@ -10,9 +10,14 @@ const log4js = require('log4js');
 let debug = true;
 
 log4js.configure({
-  appenders: [
-    {type: 'console'},
-    {type: 'file', filename: path.join(__dirname,'../logs/cheese.log'), category: 'cheese'}
+  appenders: [{
+      type: 'console'
+    },
+    {
+      type: 'file',
+      filename: path.join(__dirname, '../logs/cheese.log'),
+      category: 'cheese'
+    }
   ]
 });
 let logger = log4js.getLogger('cheese');
@@ -22,13 +27,13 @@ module.exports = {
   logger: logger,
   // redis 配置，默认是本地
   redis_config: {
-    host: '192.168.199.182',
+    host: '127.0.0.1',
     port: 6379,
     db: 0
   },
   // mongodb 配置
-  db : {
-    uri: 'mongodb://192.168.199.182/node_club_koa_dev',
+  db: {
+    uri: 'mongodb://127.0.0.1/node_club_koa_dev',
     options: {
       poolSize: 20
     }
@@ -40,17 +45,13 @@ module.exports = {
 
   host: 'localhost', // 社区的域名
   port: 3000, // 程序运行的端口
-  // cdn host，如 http://cnodejs.qiniudn.com
-  static_host: '', // 静态文件存储域名
+  
   session_secret: 'node_club_secret', // 务必修改
   auth_cookie_name: 'node_club',
   // admin 可删除话题，编辑标签。把 user_login_name 换成你的登录名
-  admins: { user_login_name: true },
-
-  // 默认的Google tracker ID，自有站点请修改，申请地址：http://www.google.com/analytics/
-  google_tracker_id: '',
-  // 默认的cnzz tracker ID，自有站点请修改
-  cnzz_tracker_id: '',
+  admins: {
+    user_login_name: true
+  },
 
   site: {
     name: 'Nodeclub', // 社区名字
@@ -64,7 +65,7 @@ module.exports = {
     // 右上角的导航区
     navs: [
       // 格式 [ path, title, [target=''] ]
-      [ '/about', '关于' ]
+      ['/about', '关于']
     ],
     list_topic_count: 20, // 话题列表显示的话题数量
     // 版块
@@ -74,7 +75,16 @@ module.exports = {
       ['share', '分享'],
       ['ask', '回答'],
       ['job', '招聘']
-    ]
+    ],
+
+    // 运行环境
+    env: 'development',
+    // cdn host，如 http://cnodejs.qiniudn.com
+    static_host: '', // 静态文件存储域名
+    // 默认的Google tracker ID，自有站点请修改，申请地址：http://www.google.com/analytics/
+    google_tracker_id: '',
+    // 默认的cnzz tracker ID，自有站点请修改
+    cnzz_tracker_id: ''
   },
 
   // RSS配置
