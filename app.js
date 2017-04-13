@@ -7,6 +7,7 @@ const session = require('koa-session2');
 const Store = require('./app/middleware/store.js');
 const render = require('./app/middleware/render.js');
 const template = require('./app/middleware/template.js');
+const Loader = require('./app/middleware/loader.js')
 
 const mount = require('koa-mount');
 
@@ -14,9 +15,25 @@ require('colors');
 
 const app = new koa();
 
+// assets
+var assets = {};
+
+if (config.mini_assets) {
+  try {
+    assets = require('./assets.json');
+  } catch (e) {
+    logger.error('You must execute `make build` before start app when mini_assets is true.');
+    throw e;
+  }
+}
+
+
 app.use(render(
   template(config.viewPath, '.html'), {
-    config: config.site
+    config: config.site,
+    Loader: Loader,
+    assets: assets,
+    staticFile: (url) => {console.log(url)}
   }
 ));
 
