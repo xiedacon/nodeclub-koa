@@ -9,23 +9,21 @@
       {{include 'user/card'}}
     </div>
     {{else}}
-    <div class='inner'>
-      <p>{{config.description}}</p>
+      <div class='inner'>
+        <p>{{config.description}}</p>
 
-      <div>
-        您可以
-        <a href='/signin'>登录</a>
-        或
-        <a href='/signup'>注册</a>
-        , 也可以
-        <a href="/auth/github">
-          <span class="span-info">
+        <div>
+          您可以
+          <a href='/signin'>登录</a> 或
+          <a href='/signup'>注册</a> , 也可以
+          <a href="/auth/github">
+            <span class="span-info">
             通过 GitHub 登录
           </span>
-        </a>
+          </a>
+        </div>
       </div>
-    </div>
-    {{/if}}
+      {{/if}}
   </div>
 
   {{if current_user}}
@@ -38,7 +36,7 @@
   </div>
   {{/if}}
 
-  {{if !current_user || !current_user.isAdvanced}}
+  {{if !current_user || !current_user.isAdvanced}} 
     {{include '_ads'}}
   {{/if}}
 
@@ -53,8 +51,8 @@
         {{include 'topic/smail' {topic: no_reply_topics} }}
       </ul>
       {{else}}
-      <p>无</p>
-      {{/if}}
+        <p>无</p>
+        {{/if}}
     </div>
   </div>
   {{/if}}
@@ -62,8 +60,7 @@
   {{if tops}}
   <div class='panel'>
     <div class='header'>
-      <span class='col_fade'>积分榜</span>
-      &nbsp;
+      <span class='col_fade'>积分榜</span> &nbsp;
       <a class='dark' href='/users/top100'>TOP 100 &gt;&gt;</a>
     </div>
     <div class='inner'>
@@ -72,8 +69,8 @@
         {{include 'user/top' {user: tops} }}
       </ol>
       {{else}}
-      <p>无</p>
-      {{/if}}
+        <p>无</p>
+        {{/if}}
     </div>
   </div>
   {{/if}}
