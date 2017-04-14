@@ -7,7 +7,7 @@ const session = require('koa-session2');
 const Store = require('./app/middleware/store.js');
 const render = require('./app/middleware/render.js');
 const template = require('./app/middleware/template.js');
-const Loader = require('./app/middleware/loader.js')
+const Loader = require('./app/middleware/loader.js');
 
 const mount = require('koa-mount');
 
@@ -33,7 +33,12 @@ app.use(render(
     config: config.site,
     Loader: Loader,
     assets: assets,
-    staticFile: (url) => {console.log(url)}
+    staticFile: (url) => {
+      return url;
+    },
+    proxy: (url) => {
+      return url;
+    }
   }
 ));
 
@@ -42,7 +47,11 @@ app.use(session({
 }));
 app.use(router.routes());
 app.use(router.allowedMethods());
+app.use(less(config.staticPath, {baseUrl: '/public'}));
 app.use(mount('/public', require('koa-static')(config.staticPath)));
+
+
+
 
 app.listen(config.port, () => {
   logger.info('NodeClub listening on port', config.port);
