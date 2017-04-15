@@ -1,8 +1,10 @@
 'use strict'
 const send = require('koa-send');
+const resolvePath = require('resolve-path');
+const fs = require('./fs.js');
 const _path = require('path');
 const parse = _path.parse;
-const
+const 
   // 进来的参数有两个:根目录 path 后缀 less
   // fs.read()
   // cache? store
@@ -10,44 +12,52 @@ const
 
 
   module.exports = (root, option = {}) => {
-    options.root = path
-    let extensions = option.map || {};
+    options.root = path;
+    let extensions = Object.assign({}, option.map);
     let compress = option.compress || false;
+    root
+    index
+    maxage
+    hidden
+    format
+    extensions
+    gzip
+    setHeaders
+    路径
+    响应头
+    后续处理
 
     return async(ctx, next) => {
-      if ('GET' !== ctx.method.toUpperCase() && 'HEAD' !== ctx.method.toUpperCase()) return next();
+      if (('GET' !== ctx.method.toUpperCase() && 'HEAD' !== ctx.method.toUpperCase())) return next();
 
       let path = ctx.path;
-      let extension = path.substring(path.lastIndexOf('.') + 1);
+      let index = path.lastIndexOf('.');
+      let extension;
+      if(index < 1 || index > path.length - 2 || !extensions[extension = path.substring(index + 1)]) return next();
 
-      path = path.substring(parse(path).root.length);
-      path = decode(path);
-      if(-1 === path) return ctx.throw('failed to decode', 400);
+      console.log(path);
 
+      path = resolvePath(root, path);
+
+      let result = fs.stat(path);
+      if(result.err){
+        if(~notfound.indexOf(err.code)) return next();
+        err.status = 500;
+        throw err;
+      }
+      checkerr(result.err);
+      if(result.stats.isDirectory()) return next();
       
-        let fn;
-
-
+      let fn;
       if (fn = extensions[extension] && typeof fn === 'function') {
-        await extensions[extension](ctx);
-      } else {
-
+        let data = await fs.readFile(path).catch((err) => { throw err;});
+        await fn(data);
       }
 
       ctx.acceptsEncodings('gzip', 'deflate', 'identity');
 
       // return next();
-      root
-      index
-      maxage
-      hidden
-      format
-      extensions
-      gzip
-      setHeaders
-      路径
-      响应头
-      后续处理
+
       return send(ctx, ctx.path, opts).then(() => {
         return next();
       });
@@ -65,6 +75,15 @@ function decode(path) {
   } catch (err) {
     return -1;
   }
+}
+
+let notfound = ['ENOENT', 'ENAMER', 'ENOTDIR'];
+function checkerr(err) {
+  if(!err) return;
+  
+  if(~notfound.indexOf(err.code)) return;
+  err.status = 500;
+  throw err;
 }
 // options = extend(true, {
 //     cacheFile: null,
