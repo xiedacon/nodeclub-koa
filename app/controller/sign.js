@@ -1,10 +1,18 @@
 'use strict'
 
 module.exports = {
-  showSignup: () => {},
-  signup: () => {},
+  showSignup: async (ctx, next) => {
+    await ctx.render('sign/signup');
+    return next();
+  },
+  signup: (ctx, next) => {
+    
+  },
   signout: () => {},
-  showLogin: () => {},
+  showLogin: async (ctx, next) => {
+    await ctx.render('sign/signin');
+    return next();
+  },
   login: () => {},
   activeAccount: () => {},
   showSearchPass: () => {},
