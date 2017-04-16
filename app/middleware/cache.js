@@ -1,30 +1,50 @@
 'use strict'
 const client = require('./redis.js');
-const logger = require('config-lite').logger;
+const logger = require('./logger.js');
 
 module.exports = {
-  // key未命中执行getDate
-  // time 参数可选，秒为单位
-  get: async (key, getDate, time) => {
+  /**
+   * 
+   * 
+   * @param {any} key 
+   * @param {Function} getData 
+   * @param {Integer} time 
+   * @returns 
+   */
+  async get(key, getData, time) {
     let t = Date.now();
-    let data = JSON.parse(await client.get(key));
+    let data = JSON.parse(await client.getAsync(key));
     logger.debug('Cache', 'get', key, ((Date.now() - t) + 'ms').green);
-console.log(await client.get(key))
-    if(!data && typeof getDate === 'function'){
-      data = await getDate();
-      await this.set(key, data, time);
+    if (!data && typeof getData === 'function') {
+      await this.set(key, await getData(), time);
     }
 
     return data;
   },
-  // time 参数可选，秒为单位
-  set: async (key, value, time) => {
+  /**
+   * 
+   * 
+   * @param {any} key 
+   * @param {any} value 
+   * @param {Integer} time 
+   */
+  async set(key, value, time) {
     let t = Date.now();
     value = JSON.stringify(value);
 
-    if(time) await client.set(key, value, 'EX', time);
-    else await client.set(key, value);
+    if (time) await client.setAsync(key, value, 'EX', time);
+    await client.setAsync(key, value);
 
     logger.debug("Cache", "set", key, ((Date.now() - t) + 'ms').green);
+  },
+
+  /**
+   * 
+   * 
+   * @param {any} key 
+   * @returns 
+   */
+  del(key) {
+    return client.destroyAsync(key);
   }
 }

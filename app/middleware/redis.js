@@ -1,9 +1,11 @@
 'use strict'
-const redis_config = require('config-lite').redis_config;
 const redis = require('redis');
-const logger = require('config-lite').logger;
+const config = require('config-lite').redis;
+const logger = require('./logger.js');
 
-const client = redis.createClient(redis_config);
+Promise.promisifyAll(redis.RedisClient.prototype);
+
+let client = redis.createClient(config);
 
 client.on('error', (err) => {
   if(err){
