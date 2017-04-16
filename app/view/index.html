@@ -14,8 +14,8 @@
   {{/each}}
 
   <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss" /> 
-  {{if config.site_icon}}
-  <link rel="icon" href="{{staticFile(config.site_icon)}}" type="image/x-icon" />
+  {{if config.icon}}
+  <link rel="icon" href="{{staticFile(config.icon)}}" type="image/x-icon" />
   {{/if}}
 
 
@@ -71,8 +71,8 @@
     <div class='navbar-inner'>
       <div class='container'>
         <a class='brand' href='/'>
-          {{if config.site_logo}}
-          <img src="{{staticFile(config.site_logo)}}" />
+          {{if config.logo}}
+          <img src="{{staticFile(config.logo)}}" />
           {{else}}
             {{config.name}}
           {{/if}}
@@ -97,7 +97,7 @@
           {{/if}}
           <li><a href='/getstart'>新手入门</a></li>
           <li><a href='/api'>API</a></li>
-          {{each config.site_navs as nav}}
+          {{each config.navs as nav}}
           <li>
             <a href="{{nav[0]}}" target="{{nav[2]}}">
               {{nav[1]}}
