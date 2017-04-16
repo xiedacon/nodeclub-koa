@@ -4,29 +4,23 @@
  */
 
 const path = require('path');
-const log4js = require('log4js');
-
-// debug 为 true 时，用于本地调试
-let debug = true;
-
-log4js.configure({
-  appenders: [{
-      type: 'console'
-    },
-    {
-      type: 'file',
-      filename: path.join(__dirname, '../logs/cheese.log'),
-      category: 'cheese'
-    }
-  ]
-});
-let logger = log4js.getLogger('cheese');
-logger.setLevel(debug ? 'DEBUG' : 'ERROR');
 
 module.exports = {
-  logger: logger,
+  // debug 为 true 时，用于本地调试
+  debug: true,
+  logger: {
+    appenders: [{
+        type: 'console'
+      },
+      {
+        type: 'file',
+        filename: path.join(__dirname, '../logs/cheese.log'),
+        category: 'cheese'
+      }
+    ]
+  },
   // redis 配置，默认是本地
-  redis_config: {
+  redis: {
     host: '127.0.0.1',
     port: 6379,
     db: 0
@@ -40,12 +34,12 @@ module.exports = {
   },
   viewPath: path.join(__dirname, '../app/view'),
   staticPath: path.join(__dirname, '../app/public'),
-
-  mini_assets: !debug, // 是否启用静态文件的合并压缩，详见视图中的Loader
+  //assets = require('./assets.json');
+  assets: {},
 
   host: 'localhost', // 社区的域名
   port: 3000, // 程序运行的端口
-  
+
   session_secret: 'node_club_secret', // 务必修改
   auth_cookie_name: 'node_club',
   // admin 可删除话题，编辑标签。把 user_login_name 换成你的登录名
