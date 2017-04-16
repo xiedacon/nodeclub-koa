@@ -4,123 +4,58 @@ const resolvePath = require('resolve-path');
 const fs = require('./fs.js');
 const _path = require('path');
 const parse = _path.parse;
-const 
-  // 进来的参数有两个:根目录 path 后缀 less
-  // fs.read()
-  // cache? store
-  // logger || console 
+const compression = require('./compression.js')
 
+module.exports = (root, options = {}) => {
+  options.root = root;
+  options.extensions = Object.assign({}, options.extensions);
+  options.compress = options.compress || false;
+  let compress = compression(options.compress);
+  let acceptsEncodings = ['gzip', 'deflate', 'identity'];
+  options.acceptsEncodings = options.acceptsEncodings ? acceptsEncodings.concat(options.acceptsEncodings) : acceptsEncodings;
+  options.maxage = options.maxage || 0;
 
-  module.exports = (root, option = {}) => {
-    options.root = path;
-    let extensions = Object.assign({}, option.map);
-    let compress = option.compress || false;
-    root
-    index
-    maxage
-    hidden
-    format
-    extensions
-    gzip
-    setHeaders
-    路径
-    响应头
-    后续处理
+  return async(ctx, next) => {
+    if (('GET' !== ctx.method.toUpperCase() && 'HEAD' !== ctx.method.toUpperCase())) return next();
 
-    return async(ctx, next) => {
-      if (('GET' !== ctx.method.toUpperCase() && 'HEAD' !== ctx.method.toUpperCase())) return next();
+    let path = ctx.path;
+    path = path[0] === '/' ? path.substring(1) : path;
+    let index = path.lastIndexOf('.');
+    let extension;
+    if (index < 1 || index > path.length - 2 || '' === (extension = path.substring(index + 1))) return next();
 
-      let path = ctx.path;
-      let index = path.lastIndexOf('.');
-      let extension;
-      if(index < 1 || index > path.length - 2 || !extensions[extension = path.substring(index + 1)]) return next();
+    path = resolvePath(options.root, path);
 
-      console.log(path);
-
-      path = resolvePath(root, path);
-
-      let result = fs.stat(path);
-      if(result.err){
-        if(~notfound.indexOf(err.code)) return next();
-        err.status = 500;
-        throw err;
-      }
-      checkerr(result.err);
-      if(result.stats.isDirectory()) return next();
-      
-      let fn;
-      if (fn = extensions[extension] && typeof fn === 'function') {
-        let data = await fs.readFile(path).catch((err) => { throw err;});
-        await fn(data);
-      }
-
-      ctx.acceptsEncodings('gzip', 'deflate', 'identity');
-
-      // return next();
-
-      return send(ctx, ctx.path, opts).then(() => {
-        return next();
-      });
-
-      return next().then(() => {
-        // 压缩
-
-      });
+    let stats;
+    try {
+      stats = await fs.stat(path);
+    } catch (e) {
+      let notfound = ['ENOENT', 'ENAMER', 'ENOTDIR'];
+      if (~notfound.indexOf(e.code)) return next();
+      e.status = 500;
+      throw e;
     }
-  };
 
-function decode(path) {
-  try {
-    return decodeURIComponent(path);
-  } catch (err) {
-    return -1;
+    if (stats.isDirectory()) return next();
+
+    let fn, body;
+    if ((fn = options.extensions[extension]) && typeof fn === 'function') {
+      body = await fn(await fs.readFile(path, 'utf8'), ctx);
+    }else{
+      ctx.type = extension;
+    }
+
+    let encoding = ctx.acceptsEncodings.apply(ctx, options.acceptsEncodings);
+
+    if (options.compress && encoding && !body) {
+      body = await compress(path, encoding);
+      ctx.set('Content-Encoding', encoding);
+    }
+
+    if (!ctx.response.get('Last-Modified')) ctx.set('Last-Modified', stats.mtime.toUTCString());
+    if (!ctx.response.get('Cache-Control')) ctx.set('Cache-Control', `max-age=${options.maxage / 1000 | 0}`)
+
+    ctx.body = body || fs.createReadStream(path);
+    return next();
   }
-}
-
-let notfound = ['ENOENT', 'ENAMER', 'ENOTDIR'];
-function checkerr(err) {
-  if(!err) return;
-  
-  if(~notfound.indexOf(err.code)) return;
-  err.status = 500;
-  throw err;
-}
-// options = extend(true, {
-//     cacheFile: null,
-//     debug: false,
-//     dest: source,
-//     force: false,
-//     once: false,
-//     pathRoot: null,
-//     postprocess: {
-//       css: function(css, req) { return css; },
-//       sourcemap: function(sourcemap, req) { return sourcemap; }
-//     },
-//     preprocess: {
-//       less: function(src, req) { return src; },
-//       path: function(pathname, req) { return pathname; },
-//       importPaths: function(paths, req) { return paths; }
-//     },
-//     render: {
-//       compress: 'auto',
-//       yuicompress: false,
-//       paths: []
-//     },
-//     storeCss: function(pathname, css, req, next) {
-//       mkdirp(path.dirname(pathname), 511 /* 0777 */, function(err){
-//         if (err) return next(err);
-
-//         fs.writeFile(pathname, css, 'utf8', next);
-//       });
-//     },
-//     storeSourcemap: function(pathname, sourcemap, req) {
-//       mkdirp(path.dirname(pathname), 511 /* 0777 */, function(err){
-//         if (err) {
-//           utilities.lessError(err);
-//           return;
-//         }
-
-//         fs.writeFile(pathname, sourcemap, 'utf8');
-//       });
-//     }
-//   }, options || {});
+};

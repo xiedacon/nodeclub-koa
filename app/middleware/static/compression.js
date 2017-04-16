@@ -23,13 +23,16 @@ module.exports = (compressions) => {
 
   compressions = Object.assign(defaultCompressions, compressions);
 
-  return async (sourcePath, encoding, options = {}) => {
+  return (sourcePath, encoding, options = {}) => {
     if(!options.path) options.path = sourcePath;
 
     let compression = compressions[encoding];
+    if(!compression) return;
     let path = `${options.path}.${compression.extension}`;
 
-    await fs.access(path,'r').catch(() => {
+    return fs.access(path,'r').then(() => {
+      return fs.createReadStream(path);
+    }).catch(() => {
       let fileStream = fs.createWriteStream(path);
       let encodingStream = compression.compress(options);
       fs.createReadStream(sourcePath).pipe(encodingStream).pipe(fileStream);
@@ -38,7 +41,5 @@ module.exports = (compressions) => {
       
       return encodingStream;
     });
-    
-    return fs.createReadStream(path);
   }
 }
