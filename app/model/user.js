@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 const _ = require('lodash');
-const crypto = require('crypto');
+const tools = require('../common/tools.js');
 
 let UserSchema = new Schema({
   name: {type: String},
@@ -46,7 +46,7 @@ let UserSchema = new Schema({
 });
 
 UserSchema.virtual('avatar_url').get(function (){
-  let url = this.avatar || ('https://gravatar.com/avatar/' + crypto.createHash('md5').update(this.email.toLowerCase()).digest('hex') + '?size=`48');
+  let url = this.avatar || tools.makeGravatar(this.email.toLowerCase());
 
   // www.gravatar.com 被墙
   // 现在不是了
