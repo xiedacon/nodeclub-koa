@@ -1,7 +1,6 @@
 'use strict'
 const User = require('../model').User;
 const uuid = require('uuid');
-const crypto = require('crypto');
 
 module.exports = {
   /**
@@ -16,21 +15,21 @@ module.exports = {
    * @param {String} loginName 登录名
    */
   getByLoginName: (loginName) => {
-
+    return User.findOne({loginname: loginName});
   },
   /**
    * 根据用户ID，查找用户
    * @param {String} id 用户ID
    */
   getById: (id) => {
-
+    return User.findOne({_id: id});
   },
   /**
    * 根据邮箱，查找用户
    * @param {String} email 邮箱地址
    */
   getByMail: (email) => {
-
+    return User.findOne({email: email});
   },
   /**
    * 根据用户ID列表，获取一组用户
@@ -64,14 +63,7 @@ module.exports = {
    * @param {String} avatar_url
    * @param {Boolean} active
    */
-  newAndSave: (name, loginname, pass, email, avatar_url, active) => {
-
-  },
-  makeGravatar: makeGravatar,
-  getGravatar: (user) => {
-    return user.avatar || makeGravatar(user.email);
+  newAndSave: (user) => {
+    return new User(user).save();
   }
 };
-function makeGravatar(email){
-  return `http://www.gravatar.com/avatar/${crypto.createHash('md5').update(email.toLowerCase()).digest('hex')}?size=48`;
-}
