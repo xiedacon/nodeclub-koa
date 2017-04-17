@@ -18,9 +18,14 @@ const Loader = require('./app/middleware/loader.js');
 const staticMiddle = require('./app/middleware/static/static.js');
 const less = require('less');
 const mount = require('koa-mount');
+const bodyparser = require('koa-bodyparser');
 
 const app = new koa();
 
+app.use(bodyparser());
+app.use(session({
+  store: new Store()
+}));
 app.use(render(
   template(config.viewPath, '.html'), {
     config: config.site,
@@ -35,9 +40,6 @@ app.use(render(
   }
 ));
 
-app.use(session({
-  store: new Store()
-}));
 app.use(router.routes());
 app.use(router.allowedMethods());
 app.use(mount('/public', staticMiddle(config.staticPath, {
