@@ -6,7 +6,7 @@ const Topic = require('../service').Topic;
 const User = require('../service').User;
 
 module.exports = {
-  index: async(ctx, next) => {
+  index: async (ctx, next) => {
     let page = parseInt(ctx.request.query.page, 10) || 1;
     page = page > 0 ? page : 1;
     let query = {};
@@ -72,8 +72,7 @@ module.exports = {
           no_reply_topics: no_reply_topics,
           pages: pages,
           tab: tab,
-          pageTitle: tabName && `${tabName}版块`,
-          current_user: undefined
+          pageTitle: tabName && `${tabName}版块`
         });
       }
     );

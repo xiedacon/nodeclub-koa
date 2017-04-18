@@ -2,6 +2,13 @@
 const validator = require('validator');
 const tools = require('../common/tools.js');
 const User = require('../service').User;
+const auth = require('../middleware/auth.js');
+const notJump = [
+  '/active_account', //active page
+  '/reset_pass',     //reset password page, avoid to reset twice
+  '/signup',         //regist page
+  '/search_pass'    //serch pass page
+];
 
 module.exports = {
   showSignup: async(ctx, next) => {
@@ -87,6 +94,7 @@ module.exports = {
   },
   signout: () => {},
   showLogin: async(ctx, next) => {
+    ctx.session._loginReferer = ctx.headers.referer;
     await ctx.render('sign/signin');
     return next();
   },
@@ -125,25 +133,22 @@ module.exports = {
       });
       return next();
     }
-
     if(!user.active){
+
       // // 重新发送激活邮件
       // mail.sendActiveMail(user.email, utility.md5(user.email + passhash + config.session_secret), user.loginname);
       // res.status(403);
       // return res.render('sign/signin', { error: '此帐号还没有被激活，激活链接已发送到 ' + user.email + ' 邮箱，请查收。' });  
     }
 
-    // store session cookie
-    authMiddleWare.gen_session(user, res);
+    // store session cookie for 30 days
+    auth.gen_session(user, ctx);
     //check at some page just jump to home page
-    var refer = req.session._loginReferer || '/';
-    for (var i = 0, len = notJump.length; i !== len; ++i) {
-      if (refer.indexOf(notJump[i]) >= 0) {
-        refer = '/';
-        break;
-      }
-    }
-    res.redirect(refer);
+    var refer = ctx.session._loginReferer || '/';
+    refer = notJump.find((uri) => {
+      return refer.indexOf(uri) >= 0;
+    }) ? '/' : refer;
+    ctx.redirect(refer);
   },
   activeAccount: () => {},
   showSearchPass: () => {},
