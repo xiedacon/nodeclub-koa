@@ -40,11 +40,20 @@ module.exports = {
   host: 'localhost', // 社区的域名
   port: 3000, // 程序运行的端口
 
-  session_secret: 'node_club_secret', // 务必修改
-  auth_cookie_name: 'node_club',
+  session: {
+    secret: 'node_club_secret' // 务必修改
+  },
+  cookie: {
+    name: 'node_club',
+    path: '/',
+    maxAge: 1000 * 60 * 60 * 24 * 30,
+    signed: true,
+    httpOnly: true
+  },
+
   // admin 可删除话题，编辑标签。把 user_login_name 换成你的登录名
-  admins: {
-    user_login_name: true
+  admin: {
+    names: []
   },
 
   site: {
