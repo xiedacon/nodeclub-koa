@@ -6,7 +6,7 @@
       <span class='col_fade'>个人信息</span>
     </div>
     <div class='inner'>
-      {{include 'user/card'}}
+      {{include './user/card' {user: current_user} }}
     </div>
     {{else}}
       <div class='inner'>
@@ -37,7 +37,7 @@
   {{/if}}
 
   {{if !current_user || !current_user.isAdvanced}} 
-    {{include '_ads'}}
+    {{include './_ads'}}
   {{/if}}
 
   {{if no_reply_topics}}
@@ -48,7 +48,7 @@
     <div class='inner'>
       {{if no_reply_topics.length > 0}}
       <ul class="unstyled">
-        {{include 'topic/smail' {topic: no_reply_topics} }}
+        {{include './topic/smail' {topic: no_reply_topics} }}
       </ul>
       {{else}}
         <p>无</p>
@@ -66,7 +66,7 @@
     <div class='inner'>
       {{if tops.length > 0}}
       <ol>
-        {{include 'user/top' {user: tops} }}
+        {{include './user/top' {user: tops} }}
       </ol>
       {{else}}
         <p>无</p>
