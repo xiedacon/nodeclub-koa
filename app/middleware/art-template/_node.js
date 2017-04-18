@@ -100,9 +100,13 @@ module.exports = function (template) {
 
 	// 重写模板`include``语句实现方法，转换模板为绝对路径
 	template.utils.$include = function (filename, data, from, async) {
-	    
-		from = path.dirname(from);
-	    filename = path.join(from, filename);
+		if(filename.startsWith('/')){ // /xx
+			filename = filename.substring(1);
+		}else{
+			from = path.dirname(from);
+			filename = path.join(from, filename);
+		}
+		
 	    return template.renderFile(filename, data, async);
 	}
 

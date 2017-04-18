@@ -414,7 +414,7 @@ function compiler (source, options) {
     
     if(async){
         include = `async function(filename,data){
-            data=data||$data;
+            data=Object.assign({},data,$data);
             var text= await $utils.$include(filename,data,$filename,${async});
             ${concat}
             }`;
