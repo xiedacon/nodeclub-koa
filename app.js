@@ -19,13 +19,21 @@ const staticMiddle = require('./app/middleware/static/static.js');
 const less = require('less');
 const mount = require('koa-mount');
 const bodyparser = require('koa-bodyparser');
+const auth = require('./app/middleware/auth.js');
 
 const app = new koa();
 
+app.keys = [config.cookie.name];
 app.use(bodyparser());
 app.use(session({
+  key: config.session.secret,
   store: new Store()
 }));
+
+// custom middleware
+app.use(auth.authUser);
+app.use(auth.blockUser);
+
 app.use(render(
   template(config.viewPath, '.html'), {
     config: config.site,
@@ -36,6 +44,13 @@ app.use(render(
     },
     proxy: (url) => {
       return url;
+      // 当 google 和 github 封锁严重时，则需要通过服务器代理访问它们的静态资源
+      // return '/agent?url=' + encodeURIComponent(url);
+    },
+    escapeSignature: function(signature) {
+      return signature.split('\n').map(function(p) {
+        return p;
+      }).join('<br>');
     }
   }
 ));
@@ -48,7 +63,7 @@ app.use(mount('/public', staticMiddle(config.staticPath, {
     less: (data, ctx) => {
       return new Promise((resolve) => {
         less.render(data, (e, output) => {
-          if(e) throw e;
+          if (e) throw e;
           ctx.set('Content-Type', 'text/css; charset=utf-8');
           ctx.set('Content-Length', Buffer.byteLength(output.css));
           resolve(output.css);
@@ -57,9 +72,6 @@ app.use(mount('/public', staticMiddle(config.staticPath, {
     }
   }
 })));
-
-
-
 
 app.listen(config.port, () => {
   logger.info('NodeClub listening on port', config.port);
