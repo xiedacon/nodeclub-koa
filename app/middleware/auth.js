@@ -27,7 +27,8 @@ module.exports = {
     
     if (!user && auth_token) {
       let user_id = auth_token.split(separator)[0];
-      user = ctx.session.user = await User.getById(user_id);
+      if(user_id !== 'undefined')
+        user = ctx.session.user = await User.getById(user_id);
     }
     
     if (user) {
@@ -42,8 +43,8 @@ module.exports = {
     
     return next();
   },
-  gen_session: (user, ctx) => {
-    let auth_token = user._id + separator; // 以后可能会存储更多信息，用 $$$$ 来分隔
+  gen_session: (userId, ctx) => {
+    let auth_token = userId + separator; // 以后可能会存储更多信息，用 $$$$ 来分隔
     ctx.cookies.set(cookie.name, auth_token, cookie); //cookie 有效期30天
   },
   des_session: (ctx) => {
