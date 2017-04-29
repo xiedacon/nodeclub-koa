@@ -45,6 +45,6 @@ module.exports = {
    * @returns 
    */
   del(key) {
-    return client.destroyAsync(key);
+    return client.delAsync(key);
   }
 }
