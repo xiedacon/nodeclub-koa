@@ -16,6 +16,8 @@ const staticController = require('./controller/static.js');
 const github = require('./controller/github.js');
 const search = require('./controller/search.js');
 
+const schema = require('./schema');
+
 const router = new Router();
 
 // site
@@ -29,7 +31,7 @@ router.get('/app/download', site.appDownload);
 // sign
 if (config.allow_sign_up) {
   router.get('/signup', sign.showSignup); // 跳转到注册页面
-  router.post('/signup', sign.signup); // 提交注册信息
+  router.post('/signup', schema.sign.signup, sign.signup); // 提交注册信息
 } else {
   // 进行github验证
   router.get('/signup', async(ctx, next) => {
@@ -39,7 +41,7 @@ if (config.allow_sign_up) {
 }
 router.post('/signout', sign.signout); // 登出
 router.get('/signin', sign.showLogin); // 进入登录页面
-router.post('/signin', sign.login); // 登录校验
+router.post('/signin', schema.sign.login, sign.login); // 登录校验
 router.get('/active_account', sign.activeAccount); //帐号激活
 router.get('/search_pass', sign.showSearchPass); // 找回密码页面
 router.post('/search_pass', sign.updateSearchPass); // 更新密码

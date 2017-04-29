@@ -18,71 +18,16 @@ module.exports = {
     return next();
   },
   signup: async(ctx, next) => {
-    let loginname = validator.trim(ctx.request.body.loginname).toLocaleLowerCase();
-    let email = validator.trim(ctx.request.body.email).toLowerCase();
-    let pass = validator.trim(ctx.request.body.pass);
-    let rePass = validator.trim(ctx.request.body.re_pass);
-    let error;
-
-    // 验证信息的正确性
-    if ([loginname, pass, rePass, email].some((item) => {
-        return item === '';
-      })) {
-      error = '信息不完整。';
-    }
-    if (!error && loginname.length < 5) {
-      error = '用户名至少需要5个字符。';
-    }
-    if (!error && !tools.validateId(loginname)) {
-      error = '用户名不合法。';
-    }
-    if (!error && !validator.isEmail(email)) {
-      error = '邮箱不合法。';
-    }
-    if (!error && pass !== rePass) {
-      error = '两次密码输入不一致。';
-    }
-    if (error) {
-      ctx.status = 422;
-      await ctx.render('sign/signup', {
-        error: error,
-        loginname: loginname,
-        email: email
-      });
-      return next();
-    }
-    // END 验证信息的正确性
-
-    let users = await User.findByQuery({
-      '$or': [{
-          loginname: loginname
-        },
-        {
-          email: email
-        }
-      ]
-    });
-
-    if (users.length > 0) {
-      ctx.status = 422;
-      await ctx.render('sign/signup', {
-        error: '用户名或邮箱已被使用。',
-        loginname: loginname,
-        email: email
-      });
-      return next();
-    }
-
-    pass = await tools.bhash(pass);
-
-    let avatarUrl = tools.makeGravatar(email);
+    let loginname = ctx.query.loginname;
+    let email = ctx.query.email;
+    let pass = ctx.query.pass;
 
     await User.newAndSave({
       name: loginname,
       loginname: loginname,
-      pass: pass,
+      pass: await tools.bhash(pass),
       email: email,
-      avatar_url: avatarUrl,
+      avatar_url: tools.makeGravatar(email),
       active: true
     });
 
@@ -105,52 +50,9 @@ module.exports = {
     return next();
   },
   login: async(ctx, next) => {
-    let loginname = validator.trim(ctx.request.body.name).toLowerCase();
-    let pass = validator.trim(ctx.request.body.pass);
-    let error;
-
-    // 验证信息的正确性
-    if ([loginname, pass].some((item) => {
-        return item === '';
-      })) {
-      error = '信息不完整。';
-    }
-    if (!error && loginname.length < 5) {
-      error = '用户名至少需要5个字符。';
-    }
-    if (!error && !tools.validateId(loginname)) {
-      error = '用户名不合法。';
-    }
-    if (error) {
-      ctx.status = 422;
-      await ctx.render('sign/signin', {
-        error: error
-      });
-      return next();
-    }
-    // END 验证信息的正确性
-
-    let user = await (validator.isEmail(loginname) ? User.getByMail(loginname) : User.getByLoginName(loginname));
-
-    if (!user || !(await tools.bcompare(pass, user.pass))) {
-      ctx.status = 403;
-      ctx.render('sign/signin', {
-        error: '用户名或密码错误'
-      });
-      return next();
-    }
-    if (!user.active) {
-
-      // 重新发送激活邮件
-      await mail.sendActiveMail(user.email, user.email, user.loginname);
-      ctx.status = 403;
-      return ctx.render('sign/signin', {
-        error: '此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。'
-      });
-    }
-
+    let user = ctx.query.user;
     // store session cookie for 30 days
-    auth.gen_session(user, ctx);
+    auth.gen_session(user._id, ctx);
     //check at some page just jump to home page
     var refer = ctx.session._loginReferer || '/';
     refer = notJump.find((uri) => {
