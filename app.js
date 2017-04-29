@@ -20,8 +20,29 @@ const less = require('less');
 const mount = require('koa-mount');
 const bodyparser = require('koa-bodyparser');
 const auth = require('./app/middleware/auth.js');
+const requestLog = require('./app/middleware/request_log.js');
 
 const app = new koa();
+
+app.use(mount('/public', staticMiddle(config.staticPath, {
+  compress: true,
+  extensions: {
+    less: (data, ctx) => {
+      return new Promise((resolve) => {
+        less.render(data, (e, output) => {
+          if (e) throw e;
+          ctx.set('Content-Type', 'text/css; charset=utf-8');
+          ctx.set('Content-Length', Buffer.byteLength(output.css));
+          ctx.body = output.css;
+          resolve();
+        });
+      })
+    }
+  }
+})));
+
+// Request logger。请求时间
+app.use(requestLog);
 
 app.keys = [config.cookie.name];
 app.use(bodyparser());
@@ -57,21 +78,6 @@ app.use(render(
 
 app.use(router.routes());
 app.use(router.allowedMethods());
-app.use(mount('/public', staticMiddle(config.staticPath, {
-  compress: true,
-  extensions: {
-    less: (data, ctx) => {
-      return new Promise((resolve) => {
-        less.render(data, (e, output) => {
-          if (e) throw e;
-          ctx.set('Content-Type', 'text/css; charset=utf-8');
-          ctx.set('Content-Length', Buffer.byteLength(output.css));
-          resolve(output.css);
-        });
-      })
-    }
-  }
-})));
 
 app.listen(config.port, () => {
   logger.info('NodeClub listening on port', config.port);
