@@ -38,24 +38,23 @@ module.exports = (root, options = {}) => {
 
     if (stats.isDirectory()) return next();
 
+    if (!ctx.response.get('Last-Modified')) ctx.set('Last-Modified', stats.mtime.toUTCString());
+    if (!ctx.response.get('Cache-Control')) ctx.set('Cache-Control', `max-age=${options.maxage / 1000 | 0}`)
+
     let fn, body;
     if ((fn = options.extensions[extension]) && typeof fn === 'function') {
-      body = await fn(await fs.readFile(path, 'utf8'), ctx);
-    }else{
+      return fn(await fs.readFile(path, 'utf8'), ctx);
+    } else {
       ctx.type = extension;
     }
 
     let encoding = ctx.acceptsEncodings.apply(ctx, options.acceptsEncodings);
 
-    if (options.compress && encoding && !body) {
+    if (options.compress && encoding) {
       body = await compress(path, encoding);
       ctx.set('Content-Encoding', encoding);
     }
 
-    if (!ctx.response.get('Last-Modified')) ctx.set('Last-Modified', stats.mtime.toUTCString());
-    if (!ctx.response.get('Cache-Control')) ctx.set('Cache-Control', `max-age=${options.maxage / 1000 | 0}`)
-
     ctx.body = body || fs.createReadStream(path);
-    return next();
   }
 };
