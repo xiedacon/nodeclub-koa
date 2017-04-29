@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "art-template": "^4.4.2",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.0",
     "colors": "^1.1.2",
@@ -25,6 +26,8 @@
     "lodash": "^4.17.4",
     "log4js": "^1.1.1",
     "mongoose": "^4.9.2",
+    "nodemailer": "^4.0.1",
+    "nodemailer-smtp-transport": "^2.7.4",
     "passport-github": "^1.1.0",
     "redis": "^2.7.1",
     "uuid": "^3.0.1",

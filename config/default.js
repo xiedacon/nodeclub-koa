@@ -101,12 +101,12 @@ module.exports = {
   },
 
   // 邮箱配置
-  mail_opts: {
-    host: 'smtp.126.com',
+  email: {
+    host: 'smtp.163.com',
     port: 25,
     auth: {
-      user: 'club@126.com',
-      pass: 'club'
+      user: 'xiedacon@163.com',
+      pass: 'xieda1995'
     },
     ignoreTLS: true,
   },
