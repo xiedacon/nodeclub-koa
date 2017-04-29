@@ -8,41 +8,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="keywords" content="{{config.keywords}}" />
   <!-- see http://smerity.com/articles/2013/where_did_all_the_http_referrers_go.html -->
-  <meta name="referrer" content="always"> 
-  {{each config.headers as header}}
+  <meta name="referrer" content="always"> {{each config.headers as header}}
   {{#header}}
-  {{/each}}
+    {{/each}}
 
-  <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss" /> 
-  {{if config.icon}}
-  <link rel="icon" href="{{staticFile(config.icon)}}" type="image/x-icon" />
-  {{/if}}
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss" /> {{if config.icon}}
+    <link rel="icon" href="{{staticFile(config.icon)}}" type="image/x-icon" />
+    {{/if}}
 
-  <!-- style -->
-  {{#Loader( '/public/stylesheets/index.min.css') .css( '/public/libs/bootstrap/css/bootstrap.css') .css( '/public/stylesheets/common.css') .css( '/public/stylesheets/style.less') .css( '/public/stylesheets/responsive.css') .css(
-  '/public/stylesheets/jquery.atwho.css') .css( '/public/libs/editor/editor.css') .css( '/public/libs/webuploader/webuploader.css') .css( '/public/libs/code-prettify/prettify.css') .css( '/public/libs/font-awesome/css/font-awesome.css') .done({prefix: config.static_host, env: config.env,
-  CDNMap: assets})}}
+    <!-- style -->
+    {{#Loader( '/public/stylesheets/index.min.css') .css( '/public/libs/bootstrap/css/bootstrap.css') .css( '/public/stylesheets/common.css') .css( '/public/stylesheets/style.less') .css( '/public/stylesheets/responsive.css') .css(
+      '/public/stylesheets/jquery.atwho.css') .css( '/public/libs/editor/editor.css') .css( '/public/libs/webuploader/webuploader.css') .css( '/public/libs/code-prettify/prettify.css') .css( '/public/libs/font-awesome/css/font-awesome.css') .done({prefix: config.static_host, env: config.env,
+      CDNMap: assets})}}
 
-  <!-- scripts -->
-  {{#Loader( '/public/index.min.js') .js( '/public/libs/jquery-2.1.0.js') .js( '/public/libs/lodash.compat.js') .js( '/public/libs/jquery-ujs.js') .js( '/public/libs/bootstrap/js/bootstrap.js') .js( '/public/libs/jquery.caret.js') .js(
-  '/public/libs/jquery.atwho.js') .js( '/public/libs/markdownit.js') .js( '/public/libs/code-prettify/prettify.js') .js( '/public/libs/qrcode.js') .js( '/public/javascripts/main.js') .js( '/public/javascripts/responsive.js') .done({prefix: config.static_host, env: config.env,
-  CDNMap: assets})}}
+      <!-- scripts -->
+      {{#Loader( '/public/index.min.js') .js( '/public/libs/jquery-2.1.0.js') .js( '/public/libs/lodash.compat.js') .js( '/public/libs/jquery-ujs.js') .js( '/public/libs/bootstrap/js/bootstrap.js') .js( '/public/libs/jquery.caret.js') .js(
+        '/public/libs/jquery.atwho.js') .js( '/public/libs/markdownit.js') .js( '/public/libs/code-prettify/prettify.js') .js( '/public/libs/qrcode.js') .js( '/public/javascripts/main.js') .js( '/public/javascripts/responsive.js') .done({prefix: config.static_host, env: config.env,
+        CDNMap: assets})}}
 
-  {{if topic}}
-  <title>
-    {{topic.title}} - {{config.name}}
-  </title>
-  {{else if pageTitle}}
-  <title>
-    {{pageTitle}} - {{config.name}}
-  </title>
-  {{else}}
-  <title>
-    {{config.description}}
-  </title>
-  {{/if}}
-  <meta content="_csrf" name="csrf-param">
-  <meta content="{{csrf}}" name="csrf-token">
+        {{if topic}}
+        <title>
+          {{topic.title}} - {{config.name}}
+        </title>
+        {{else if pageTitle}}
+        <title>
+          {{pageTitle}} - {{config.name}}
+        </title>
+        {{else}}
+          <title>
+            {{config.description}}
+          </title>
+          {{/if}}
+          <meta content="_csrf" name="csrf-param">
+          <meta content="{{csrf}}" name="csrf-token">
 </head>
 
 <body>
@@ -121,62 +119,62 @@
           {{/if}}
           {{if success}}
           <div class="alert alert-success">
-            <strong>{{success}</strong>
-      </div>
-      {{else}}
-        <form id='signup_form' class='form-horizontal' action='/signup' method='post'>
-            <div class='control-group'>
-              <label class='control-label' for='loginname'>用户名</label>
+            <strong>欢迎加入 {{config.name}}！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。</strong>
+          </div>
+          {{else}}
+            <form id='signup_form' class='form-horizontal' action='/signup' method='post'>
+              <div class='control-group'>
+                <label class='control-label' for='loginname'>用户名</label>
 
-              <div class='controls'>
-                {{if loginname}}        
-                <input class='input-xlarge' id='loginname' name='loginname' size='30' type='text' value='{{loginname}}' />
-                {{else}}
-                <input class='input-xlarge' id='loginname' name='loginname' size='30' type='text' value='' />
-                {{/if}}
+                <div class='controls'>
+                  {{if loginname}}
+                  <input class='input-xlarge' id='loginname' name='loginname' size='30' type='text' value='{{loginname}}' />
+                  {{else}}
+                    <input class='input-xlarge' id='loginname' name='loginname' size='30' type='text' value='' />
+                    {{/if}}
+                </div>
               </div>
-            </div>
-            <div class='control-group'>
-              <label class='control-label' for='pass'>密码</label>
+              <div class='control-group'>
+                <label class='control-label' for='pass'>密码</label>
 
-              <div class='controls'>
-                <input class='input-xlarge' id='pass' name='pass' size='30' type='password' />
+                <div class='controls'>
+                  <input class='input-xlarge' id='pass' name='pass' size='30' type='password' />
+                </div>
               </div>
-            </div>
-            <div class='control-group'>
-              <label class='control-label' for='re_pass'>确认密码</label>
+              <div class='control-group'>
+                <label class='control-label' for='re_pass'>确认密码</label>
 
-              <div class='controls'>
-                <input class='input-xlarge' id='re_pass' name='re_pass' size='30' type='password' />
+                <div class='controls'>
+                  <input class='input-xlarge' id='re_pass' name='re_pass' size='30' type='password' />
+                </div>
               </div>
-            </div>
-            <div class='control-group'>
-              <label class='control-label' for='email'>电子邮箱</label>
+              <div class='control-group'>
+                <label class='control-label' for='email'>电子邮箱</label>
 
-              <div class='controls'>
-                {{if email}}
-                <input class='input-xlarge' id='email' name='email' size='30' type='text' value='{{email}}' />
-                {{else}}
-                <input class='input-xlarge' id='email' name='email' size='30' type='text' />
-                {{/if}}
+                <div class='controls'>
+                  {{if email}}
+                  <input class='input-xlarge' id='email' name='email' size='30' type='text' value='{{email}}' />
+                  {{else}}
+                    <input class='input-xlarge' id='email' name='email' size='30' type='text' />
+                    {{/if}}
+                </div>
               </div>
-            </div>
-            <input type='hidden' name='_csrf' value='{{csrf}}' />
+              <input type='hidden' name='_csrf' value='{{csrf}}' />
 
-            <div class='form-actions'>
-              <input type='submit' class='span-primary' value='注册' />
-              <a href="/auth/github">
-                <span class="span-info">
+              <div class='form-actions'>
+                <input type='submit' class='span-primary' value='注册' />
+                <a href="/auth/github">
+                  <span class="span-info">
               通过 GitHub 登录
             </span>
-              </a>
-            </div>
-          </form>
-          {{/if}}
+                </a>
+              </div>
+            </form>
+            {{/if}}
+        </div>
+      </div>
     </div>
   </div>
-</div>
-</div>
   <div id='backtotop'>回到顶部</div>
   <div id='footer'>
     <div id='footer_main'>
