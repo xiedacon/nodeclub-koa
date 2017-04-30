@@ -1,110 +1,244 @@
-<%- partial('../editor_sidebar') %>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ol class='breadcrumb'>
-        <li><a href='/'>主页</a><span class='divider'>/</span></li>
-        <% if(typeof(action) !== 'undefined' && action == 'edit'){ %>
-        <li class='active'>编辑话题</li>
-        <% }else{ %>
-        <li class='active'>发布话题</li>
-        <% } %>
-      </ol>
-    </div>
-    <div class='inner post'>
-      <% if(typeof(edit_error) !== 'undefined' && edit_error){ %>
-      <div class="alert alert-error">
-        <a class="close" data-dismiss="alert" href="#">&times;</a>
-        <strong><%= edit_error %></strong>
-      </div>
-      <% } %>
-      <% if(typeof(error) !== 'undefined' && error){ %>
-      <div class="alert alert-error">
-        <strong><%= error %></strong>
-      </div>
-      <% }else{ %>
-      <% if (typeof(action) !== 'undefined' && action === 'edit') { %>
-      <form id='create_topic_form' action='/topic/<%= topic_id %>/edit' method='post'>
-        <% } else { %>
-        <form id='create_topic_form' action='/topic/create' method='post'>
-          <% } %>
-          <fieldset>
-            <span class="tab-selector">选择版块：</span>
-            <select name="tab" id="tab-value">
-              <option value="">请选择</option>
-              <%
-              var tabValue = '';
-              if (typeof(tab) !== 'undefined') {
-                tabValue = tab;
-              }
-              tabs.forEach(function (pair) {
-                var value = pair[0];
-                var text = pair[1];
-                %>
-                <option value="<%=value%>" <%= tabValue === value ? 'selected': '' %>><%=text%></option>
+<head>
+  <!-- meta -->
+  <meta charset="utf-8" />
+  <meta name='description' content='{{config.description}}'>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="{{config.keywords}}" />
+  <!-- see http://smerity.com/articles/2013/where_did_all_the_http_referrers_go.html -->
+  <meta name="referrer" content="always"> {{each config.headers as header}}
+  {{#header}}
+    {{/each}}
 
-              <%});%>
-            </select>
-            <span id="topic_create_warn"></span>
-            <textarea autofocus class='span9' id='title' name='title' rows='1'
-                      placeholder="标题字数 10 字以上"
-                    ><%= typeof(title) !== 'undefined' && title || '' %></textarea>
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss" /> {{if config.icon}}
+    <link rel="icon" href="{{staticFile(config.icon)}}" type="image/x-icon" />
+    {{/if}}
 
-            <div class='markdown_editor in_editor'>
-              <div class='markdown_in_editor'>
-                <textarea class='editor' name='t_content' rows='20'
-                          placeholder='文章支持 Markdown 语法, 请注意标记代码'
-                        ><%= typeof(content) !== 'undefined' && content || '' %></textarea>
 
-                <div class='editor_buttons'>
-                  <input type="submit" class='span-primary submit_btn' data-loading-text="提交中"
-                         value="提交">
-                </div>
-              </div>
 
-            </div>
+    <!-- style -->
+    {{#Loader( '/public/stylesheets/index.min.css') .css( '/public/libs/bootstrap/css/bootstrap.css') .css( '/public/stylesheets/common.css') .css( '/public/stylesheets/style.less') .css( '/public/stylesheets/responsive.css') .css(
+      '/public/stylesheets/jquery.atwho.css') .css( '/public/libs/editor/editor.css') .css( '/public/libs/webuploader/webuploader.css') .css( '/public/libs/code-prettify/prettify.css') .css( '/public/libs/font-awesome/css/font-awesome.css') .done({prefix: config.static_host, env: config.env,
+      CDNMap: assets})}}
 
-            <input type='hidden' id='topic_tags' name='topic_tags' value=''>
-            <input type='hidden' name='_csrf' value='<%= csrf %>'>
-          </fieldset>
+      <!-- scripts -->
+      {{#Loader( '/public/index.min.js') .js( '/public/libs/jquery-2.1.0.js') .js( '/public/libs/lodash.compat.js') .js( '/public/libs/jquery-ujs.js') .js( '/public/libs/bootstrap/js/bootstrap.js') .js( '/public/libs/jquery.caret.js') .js(
+        '/public/libs/jquery.atwho.js') .js( '/public/libs/markdownit.js') .js( '/public/libs/code-prettify/prettify.js') .js( '/public/libs/qrcode.js') .js( '/public/javascripts/main.js') .js( '/public/javascripts/responsive.js') .done({prefix: config.static_host, env: config.env,
+        CDNMap: assets})}}
+
+        {{if topic}}
+        <title>
+          {{topic.title}} - {{config.name}}
+        </title>
+        {{else if pageTitle}}
+        <title>
+          {{pageTitle}} - {{config.name}}
+        </title>
+        {{else}}
+          <title>
+            {{config.description}}
+          </title>
+          {{/if}}
+          <meta content="_csrf" name="csrf-param">
+          <meta content="{{csrf}}" name="csrf-token">
+</head>
+
+<body>
+  <!-- navbar -->
+  <div class='navbar'>
+    <div class='navbar-inner'>
+      <div class='container'>
+        <a class='brand' href='/'>
+          {{if config.logo}}
+          <img src="{{staticFile(config.logo)}}" />
+          {{else}}
+            {{config.name}}
+          {{/if}}
+        </a>
+
+        <form id='search_form' class='navbar-search' action="/search">
+          <input type='text' id='q' name='q' class='search-query span3' value='' />
         </form>
+        <ul class='nav pull-right'>
+          <li><a href='/'>首页</a></li>
+          {{if current_user}}
+          <li>
+            <a href='/my/messages'>
+              {{if current_user.messages_count}}
+              <span class='big messages_count'>
+                {{current_user.messages_count}}
+              </span>
+              {{/if}}
+              未读消息
+            </a>
+          </li>
+          {{/if}}
+          <li><a href='/getstart'>新手入门</a></li>
+          <li><a href='/api'>API</a></li>
+          {{each config.navs as nav}}
+          <li>
+            <a href="{{nav[0]}}" target="{{nav[2]}}">
+              {{nav[1]}}
+            </a>
+          </li>
+          {{/each}}
+          {{if current_user}}
+          <li><a href='/setting'>设置</a></li>
+          <li>
+            <a href='/signout' data-method="post" rel="nofollow">退出</a>
+          </li>
+          {{else}}
+            <li><a href='/signup'>注册</a></li>
+            <li><a href='/signin'>登录</a></li>
+            {{/if}}
+        </ul>
+        <a class="btn btn-navbar" id="responsive-sidebar-trigger">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+      </div>
     </div>
-    <% } %>
   </div>
-</div>
+  <div id='main'>
+    {{include '/editor_sidebar'}}
 
-<!-- markdown editor -->
-<%- partial('../includes/editor') %>
-<script>
-  (function () {
-    var editor = new Editor();
-    editor.render($('.editor')[0]);
+    <div id='content'>
+      <div class='panel'>
+        <div class='header'>
+          <ol class='breadcrumb'>
+            <li><a href='/'>主页</a><span class='divider'>/</span></li>
+            {{if action === 'edit'}}
+            <li class='active'>编辑话题</li>
+            {{else}}
+              <li class='active'>发布话题</li>
+              {{/if}}
+          </ol>
+        </div>
+        <div class='inner post'>
+          {{if edit_error}}
+          <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">&times;</a>
+            <strong>{{edit_error}}</strong>
+          </div>
+          {{/if}}
+          {{if error}}
+          <div class="alert alert-error">
+            <strong>{{error}}</strong>
+          </div>
+          {{else}}
 
-    // 版块选择的检查，必须选择
-    $('#create_topic_form').on('submit', function (e) {
-      var tabValue = $('#tab-value').val();
-      if (!tabValue) {
-        alert('必须选择一个版块！');
-        $('.submit_btn').button('reset');
-        $('.tab-selector').css('color', 'red');
-        return false;
-      }
-    });
-    // END 版块选择的检查，必须选择
+            <form id='create_topic_form' action='/topic/{{if action === 'edit'}}{{topic_id}}/edit{{else}}create{{/if}}' method='post'>
+              <fieldset>
+                <span class="tab-selector">选择版块：</span>
+                <select name="tab" id="tab-value">
+              <option value="">请选择</option>
+                {{each config.tabs as pair}}
+                <option value="{{pair[0]}}" {{if tab === pair[0]}}selected{{/if}}>{{pair[1]}}</option>
+                {{/each}}
+            </select>
+                <span id="topic_create_warn"></span>
+                <textarea autofocus class='span9' id='title' name='title' rows='1' placeholder="标题字数 10 字以上">{{title}}</textarea>
 
-    // 选择招聘版块时，给出提示
-    $('#tab-value').on('change', function () {
-      var $this = $(this);
-      var value = $this.val();
-      var warnMsg = '';
-      if (value === 'job') {
-        warnMsg = '<strong>为避免被管理员删帖，发帖时请好好阅读<a href="http://cnodejs.org/topic/541ed2d05e28155f24676a12" target="_blank">《招聘帖规范》</a></strong>';
-      } else if (value === 'ask') {
-        warnMsg = '<strong>提问时，请遵循 <a href="https://gist.github.com/alsotang/f654af8b1fff220e63fcb44846423e6d" target="_blank">《提问的智慧》</a>中提及的要点，以便您更接收到高质量回复。</strong>'
-      }
-      $('#topic_create_warn').html(warnMsg);
-    });
-    // END 选择招聘版块时，给出提示
-  })();
-</script>
+                <div class='markdown_editor in_editor'>
+                  <div class='markdown_in_editor'>
+                    <textarea class='editor' name='t_content' rows='20' placeholder='文章支持 Markdown 语法, 请注意标记代码'>{{content}}</textarea>
+
+                    <div class='editor_buttons'>
+                      <input type="submit" class='span-primary submit_btn' data-loading-text="提交中" value="提交">
+                    </div>
+                  </div>
+
+                </div>
+
+                <input type='hidden' id='topic_tags' name='topic_tags' value=''>
+                <input type='hidden' name='_csrf' value='{{csrf}}'>
+              </fieldset>
+            </form>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- markdown editor -->
+    {{include '/includes/editor'}}
+    <script>
+      (function() {
+        var editor = new Editor();
+        editor.render($('.editor')[0]);
+
+        // 版块选择的检查，必须选择
+        $('#create_topic_form').on('submit', function(e) {
+          var tabValue = $('#tab-value').val();
+          if (!tabValue) {
+            alert('必须选择一个版块！');
+            $('.submit_btn').button('reset');
+            $('.tab-selector').css('color', 'red');
+            return false;
+          }
+        });
+        // END 版块选择的检查，必须选择
+
+        // 选择招聘版块时，给出提示
+        $('#tab-value').on('change', function() {
+          var $this = $(this);
+          var value = $this.val();
+          var warnMsg = '';
+          if (value === 'job') {
+            warnMsg = '<strong>为避免被管理员删帖，发帖时请好好阅读<a href="http://cnodejs.org/topic/541ed2d05e28155f24676a12" target="_blank">《招聘帖规范》</a></strong>';
+          } else if (value === 'ask') {
+            warnMsg = '<strong>提问时，请遵循 <a href="https://gist.github.com/alsotang/f654af8b1fff220e63fcb44846423e6d" target="_blank">《提问的智慧》</a>中提及的要点，以便您更接收到高质量回复。</strong>'
+          }
+          $('#topic_create_warn').html(warnMsg);
+        });
+        // END 选择招聘版块时，给出提示
+      })();
+
+    </script>
+  </div>
+  <div id='backtotop'>回到顶部</div>
+  <div id='footer'>
+    <div id='footer_main'>
+      <div class="links">
+        <a class='dark' href='/rss'>RSS</a> |
+        <a class='dark' href='https://github.com/cnodejs/nodeclub/'>源码地址</a>
+      </div>
+
+      {{include '/_sponsors'}}
+
+    </div>
+  </div>
+  <div id="sidebar-mask"></div>
+
+  {{if config.google_tracker_id}}
+  <script>
+    // google analytics
+    (function(i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function() {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', "{{proxy('https://www.google-analytics.com/analytics.js')}}", 'ga');
+
+    ga('create', '{{config.google_tracker_id}}', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+  {{/if}}
+
+  {{if config.cnzz_tracker_id}}
+  <div style="display:none;">
+    <script src="//s95.cnzz.com/z_stat.php?id={{config.cnzz_tracker_id}}&web_id={{config.cnzz_tracker_id}}" language="JavaScript"></script>
+  </div>
+  {{/if}}
+
+</body>
+
+</html>

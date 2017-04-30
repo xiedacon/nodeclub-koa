@@ -8,8 +8,6 @@ const UserModel = require('mongoose').model('User');
 const separator = '$$$$';
 
 module.exports = {
-  adminRequired: () => {},
-  userRequired: () => {},
   blockUser: (ctx, next) => {
     if (ctx.path !== '/signout' && ctx.session.user && ctx.session.user.is_block && ctx.method !== 'GET') {
       ctx.status = 403;
