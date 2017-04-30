@@ -66,14 +66,14 @@ router.post('/user/:name/delete_all', user.deleteAll); // 删除某用户所有�
 router.get('/my/messages', message.index); // 用户个人的所有消息页
 
 // topic
-router.get('/topic/create', topic.create); // 新建文章界面
+router.get('/topic/create', schema.topic.create, topic.create); // 新建文章界面
+router.post('/topic/create', schema.topic.put, topic.put); // 保存新建的文章
 router.get('/topic/:tid', topic.index); // 显示某个话题
 router.post('/topic/:tid/top', topic.top); // 将某话题置顶
 router.post('/topic/:tid/good', topic.good); // 将某话题加精
 router.get('/topic/:tid/edit', topic.showEdit); // 编辑某话题
 router.post('/topic/:tid/lock', topic.lock); // 锁定主题，不能再回复
 router.post('/topic/:tid/delete', topic.delete);
-router.post('/topic/create', topic.put); // 保存新建的文章
 router.post('/topic/:tid/edit', topic.update);
 router.post('/topic/collect', topic.collect); // 关注某话题
 router.post('/topic/de_collect', topic.de_collect); // 取消关注某话题
