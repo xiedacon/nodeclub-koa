@@ -92,7 +92,7 @@ module.exports = {
     
     if (!user || !(await tools.bcompare(pass, user.pass))) {
       ctx.status = 403;
-      return rectx.render('sign/signin', {
+      return ctx.render('sign/signin', {
         error: '用户名或密码错误'
       });
     }
