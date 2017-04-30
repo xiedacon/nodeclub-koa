@@ -3,6 +3,7 @@ const validator = require('validator');
 const User = require('../service').User;
 const mail = require('../middleware/mail.js');
 const tools = require('../common/tools.js');
+const secret = require('config-lite').session.secret;
 
 module.exports = {
   signup: async(ctx, next) => {
@@ -98,10 +99,10 @@ module.exports = {
     }
     if (!user.active) {
       // 重新发送激活邮件
-      await mail.sendActiveMail(user.email, user.email, user.loginname);
+      await mail.sendActiveMail(user.email, tools.md5(user.email + user.pass + secret), user.loginname);
       ctx.status = 403;
       return ctx.render('sign/signin', {
-        error: '此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。'
+        error: `此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。`
       });
     }
     

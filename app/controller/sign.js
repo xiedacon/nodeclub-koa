@@ -4,7 +4,7 @@ const tools = require('../common/tools.js');
 const User = require('../service').User;
 const auth = require('../middleware/auth.js');
 const mail = require('../middleware/mail.js');
-const siteName = require('config-lite').site.name;
+const secret = require('config-lite').session.secret;
 const notJump = [
   '/active_account', //active page
   '/reset_pass', //reset password page, avoid to reset twice
@@ -20,19 +20,19 @@ module.exports = {
   signup: async(ctx, next) => {
     let loginname = ctx.query.loginname;
     let email = ctx.query.email;
-    let pass = ctx.query.pass;
+    let pass = await tools.bhash(ctx.query.pass);
 
     await User.newAndSave({
       name: loginname,
       loginname: loginname,
-      pass: await tools.bhash(pass),
+      pass: pass,
       email: email,
       avatar_url: tools.makeGravatar(email),
-      active: true
+      active: false
     });
 
     // 发送激活邮件
-    await mail.sendActiveMail(email, pass, loginname);
+    await mail.sendActiveMail(email, tools.md5(email + pass + secret), loginname);
 
     await ctx.render('sign/signup', {
       success: true
@@ -60,8 +60,33 @@ module.exports = {
     }) ? '/' : refer;
     ctx.redirect(refer);
   },
-  activeAccount: () => {
+  activeAccount: async(ctx, next) => {
+    let key = ctx.query.key;
+    let name = ctx.query.name;
 
+    let user = await User.getByLoginName(name);
+
+    if (!user) return next(new Error(`[ACTIVE_ACCOUNT] no such user: ${name}`));
+
+    if (tools.md5(user.email + user.pass + secret) !== key) {
+      return ctx.render('notify/notify', {
+        error: '信息有误，帐号无法被激活。'
+      });
+    }
+    if (user.active) {
+      return ctx.render('notify/notify', {
+        error: '帐号已经是激活状态。'
+      });
+    }
+
+    user.active = true;
+    await user.save();
+
+    await ctx.render('notify/notify', {
+      success: '帐号已被激活，请登录'
+    });
+
+    return next();
   },
   showSearchPass: () => {},
   updateSearchPass: () => {},

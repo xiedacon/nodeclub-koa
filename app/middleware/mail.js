@@ -6,14 +6,13 @@ const smtpTransport = require('nodemailer-smtp-transport');
 const transporter = mailer.createTransport(smtpTransport(config.email));
 const logger = require('./logger.js')
 
-const secret = config.session.secret;
 const siteName = config.site.name;
 const SITE_ROOT_URL = `http://${config.host}`;
 const from = `${siteName} ${config.email.auth.user}`;
 
 module.exports = exports = {
   sendMail: (data) => {
-    //if (config.debug) return;
+    if (config.debug) return;
 
     // 重试5次
     Promise.resolve(5).then(function retry(times, resolve) {
@@ -39,8 +38,6 @@ module.exports = exports = {
     });
   },
   sendActiveMail: async(to, token, name) => {
-    token = tools.md5(to + await tools.bhash(token) + secret);
-
     exports.sendMail({
       from: from,
       to: to,
