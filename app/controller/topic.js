@@ -1,7 +1,10 @@
 'use strict'
 
 module.exports = {
-  create: () => {},
+  create: async(ctx, next) => {
+    await ctx.render('topic/edit');
+    return next();
+  },
   index: () => {},
   top: () => {},
   good: () => {},
