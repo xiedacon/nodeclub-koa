@@ -1,22 +1,21 @@
 'use strict'
 
 module.exports = (
-    engine, 
-    options= {}
+  engine,
+  options = {}
 ) => {
-    if(!engine) new Error(`Engine can't be null`);
+  if (!engine) new Error(`Engine can't be null`);
 
-    return (ctx, next) => {
-        if(ctx.render) return next();
+  return (ctx, next) => {
+    if (ctx.render || ctx.response.render) return next();
 
-        ctx.render = (relPath, locals = {}) => {
-            let state = Object.assign(locals, options, ctx.state || {});
-            return engine(relPath, state)
-                .then((html) => {
-                    ctx.body = html;
-                });
-        }
+    ctx.render = ctx.response.render = async (relPath, locals = {}) => {
+      let state = Object.assign({}, locals, options, ctx.state);
+      let html = await engine(relPath, state);
 
-        return next();
-    };
+      ctx.body = html;
+    }
+
+    return next();
+  };
 }
