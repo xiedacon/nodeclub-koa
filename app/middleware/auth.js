@@ -22,15 +22,15 @@ module.exports = {
     let auth_token = ctx.cookies.get(cookie.name, {
       signed: true
     });
-    
+
     if (!user && auth_token) {
       let user_id = auth_token.split(separator)[0];
-      if(user_id !== 'undefined')
-        user = ctx.session.user = await User.getById(user_id);
+      if (user_id !== 'undefined')
+        user = await User.getById(user_id);
     }
-    
+
     if (user) {
-      user = new UserModel(user);
+      user = ctx.session.user = new UserModel(user);
       if (adminNames.indexOf(user.loginname) >= 0) {
         user.is_admin = true;
       }
@@ -38,7 +38,7 @@ module.exports = {
       user.messages_count = await Message.getCountById(user._id);
       ctx.state.current_user = user;
     }
-    
+
     return next();
   },
   gen_session: (userId, ctx) => {
@@ -46,7 +46,9 @@ module.exports = {
     ctx.cookies.set(cookie.name, auth_token, cookie); //cookie 有效期30天
   },
   des_session: (ctx) => {
-    ctx.cookies.set(cookie.name, { path: cookie.path });
+    ctx.cookies.set(cookie.name, {
+      path: cookie.path
+    });
     ctx.session = undefined;
   }
 };
