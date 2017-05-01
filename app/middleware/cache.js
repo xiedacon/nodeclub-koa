@@ -14,9 +14,9 @@ module.exports = {
   async get(key, getData, time) {
     let t = Date.now();
     let data = JSON.parse(await client.getAsync(key));
-    logger.debug('Cache', 'get', key, ((Date.now() - t) + 'ms').green);
+    logger.debug('Cache', 'get', key, `${Date.now() - t}ms`.green);
     if (!data && typeof getData === 'function') {
-      await this.set(key, await getData(), time);
+      await this.set(key, (data = await getData()), time);
     }
 
     return data;
@@ -35,7 +35,7 @@ module.exports = {
     if (time) await client.setAsync(key, value, 'EX', time);
     await client.setAsync(key, value);
 
-    logger.debug("Cache", "set", key, ((Date.now() - t) + 'ms').green);
+    logger.debug("Cache", "set", key, `${Date.now() - t}ms`.green);
   },
 
   /**
@@ -44,7 +44,10 @@ module.exports = {
    * @param {any} key 
    * @returns 
    */
-  del(key) {
-    return client.delAsync(key);
+  async del(key) {
+    let t = Date.now();
+    await client.delAsync(key);
+
+    logger.debug("Cache", "del", key, `${Date.now() - t}ms`.green);
   }
 }
