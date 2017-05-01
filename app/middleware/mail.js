@@ -37,7 +37,7 @@ module.exports = exports = {
       logger.info('send mail success', data);
     });
   },
-  sendActiveMail: async(to, token, name) => {
+  sendActiveMail: (to, token, name) => {
     exports.sendMail({
       from: from,
       to: to,
@@ -51,7 +51,7 @@ module.exports = exports = {
       `
     });
   },
-  sendResetPassMail: async(to, token, name) => {
+  sendResetPassMail: (to, token, name) => {
     exports.sendMail({
       from: from,
       to: `${siteName}社区密码重置`,

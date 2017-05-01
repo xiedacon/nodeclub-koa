@@ -36,8 +36,8 @@ module.exports = {
    * @param {Object} query 搜索关键词
    * @param {Object} doc 需要更新的字段
    */
-  update: async (query, doc) => {
-    await Topic.update(query, doc);
+  update: (query, doc) => {
+    return Topic.update(query, doc);
   },
   newAndSave: (title, content, tab, authorId) => {
     return new Topic({

@@ -6,7 +6,7 @@ const Topic = require('../service').Topic;
 const User = require('../service').User;
 
 module.exports = {
-  index: async (ctx, next) => {
+  index: (ctx) => {
     let page = parseInt(ctx.request.query.page, 10) || 1;
     page = page > 0 ? page : 1;
     let query = {};
@@ -27,7 +27,7 @@ module.exports = {
       sort: '-top -last_reply_at'
     };
 
-    await Promiss.join(
+    return Promiss.join(
       Topic.findByQuery(query, options),
       // 取排行榜上的用户
       cache.get('tops', () => {
@@ -76,12 +76,9 @@ module.exports = {
         });
       }
     );
-    return next();
   },
-  sitemap: (ctx, next) => {
-    next();
+  sitemap: (ctx) => {
   },
-  appDownload: (ctx, next) => {
-    next();
+  appDownload: (ctx) => {
   }
 };

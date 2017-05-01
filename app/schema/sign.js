@@ -99,7 +99,7 @@ module.exports = {
     }
     if (!user.active) {
       // 重新发送激活邮件
-      await mail.sendActiveMail(user.email, tools.md5(user.email + user.pass + secret), user.loginname);
+      mail.sendActiveMail(user.email, tools.md5(user.email + user.pass + secret), user.loginname);
       ctx.status = 403;
       return ctx.render('sign/signin', {
         error: `此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。`

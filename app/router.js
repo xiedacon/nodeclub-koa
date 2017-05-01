@@ -34,9 +34,8 @@ if (config.allow_sign_up) {
   router.post('/signup', schema.sign.signup, sign.signup); // 提交注册信息
 } else {
   // 进行github验证
-  router.get('/signup', async(ctx, next) => {
-    await ctx.redirect('/auth/github');
-    next();
+  router.get('/signup', (ctx) => {
+    ctx.redirect('/auth/github');
   });
 }
 router.post('/signout', sign.signout); // 登出

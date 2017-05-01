@@ -78,7 +78,7 @@ UserSchema.index({accessToken: 1});
 
 UserSchema.pre('save', function(next){
   this.update_at = new Date();
-  next();
+  return next();
 });
 
 module.exports = mongoose.model('User', UserSchema);

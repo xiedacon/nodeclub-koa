@@ -13,43 +13,44 @@ const notJump = [
 ];
 
 module.exports = {
-  showSignup: async(ctx, next) => {
-    await ctx.render('sign/signup');
-    return next();
+  showSignup: (ctx) => {
+    return ctx.render('sign/signup');
   },
-  signup: async(ctx, next) => {
+  signup: (ctx) => {
     let loginname = ctx.query.loginname;
     let email = ctx.query.email;
-    let pass = await tools.bhash(ctx.query.pass);
+    let pass = ctx.query.pass;
 
-    await User.newAndSave({
-      name: loginname,
-      loginname: loginname,
-      pass: pass,
-      email: email,
-      avatar_url: tools.makeGravatar(email),
-      active: false
-    });
+    return Promise.all([
+      async() => {
+        await User.newAndSave({
+          name: loginname,
+          loginname: loginname,
+          pass: (pass = await tools.bhash(pass)),
+          email: email,
+          avatar_url: tools.makeGravatar(email),
+          active: false
+        });
 
-    // 发送激活邮件
-    await mail.sendActiveMail(email, tools.md5(email + pass + secret), loginname);
-
-    await ctx.render('sign/signup', {
-      success: true
-    });
-
-    return next();
+        // 发送激活邮件
+        mail.sendActiveMail(email, tools.md5(email + pass + secret), loginname);
+      },
+      () => {
+        return ctx.render('sign/signup', {
+          success: true
+        })
+      }
+    ]);
   },
-  signout: async(ctx, next) => {
+  signout: (ctx) => {
     auth.des_session(ctx);
     ctx.redirect('/');
   },
-  showLogin: async(ctx, next) => {
+  showLogin: (ctx) => {
     ctx.session._loginReferer = ctx.headers.referer;
-    await ctx.render('sign/signin');
-    return next();
+    return ctx.render('sign/signin');
   },
-  login: async(ctx, next) => {
+  login: (ctx) => {
     let user = ctx.query.user;
     // store session cookie for 30 days
     auth.gen_session(user._id, ctx);
@@ -60,13 +61,13 @@ module.exports = {
     }) ? '/' : refer;
     ctx.redirect(refer);
   },
-  activeAccount: async(ctx, next) => {
+  activeAccount: async(ctx) => {
     let key = ctx.query.key;
     let name = ctx.query.name;
 
     let user = await User.getByLoginName(name);
 
-    if (!user) return next(new Error(`[ACTIVE_ACCOUNT] no such user: ${name}`));
+    if (!user) throw new Error(`[ACTIVE_ACCOUNT] no such user: ${name}`);
 
     if (tools.md5(user.email + user.pass + secret) !== key) {
       return ctx.render('notify/notify', {
@@ -80,13 +81,15 @@ module.exports = {
     }
 
     user.active = true;
-    await user.save();
 
-    await ctx.render('notify/notify', {
-      success: '帐号已被激活，请登录'
-    });
-
-    return next();
+    return Promise.all([
+      user.save,
+      () => {
+        return ctx.render('notify/notify', {
+          success: '帐号已被激活，请登录'
+        })
+      }
+    ]);
   },
   showSearchPass: () => {},
   updateSearchPass: () => {},
