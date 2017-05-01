@@ -7,14 +7,14 @@ module.exports = {
    * @param {String} id 回复ID
    */
   getById: (id) => {
-    return Reply.findOneAsync({_id: id});
+    return Reply.findOne({_id: id});
   },
   /**
    * 根据主题ID，获取回复列表
    * @param {String} id 主题ID
    */
   findByTopicId: () => {
-    return Reply.findAsync({topic_id: id, deleted: false}, '', {sort: 'create_at'});
+    return Reply.find({topic_id: id, deleted: false}, '', {sort: 'create_at'});
   },
   /**
    * 创建并保存一条回复信息
@@ -29,13 +29,13 @@ module.exports = {
        topic_id: topicId,
        author_id: authorId,
        reply_id: replyId
-     }).saveAsync();
+     }).save();
    },
    /**
     * 根据topicId查询到最新的一条未删除回复
     * @param topicId 主题ID
     */
     getLastReplyByTopId: (topicId) => {
-      return Reply.findOneAsync({topic_id: topicId, deleted: false});
+      return Reply.findOne({topic_id: topicId, deleted: false});
     }
 };
