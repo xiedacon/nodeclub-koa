@@ -2,8 +2,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
-const _ = require('lodash');
 const tools = require('../common/tools.js');
+const BaseModel = require('./base_model.js');
 
 let UserSchema = new Schema({
   name: {type: String},
@@ -76,6 +76,7 @@ UserSchema.index({score: -1});
 UserSchema.index({githubId: 1});
 UserSchema.index({accessToken: 1});
 
+UserSchema.plugin(BaseModel);
 UserSchema.pre('save', function(next){
   this.update_at = new Date();
   return next();

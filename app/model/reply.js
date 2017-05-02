@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
+const BaseModel = require('./base_model.js');
 
 let ReplySchema = new Schema({
   content: {type: String},
@@ -15,6 +16,7 @@ let ReplySchema = new Schema({
   deleted: {type: Boolean, default: false}
 });
 
+ReplySchema.plugin(BaseModel);
 ReplySchema.index({topic_id: 1});
 ReplySchema.index({author_id: 1, create_at: -1});
 

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 const tabs = require('config-lite').site.tabs;
-const _ = require('lodash');
+const BaseModel = require('./base_model.js');
 
 let TopicSchema = new Schema({
   title: {type: String},
@@ -28,9 +28,10 @@ TopicSchema.index({create_at: -1});
 TopicSchema.index({top: -1, last_reply_at: -1});
 TopicSchema.index({author_id: 1, create_at: -1});
 
+TopicSchema.plugin(BaseModel);
 TopicSchema.virtual('tabName').get(function(){
   let tab = this.tab;
-  let pair = _.find(tabs, (_pair) => {
+  let pair = tabs.find((_pair) => {
     return _pair[0] = tab;
   });
 

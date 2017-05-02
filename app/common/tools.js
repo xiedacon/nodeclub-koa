@@ -1,6 +1,9 @@
 'use strict'
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const moment = require('moment');
+
+moment.locale('zh-CN'); // 使用中文
 
 module.exports = {
   validateId: (str) => {
@@ -15,8 +18,18 @@ module.exports = {
   },
   bcompare: (str, hash) => {
     return bcrypt.compare(str, hash);
+  },
+  formatDate: (date, friendly) => {
+    date = moment(date);
+
+    if (friendly) {
+      return date.fromNow();
+    } else {
+      return date.format('YYYY-MM-DD HH:mm');
+    }
   }
 }
-function md5(str){
+
+function md5(str) {
   return crypto.createHash('md5').update(str).digest('hex');
 }
