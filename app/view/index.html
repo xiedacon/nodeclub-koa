@@ -8,61 +8,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="keywords" content="{{config.keywords}}" />
   <!-- see http://smerity.com/articles/2013/where_did_all_the_http_referrers_go.html -->
-  <meta name="referrer" content="always"> 
-  {{each config.headers as header}} 
-    {{#header}}
-  {{/each}}
+  <meta name="referrer" content="always"> {{each config.headers as header}}
+  {{#header}}
+    {{/each}}
 
-  <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss" /> 
-  {{if config.icon}}
-  <link rel="icon" href="{{staticFile(config.icon)}}" type="image/x-icon" />
-  {{/if}}
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss" /> {{if config.icon}}
+    <link rel="icon" href="{{staticFile(config.icon)}}" type="image/x-icon" />
+    {{/if}}
 
+    <!-- style -->
+    {{#Loader( '/public/stylesheets/index.min.css') .css( '/public/libs/bootstrap/css/bootstrap.css') .css( '/public/stylesheets/common.css') .css( '/public/stylesheets/style.less') .css( '/public/stylesheets/responsive.css') .css(
+      '/public/stylesheets/jquery.atwho.css') .css( '/public/libs/editor/editor.css') .css( '/public/libs/webuploader/webuploader.css') .css( '/public/libs/code-prettify/prettify.css') .css( '/public/libs/font-awesome/css/font-awesome.css') .done({prefix: config.static_host, env: config.env,
+      CDNMap: assets})}}
 
+      <!-- scripts -->
+      {{#Loader( '/public/index.min.js') .js( '/public/libs/jquery-2.1.0.js') .js( '/public/libs/lodash.compat.js') .js( '/public/libs/jquery-ujs.js') .js( '/public/libs/bootstrap/js/bootstrap.js') .js( '/public/libs/jquery.caret.js') .js(
+        '/public/libs/jquery.atwho.js') .js( '/public/libs/markdownit.js') .js( '/public/libs/code-prettify/prettify.js') .js( '/public/libs/qrcode.js') .js( '/public/javascripts/main.js') .js( '/public/javascripts/responsive.js') .done({prefix: config.static_host, env: config.env,
+        CDNMap: assets})}}
 
-  <!-- style -->
-  {{#Loader('/public/stylesheets/index.min.css')
-    .css('/public/libs/bootstrap/css/bootstrap.css')
-    .css('/public/stylesheets/common.css')
-    .css('/public/stylesheets/style.less')
-    .css('/public/stylesheets/responsive.css')
-    .css('/public/stylesheets/jquery.atwho.css')
-    .css('/public/libs/editor/editor.css')
-    .css('/public/libs/webuploader/webuploader.css')
-    .css('/public/libs/code-prettify/prettify.css')
-    .css('/public/libs/font-awesome/css/font-awesome.css')
-    .done({prefix: config.static_host, env: config.env, CDNMap: assets})}}
-
-  <!-- scripts -->
-  {{#Loader('/public/index.min.js')
-    .js('/public/libs/jquery-2.1.0.js')
-    .js('/public/libs/lodash.compat.js')
-    .js('/public/libs/jquery-ujs.js')
-    .js('/public/libs/bootstrap/js/bootstrap.js')
-    .js('/public/libs/jquery.caret.js')
-    .js('/public/libs/jquery.atwho.js')
-    .js('/public/libs/markdownit.js')
-    .js('/public/libs/code-prettify/prettify.js')
-    .js('/public/libs/qrcode.js')
-    .js('/public/javascripts/main.js')
-    .js('/public/javascripts/responsive.js')
-    .done({prefix: config.static_host, env: config.env, CDNMap: assets})}}
-
-  {{if topic}}
-    <title>
-      {{topic.title}} - {{config.name}}
-    </title>
-  {{else if pageTitle}}
-    <title>
-      {{pageTitle}} - {{config.name}}
-    </title>
-  {{else}}
-    <title>
-      {{config.description}}
-    </title>
-  {{/if}}
-    <meta content="_csrf" name="csrf-param">
-    <meta content="{{csrf}}" name="csrf-token">
+        {{if topic}}
+        <title>
+          {{topic.title}} - {{config.name}}
+        </title>
+        {{else if pageTitle}}
+        <title>
+          {{pageTitle}} - {{config.name}}
+        </title>
+        {{else}}
+          <title>
+            {{config.description}}
+          </title>
+          {{/if}}
+          <meta content="_csrf" name="csrf-param">
+          <meta content="{{csrf}}" name="csrf-token">
 </head>
 
 <body>
@@ -110,9 +88,9 @@
             <a href='/signout' data-method="post" rel="nofollow">退出</a>
           </li>
           {{else}}
-          <li><a href='/signup'>注册</a></li>
-          <li><a href='/signin'>登录</a></li>
-          {{/if}}
+            <li><a href='/signup'>注册</a></li>
+            <li><a href='/signin'>登录</a></li>
+            {{/if}}
         </ul>
         <a class="btn btn-navbar" id="responsive-sidebar-trigger">
           <span class="icon-bar"></span>
@@ -123,7 +101,7 @@
     </div>
   </div>
   <div id='main'>
-    {{ include './sidebar'}}
+    {{include '/sidebar'}}
     <div id="content">
       <div class="panel">
         <div class="header">
@@ -133,7 +111,7 @@
         </div>
         {{if topics && topics.length > 0}}
         <div class="inner no-padding">
-          {{include './topic/list'}}
+          {{include '/topic/list' {base:'/'} }}
         </div>
         {{else}}
           <div class="inner">
