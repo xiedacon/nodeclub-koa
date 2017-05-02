@@ -13,8 +13,6 @@ const router = require('./app/router.js');
 const session = require('koa-session2');
 const Store = require('./app/middleware/store.js');
 const render = require('./app/middleware/render.js');
-const template = require('./app/middleware/template.js');
-const Loader = require('./app/middleware/loader.js');
 const staticMiddle = require('./app/middleware/static/static.js');
 const less = require('less');
 const mount = require('koa-mount');
@@ -51,30 +49,15 @@ app.use(session({
   store: new Store()
 }));
 
+app.use(render(
+  require('./app/middleware/template.js'), 
+  require('./app/middleware/render_config.js')
+));
+app.use(require('./app/middleware/error_page.js'));
+
 // custom middleware
 app.use(auth.authUser);
 app.use(auth.blockUser);
-
-app.use(render(
-  template(config.viewPath, '.html'), {
-    config: config.site,
-    Loader: Loader,
-    assets: config.assets,
-    staticFile: (url) => {
-      return url;
-    },
-    proxy: (url) => {
-      return url;
-      // 当 google 和 github 封锁严重时，则需要通过服务器代理访问它们的静态资源
-      // return '/agent?url=' + encodeURIComponent(url);
-    },
-    escapeSignature: function(signature) {
-      return signature.split('\n').map(function(p) {
-        return p;
-      }).join('<br>');
-    }
-  }
-));
 
 app.use(router.routes());
 app.use(router.allowedMethods());

@@ -1,11 +1,10 @@
 'use strict'
 const template = require('./art-template/template.js');
+const config = require('config-lite');
 
-module.exports = (base, extname) => {
-    template.config('base', base);
-    template.config('extname', extname);
+template.config('base', config.viewPath);
+template.config('extname', '.html');
 
-    return (source, data) => {
-        return template.renderFile(source, data, true);
-    }
+module.exports = (source, data) => {
+  return template.renderFile(source, data, true);
 }
