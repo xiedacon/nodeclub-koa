@@ -32,12 +32,11 @@ module.exports = {
       error = '两次密码输入不一致。';
     }
     if (error) {
-      ctx.status = 422;
-      return ctx.render('sign/signup', {
+      return ctx.renderError({
         error: error,
         loginname: loginname,
         email: email
-      });
+      }, 422, 'sign/signup');
     }
     // END 验证信息的正确性
 
@@ -50,12 +49,11 @@ module.exports = {
     });
 
     if (users.length > 0) {
-      ctx.status = 422;
-      return ctx.render('sign/signup', {
+      return ctx.renderError({
         error: '用户名或邮箱已被使用。',
         loginname: loginname,
         email: email
-      });
+      }, 422, 'sign/signup');
     }
 
     Object.assign(ctx.query, {
@@ -83,29 +81,20 @@ module.exports = {
       error = '用户名不合法。';
     }
     if (error) {
-      ctx.status = 422;
-      return ctx.render('sign/signin', {
-        error: error
-      });
+      return ctx.renderError(error, 422, 'sign/signin');
     }
     // END 验证信息的正确性
     let user = await (validator.isEmail(loginname) ? User.getByMail(loginname) : User.getByLoginName(loginname));
-    
+
     if (!user || !(await tools.bcompare(pass, user.pass))) {
-      ctx.status = 403;
-      return ctx.render('sign/signin', {
-        error: '用户名或密码错误'
-      });
+      return ctx.renderError('用户名或密码错误', 403, 'sign/signin');
     }
     if (!user.active) {
       // 重新发送激活邮件
       mail.sendActiveMail(user.email, tools.md5(user.email + user.pass + secret), user.loginname);
-      ctx.status = 403;
-      return ctx.render('sign/signin', {
-        error: `此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。`
-      });
+      return ctx.renderError(`此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。`, 403, 'sign/signin');
     }
-    
+
     Object.assign(ctx.query, {
       user: user
     });

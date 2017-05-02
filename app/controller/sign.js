@@ -22,7 +22,7 @@ module.exports = {
     let pass = ctx.query.pass;
 
     return Promise.all([
-      async() => {
+      (async() => {
         await User.newAndSave({
           name: loginname,
           loginname: loginname,
@@ -34,12 +34,10 @@ module.exports = {
 
         // 发送激活邮件
         mail.sendActiveMail(email, tools.md5(email + pass + secret), loginname);
-      },
-      () => {
-        return ctx.render('sign/signup', {
-          success: true
-        })
-      }
+      })(),
+      ctx.render('sign/signup', {
+        success: true
+      })
     ]);
   },
   signout: (ctx) => {
@@ -70,25 +68,23 @@ module.exports = {
     if (!user) throw new Error(`[ACTIVE_ACCOUNT] no such user: ${name}`);
 
     if (tools.md5(user.email + user.pass + secret) !== key) {
-      return ctx.render('notify/notify', {
-        error: '信息有误，帐号无法被激活。'
-      });
+      return ctx.renderError('信息有误，帐号无法被激活。', 422);
     }
     if (user.active) {
-      return ctx.render('notify/notify', {
-        error: '帐号已经是激活状态。'
-      });
+      return ctx.renderError('帐号已经是激活状态。', 422);
     }
 
     user.active = true;
 
     return Promise.all([
-      user.save,
-      () => {
-        return ctx.render('notify/notify', {
-          success: '帐号已被激活，请登录'
-        })
-      }
+      User.update({
+        _id: user.id
+      }, {
+        active: user.active
+      }),
+      ctx.render('notify/notify', {
+        success: '帐号已被激活，请登录'
+      })
     ]);
   },
   showSearchPass: () => {},

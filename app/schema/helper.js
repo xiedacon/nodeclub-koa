@@ -41,20 +41,16 @@ function makePerDayLimiter(identityName, identityFn) {
       ctx.response.set('X-RateLimit-Limit', limitCount);
       ctx.response.set('X-RateLimit-Remaining', limitCount - count);
       return true;
-    }else{
-      if(options.showJson){
+    } else {
+      if (options.showJson) {
         ctx.body = JSON.stringify({
           success: false,
           error_msg: `频率限制：当前操作每天可以进行 ${limitCount} 次`
         });
-      }else{
-        ctx.render('notify/notify', {
-          error: `频率限制：当前操作每天可以进行 ${limitCount} 次`
-        });
+      } else {
+        ctx.renderError(`频率限制：当前操作每天可以进行 ${limitCount} 次`, 403);
       }
-      ctx.status = 403;
       return false;
     }
   }
 }
-

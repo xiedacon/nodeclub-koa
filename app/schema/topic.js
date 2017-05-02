@@ -10,7 +10,7 @@ module.exports = {
     if (!helper.userRequired(ctx)) return;
     return next();
   },
-  put: async (ctx, next) => {
+  put: async(ctx, next) => {
     if (!helper.userRequired(ctx) || !(await helper.peruserperday(ctx, 'create_topic', config.create_post_per_day, {
         showJson: false
       }))) return;
@@ -21,16 +21,17 @@ module.exports = {
     let error =
       (title === '' && '标题不能是空的。') ||
       ((title.length < 5 || title.length > 100) && '标题字数太多或太少。') ||
-      ((!tab || tabs.find((pair) => { pair[0] === tab })) && '必须选择一个版块。') ||
+      ((!tab || tabs.find((pair) => {
+        pair[0] === tab
+      })) && '必须选择一个版块。') ||
       ((content === '') && '内容不可为空');
 
     if (error) {
-      ctx.status = 422;
-      return ctx.render('topic/edit', {
+      return ctx.Error({
         edit_error: error,
         title: title,
         content: content
-      });
+      }, 422, 'topic/edit');
     }
 
     Object.assign(ctx.query, {
@@ -40,5 +41,12 @@ module.exports = {
     });
 
     return next();
+  },
+  index: (ctx, next) => {
+    let topic_id = ctx.params.tid;
+
+    if (topic_id.length !== 24) return ctx.renderError('此话题不存在或已被删除。', 404);
+
+    
   }
 }
