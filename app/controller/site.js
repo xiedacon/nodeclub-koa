@@ -4,6 +4,7 @@ const Promiss = require('bluebird');
 const config = require('config-lite');
 const Topic = require('../service').Topic;
 const User = require('../service').User;
+const Reply = require('../service').Reply;
 
 module.exports = {
   index: (ctx) => {
@@ -20,7 +21,7 @@ module.exports = {
     } else {
       query.tab = tab;
     }
-    let limit = config.list_topic_count;
+    let limit = config.site.list_topic_count;
     let options = {
       skip: (page - 1) * limit,
       limit: limit,
@@ -28,7 +29,28 @@ module.exports = {
     };
 
     return Promiss.join(
-      Topic.findByQuery(query, options),
+      (async() => {
+        let topics = await Topic.findByQuery(query, options)
+        return Promise.map(topics, (topic, i) => {
+          return Promise.join(
+            User.getById(topic.author_id),
+            Reply.getById(topic.last_reply),
+            (author, reply) => {
+              // 保证顺序
+              // 作者可能已被删除
+              if (!author) return null;
+
+              topic.author = author;
+              topic.reply = reply;
+              return topic;
+            }
+          )
+        }).then((topics) => {
+          return topics.filter((topic) => {
+            return topic !== null;
+          })
+        })
+      })(),
       // 取排行榜上的用户
       cache.get('tops', () => {
         return User.findByQuery({
@@ -77,8 +99,6 @@ module.exports = {
       }
     );
   },
-  sitemap: (ctx) => {
-  },
-  appDownload: (ctx) => {
-  }
+  sitemap: (ctx) => {},
+  appDownload: (ctx) => {}
 };
