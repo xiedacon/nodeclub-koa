@@ -1,6 +1,5 @@
 'use strict'
 const TopicCollect = require('../model').TopicCollect;
-const _ = require('lodash');
 
 module.exports = {
   get: (userId, topicId) => {

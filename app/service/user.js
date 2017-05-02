@@ -15,21 +15,27 @@ module.exports = {
    * @param {String} loginName 登录名
    */
   getByLoginName: (loginName) => {
-    return User.findOne({loginname: loginName});
+    return User.findOne({
+      loginname: loginName
+    });
   },
   /**
    * 根据用户ID，查找用户
    * @param {String} id 用户ID
    */
   getById: (id) => {
-    return User.findOne({_id: id});
+    return User.findOne({
+      _id: id
+    });
   },
   /**
    * 根据邮箱，查找用户
    * @param {String} email 邮箱地址
    */
   getByMail: (email) => {
-    return User.findOne({email: email});
+    return User.findOne({
+      email: email
+    });
   },
   /**
    * 根据用户ID列表，获取一组用户
@@ -65,5 +71,10 @@ module.exports = {
    */
   newAndSave: (user) => {
     return new User(user).save();
+  },
+  update: (con, doc) => {
+    return User.update(con, {
+      $set: doc
+    });
   }
 };

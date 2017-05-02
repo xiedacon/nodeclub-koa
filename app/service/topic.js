@@ -9,7 +9,7 @@ module.exports = {
    * @param {String} id 主题ID
    */
   getById: (id) => {
-    return Topic.find({_id: id});
+    return Topic.findOne({_id: id});
   },
   /**
    * 获取关键词能搜索到的主题数量
