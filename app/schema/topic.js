@@ -47,6 +47,6 @@ module.exports = {
 
     if (topic_id.length !== 24) return ctx.renderError('此话题不存在或已被删除。', 404);
 
-    
+    return next();
   }
 }

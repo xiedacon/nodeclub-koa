@@ -67,7 +67,7 @@ router.get('/my/messages', message.index); // 用户个人的所有消息页
 // topic
 router.get('/topic/create', schema.topic.create, topic.create); // 新建文章界面
 router.post('/topic/create', schema.topic.put, topic.put); // 保存新建的文章
-router.get('/topic/:tid', topic.index); // 显示某个话题
+router.get('/topic/:tid', schema.topic.index, topic.index); // 显示某个话题
 router.post('/topic/:tid/top', topic.top); // 将某话题置顶
 router.post('/topic/:tid/good', topic.good); // 将某话题加精
 router.get('/topic/:tid/edit', topic.showEdit); // 编辑某话题
