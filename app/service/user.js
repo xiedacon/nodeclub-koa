@@ -4,11 +4,13 @@ const uuid = require('uuid');
 
 module.exports = {
   /**
-   * 根据用户名列表查找用户列表
-   * @param {Array} names 用户名列表
+   * 根据用户ID，查找用户
+   * @param {String} id 用户ID
    */
-  findByNames: (names) => {
-
+  getById: (id) => {
+    return User.findOne({
+      _id: id
+    });
   },
   /**
    * 根据登录名查找用户
@@ -17,15 +19,6 @@ module.exports = {
   getByLoginName: (loginName) => {
     return User.findOne({
       loginname: loginName
-    });
-  },
-  /**
-   * 根据用户ID，查找用户
-   * @param {String} id 用户ID
-   */
-  getById: (id) => {
-    return User.findOne({
-      _id: id
     });
   },
   /**
@@ -38,6 +31,14 @@ module.exports = {
     });
   },
   /**
+   * 根据关键字，获取一组用户
+   * @param {String} query 关键字
+   * @param {Object} opt 选项
+   */
+  findByQuery: (query, opt) => {
+    return User.find(query, {}, opt);
+  },
+  /**
    * 根据用户ID列表，获取一组用户
    * @param {Array} ids 用户ID列表
    */
@@ -45,12 +46,16 @@ module.exports = {
 
   },
   /**
-   * 根据关键字，获取一组用户
-   * @param {String} query 关键字
-   * @param {Object} opt 选项
+   * 根据用户名列表查找用户列表
+   * @param {Array} names 用户名列表
    */
-  findByQuery: (query, opt) => {
-    return User.find(query, {}, opt);
+  findByNames: (names) => {
+    if (!names || names.length < 1) return [];
+    return User.find({
+      loginname: {
+        $in: names
+      }
+    });
   },
   /**
    * 根据查询条件，获取一个用户

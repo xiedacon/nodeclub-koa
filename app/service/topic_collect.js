@@ -9,5 +9,8 @@ module.exports = {
   newAndSave: (userId, topicId) => {
   },
   remove: (userId, topicId) => {
+  },
+  getByQuery: (query) => {
+    return TopicCollect.findOne(query);
   }
 };
