@@ -79,7 +79,12 @@ UserSchema.index({accessToken: 1});
 UserSchema.plugin(BaseModel);
 UserSchema.pre('save', function(next){
   this.update_at = new Date();
-  return next();
+  next();
+});
+UserSchema.pre('find', function(next){
+  if(typeof this.options.sort === 'undefined') this.options.sort = {score: -1};
+  this.update_at = new Date();
+  next();
 });
 
 module.exports = mongoose.model('User', UserSchema);

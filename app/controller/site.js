@@ -24,8 +24,7 @@ module.exports = {
     let limit = config.site.list_topic_count;
     let options = {
       skip: (page - 1) * limit,
-      limit: limit,
-      sort: '-top -last_reply_at'
+      limit: limit
     };
 
     return Promiss.join(
@@ -56,8 +55,7 @@ module.exports = {
         return User.findByQuery({
           is_block: false
         }, {
-          limit: 10,
-          sort: '-score'
+          limit: 10
         });
       }, 60 * 1),
       // END 取排行榜上的用户

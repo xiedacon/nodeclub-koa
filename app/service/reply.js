@@ -1,20 +1,26 @@
 'use strict'
 const Reply = require('../model').Reply;
 
+
+
 module.exports = {
   /**
    * 获取一条回复信息
    * @param {String} id 回复ID
    */
   getById: (id) => {
-    return Reply.findOne({_id: id});
+    return Reply.findOne({
+      _id: id
+    });
   },
   /**
    * 根据主题ID，获取回复列表
    * @param {String} id 主题ID
    */
-  findByTopicId: () => {
-    return Reply.find({topic_id: id, deleted: false}, '', {sort: 'create_at'});
+  findByTopicId: (topic_id) => {
+    return Reply.find({
+      topic_id: topic_id
+    });
   },
   /**
    * 创建并保存一条回复信息
@@ -23,19 +29,21 @@ module.exports = {
    * @param {String} authorId 回复作者
    * @param {String} [replyId] 回复ID，当二级回复时设定该值
    */
-   newAndSave: (content, topicId, authorId, replyId) => {
-     return new Reply({
-       content: content,
-       topic_id: topicId,
-       author_id: authorId,
-       reply_id: replyId
-     }).save();
-   },
-   /**
-    * 根据topicId查询到最新的一条未删除回复
-    * @param topicId 主题ID
-    */
-    getLastReplyByTopId: (topicId) => {
-      return Reply.findOne({topic_id: topicId, deleted: false});
-    }
+  newAndSave: (content, topicId, authorId, replyId) => {
+    return new Reply({
+      content: content,
+      topic_id: topicId,
+      author_id: authorId,
+      reply_id: replyId
+    }).save();
+  },
+  /**
+   * 根据topicId查询到最新的一条未删除回复
+   * @param topicId 主题ID
+   */
+  getLastReplyByTopId: (topicId) => {
+    return Reply.findOne({
+      topic_id: topicId
+    });
+  }
 };

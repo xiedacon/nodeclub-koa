@@ -24,12 +24,11 @@ module.exports = {
    * @param {Object} opt 搜索选项
    */
   findByQuery: (query, opt) => {
-    query.deleted = false;
     return Topic.find(query, {}, opt);
   },
   // for sitemap
   getLimit5w: () => {
-    return Topic.find({deleted: false}, '_id', {limit: 50000, sort: '-create_at'});
+    return Topic.find({}, '_id', {limit: 50000, sort: '-create_at'});
   },
   /**
    * 更新topic

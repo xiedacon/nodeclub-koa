@@ -37,5 +37,14 @@ TopicSchema.virtual('tabName').get(function(){
 
   return pair ? pair[0] : '';
 });
+TopicSchema.pre('find',function(next) {
+  if(typeof this._conditions.deleted === 'undefined') this._conditions.deleted = false;
+  if(typeof this.options.sort === 'undefined') this.options.sort = {top: -1, last_reply_at: -1};
+  next();
+});
+TopicSchema.pre('findOne',function(next) {
+  if(typeof this._conditions.deleted === 'undefined') this._conditions.deleted = false;
+  next();
+});
 
 module.exports = mongoose.model('Topic', TopicSchema);
