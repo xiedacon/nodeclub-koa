@@ -53,6 +53,8 @@ app.use(render(
   require('./app/middleware/template.js'), 
   require('./app/middleware/render_config.js')
 ));
+if(config.debug) app.use(require('./app/middleware/render_log.js'));
+
 app.use(require('./app/middleware/error_page.js'));
 
 // custom middleware
