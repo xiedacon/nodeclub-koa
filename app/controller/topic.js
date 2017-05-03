@@ -5,6 +5,7 @@ const at = require('../common/at.js');
 const TopicCollect = require('../service').TopicCollect;
 const Reply = require('../service').Reply;
 const cache = require('../middleware/cache.js');
+const logger = require('../middleware/logger.js');
 
 module.exports = {
   create: (ctx) => {
@@ -13,14 +14,13 @@ module.exports = {
   index: (ctx) => {
     let topic_id = ctx.params.tid;
     let currentUser = ctx.session.user;
-
     return Promise.join(
       Topic.getById(topic_id).then((topic) => {
         if (!topic) throw '此话题不存在或已被删除。';
         return Promise.join(
           at.linkUsers(topic.content),
           User.getById(topic.author_id),
-          Reply.getRepliesByTopicId(topic._id),
+          Reply.findByTopicId(topic._id),
           // get author_other_topics
           Topic.findByQuery({
             author_id: topic.author_id,
@@ -28,13 +28,12 @@ module.exports = {
               '$nin': [topic._id]
             }
           }, {
-            limit: 5,
-            sort: '-last_reply_at'
+            limit: 5
           }),
-          (linkedContent, author, author_other_topics) => {
+          (linkedContent, author, replies, author_other_topics) => {
             if (!author) throw '话题的作者丢了。';
             topic.visit_count += 1;
-            Topic.update({_id:topic._id},{visit_count:topic.visit_count});
+            Topic.update({ _id: topic._id }, { visit_count: topic.visit_count });
 
             topic.author = author;
             topic.replies = replies;
@@ -42,8 +41,7 @@ module.exports = {
             topic.reply_up_threshold = (() => {
               let allUpCount = replies.map((reply) => {
                 return reply.ups && reply.ups.length || 0;
-              });
-              allUpCount,sort((pre, next) => {
+              }).sort((pre, next) => {
                 return next - pre;
               });
 
@@ -71,7 +69,7 @@ module.exports = {
           sort: '-create_at'
         });
       }, 60 * 1),
-      currentUser ? TopicCollect.getTopicCollect(currentUser._id, topic_id) : null,
+      currentUser ? TopicCollect.getByQuery({user_id:currentUser._id, topic_id:topic_id}) : null,
       ({ topic, author_other_topics }, no_reply_topics, is_collect) => {
         return ctx.render('topic/index', {
           topic: topic,
