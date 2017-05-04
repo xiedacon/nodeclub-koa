@@ -2,8 +2,7 @@
 const config = require('config-lite')
 const cookie = config.cookie
 const adminNames = config.admin.names
-const Message = require('../service').Message
-const User = require('../service').User
+const { Message, User } = require('../service')
 const UserModel = require('mongoose').model('User')
 const separator = '$$$$'
 
