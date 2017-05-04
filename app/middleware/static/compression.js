@@ -1,6 +1,6 @@
 'use strict'
-const fs = require('./fs.js');
-const zlib = require('zlib');
+const fs = require('./fs.js')
+const zlib = require('zlib')
 
 let defaultCompressions = {
   gzip: {
@@ -11,35 +11,34 @@ let defaultCompressions = {
     compress: zlib.createDeflate,
     extension: 'deflate'
   }
-};
+}
 
 /**
- * 
- * 
- * @param {Object} 自定义的压缩流 
+ *
+ *
+ * @param {Object} 自定义的压缩流
  * @returns 已压缩文件的读入流或未执行的压缩流
  */
 module.exports = (compressions) => {
-
-  compressions = Object.assign(defaultCompressions, compressions);
+  compressions = Object.assign(defaultCompressions, compressions)
 
   return (sourcePath, encoding, options = {}) => {
-    if(!options.path) options.path = sourcePath;
+    if (!options.path) options.path = sourcePath
 
-    let compression = compressions[encoding];
-    if(!compression) return;
-    let path = `${options.path}.${compression.extension}`;
+    let compression = compressions[encoding]
+    if (!compression) return
+    let path = `${options.path}.${compression.extension}`
 
-    return fs.access(path,'r').then(() => {
-      return fs.createReadStream(path);
+    return fs.access(path, 'r').then(() => {
+      return fs.createReadStream(path)
     }).catch(() => {
-      let fileStream = fs.createWriteStream(path);
-      let encodingStream = compression.compress(options);
-      fs.createReadStream(sourcePath).pipe(encodingStream).pipe(fileStream);
+      let fileStream = fs.createWriteStream(path)
+      let encodingStream = compression.compress(options)
+      fs.createReadStream(sourcePath).pipe(encodingStream).pipe(fileStream)
 
-      encodingStream.pause();
-      
-      return encodingStream;
-    });
+      encodingStream.pause()
+
+      return encodingStream
+    })
   }
 }

@@ -5,4 +5,4 @@ module.exports = {
   Reply: require('./reply.js'),
   TopicCollect: require('./topic_collect.js'),
   User: require('./user.js')
-};
+}

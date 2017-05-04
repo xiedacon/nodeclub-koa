@@ -4,7 +4,7 @@
   "description": "A node.js bbs using Redis, Mongodb, koa",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard"
   },
   "dependencies": {
     "art-template": "^4.4.2",
@@ -24,6 +24,7 @@
     "koa-session2": "^2.2.3",
     "less": "^2.7.2",
     "log4js": "^1.1.1",
+    "markdown-it": "^8.3.1",
     "moment": "^2.18.1",
     "mongoose": "^4.9.2",
     "nodemailer": "^4.0.1",
@@ -31,7 +32,8 @@
     "passport-github": "^1.1.0",
     "redis": "^2.7.1",
     "uuid": "^3.0.1",
-    "validator": "^7.0.0"
+    "validator": "^7.0.0",
+    "xss": "^0.3.3"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = {
-  callback: () => {},
-  new: () => {},
-  create: () => {}
-};
+  callback: () => { },
+  new: () => { },
+  create: () => { }
+}

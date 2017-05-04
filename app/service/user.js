@@ -1,6 +1,5 @@
 'use strict'
-const User = require('../model').User;
-const uuid = require('uuid');
+const { User } = require('../model')
 
 module.exports = {
   /**
@@ -8,27 +7,21 @@ module.exports = {
    * @param {String} id 用户ID
    */
   getById: (id) => {
-    return User.findOne({
-      _id: id
-    });
+    return User.findOne({ _id: id })
   },
   /**
    * 根据登录名查找用户
    * @param {String} loginName 登录名
    */
   getByLoginName: (loginName) => {
-    return User.findOne({
-      loginname: loginName
-    });
+    return User.findOne({ loginname: loginName })
   },
   /**
    * 根据邮箱，查找用户
    * @param {String} email 邮箱地址
    */
   getByMail: (email) => {
-    return User.findOne({
-      email: email
-    });
+    return User.findOne({ email: email })
   },
   /**
    * 根据关键字，获取一组用户
@@ -36,7 +29,7 @@ module.exports = {
    * @param {Object} opt 选项
    */
   findByQuery: (query, opt) => {
-    return User.find(query, {}, opt);
+    return User.find(query, {}, opt)
   },
   /**
    * 根据用户ID列表，获取一组用户
@@ -50,12 +43,8 @@ module.exports = {
    * @param {Array} names 用户名列表
    */
   findByNames: (names) => {
-    if (!names || names.length < 1) return [];
-    return User.find({
-      loginname: {
-        $in: names
-      }
-    });
+    if (!names || names.length < 1) return []
+    return User.find({ loginname: { $in: names } })
   },
   /**
    * 根据查询条件，获取一个用户
@@ -75,11 +64,9 @@ module.exports = {
    * @param {Boolean} active
    */
   newAndSave: (user) => {
-    return new User(user).save();
+    return new User(user).save()
   },
   update: (con, doc) => {
-    return User.update(con, {
-      $set: doc
-    });
+    return User.update(con, { $set: doc })
   }
-};
+}

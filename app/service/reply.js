@@ -1,7 +1,5 @@
 'use strict'
-const Reply = require('../model').Reply;
-
-
+const { Reply } = require('../model')
 
 module.exports = {
   /**
@@ -9,18 +7,14 @@ module.exports = {
    * @param {String} id 回复ID
    */
   getById: (id) => {
-    return Reply.findOne({
-      _id: id
-    });
+    return Reply.findOne({ _id: id })
   },
   /**
    * 根据主题ID，获取回复列表
    * @param {String} id 主题ID
    */
-  findByTopicId: (topic_id) => {
-    return Reply.find({
-      topic_id: topic_id
-    });
+  findByTopicId: (topicId) => {
+    return Reply.find({ topic_id: topicId })
   },
   /**
    * 创建并保存一条回复信息
@@ -35,15 +29,13 @@ module.exports = {
       topic_id: topicId,
       author_id: authorId,
       reply_id: replyId
-    }).save();
+    }).save()
   },
   /**
    * 根据topicId查询到最新的一条未删除回复
    * @param topicId 主题ID
    */
   getLastReplyByTopId: (topicId) => {
-    return Reply.findOne({
-      topic_id: topicId
-    });
+    return Reply.findOne({ topic_id: topicId })
   }
-};
+}

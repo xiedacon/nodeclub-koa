@@ -6,4 +6,4 @@ module.exports = {
   update: () => {},
   delete: () => {},
   up: () => {}
-};
+}

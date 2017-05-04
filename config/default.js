@@ -3,20 +3,15 @@
  * config
  */
 
-const path = require('path');
+const path = require('path')
 
 module.exports = {
   // debug 为 true 时，用于本地调试
   debug: true,
   logger: {
-    appenders: [{
-        type: 'console'
-      },
-      {
-        type: 'file',
-        filename: path.join(__dirname, '../logs/cheese.log'),
-        category: 'cheese'
-      }
+    appenders: [
+      { type: 'console' },
+      { type: 'file', filename: path.join(__dirname, '../logs/cheese.log'), category: 'cheese' }
     ]
   },
   // redis 配置，默认是本地
@@ -28,13 +23,11 @@ module.exports = {
   // mongodb 配置
   db: {
     uri: 'mongodb://127.0.0.1/node_club_koa_dev',
-    options: {
-      poolSize: 20
-    }
+    options: { poolSize: 20 }
   },
   viewPath: path.join(__dirname, '../app/view'),
   staticPath: path.join(__dirname, '../app/public'),
-  //assets = require('./assets.json');
+  // assets = require('./assets.json');
   assets: {},
 
   host: 'localhost', // 社区的域名
@@ -96,7 +89,7 @@ module.exports = {
     link: 'http://cnodejs.org',
     language: 'zh-cn',
     description: 'CNode：Node.js专业中文社区',
-    //最多获取的RSS Item数量
+    // 最多获取的RSS Item数量
     max_rss_items: 50
   },
 
@@ -108,12 +101,12 @@ module.exports = {
       user: 'xiedacon@163.com',
       pass: 'xieda1995'
     },
-    ignoreTLS: true,
+    ignoreTLS: true
   },
 
   oauth: {
     weibo: {
-      //weibo app key
+      // weibo app key
       key: 10000000,
       id: 'your_weibo_id'
     },
@@ -142,7 +135,7 @@ module.exports = {
       origin: 'http://your qiniu domain',
       // 如果vps在国外，请使用 http://up.qiniug.com/ ，这是七牛的国际节点
       // 如果在国内，此项请留空
-      uploadURL: 'http://xxxxxxxx',
+      uploadURL: 'http://xxxxxxxx'
     },
     // 注：如果填写 qn_access，则会上传到 7牛，以下配置无效
     path: path.join(__dirname, 'public/upload/'),
@@ -153,11 +146,11 @@ module.exports = {
   jpush: {
     appKey: 'YourAccessKeyyyyyyyyyyyy',
     masterSecret: 'YourSecretKeyyyyyyyyyyyyy',
-    isDebug: false,
+    isDebug: false
   },
 
   create_post_per_day: 1000, // 每个用户一天可以发的主题数
   create_reply_per_day: 1000, // 每个用户一天可以发的评论数
   create_user_per_ip: 1000,
-  visit_per_day: 1000, // 每个 ip 每天能访问的次数
-};
+  visit_per_day: 1000 // 每个 ip 每天能访问的次数
+}

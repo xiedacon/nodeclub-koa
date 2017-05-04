@@ -1,5 +1,5 @@
 'use strict'
-const {Topic} = require('../model')
+const { Topic } = require('../model')
 
 module.exports = {
   /**
@@ -7,7 +7,7 @@ module.exports = {
    * @param {String} id 主题ID
    */
   getById: (id) => {
-    return Topic.findOne({_id: id})
+    return Topic.findOne({ _id: id })
   },
   /**
    * 获取关键词能搜索到的主题数量
@@ -26,7 +26,7 @@ module.exports = {
   },
   // for sitemap
   getLimit5w: () => {
-    return Topic.find({}, '_id', {limit: 50000, sort: '-create_at'})
+    return Topic.find({}, '_id', { limit: 50000, sort: '-create_at' })
   },
   /**
    * 更新topic
@@ -34,7 +34,7 @@ module.exports = {
    * @param {Object} doc 需要更新的字段
    */
   update: (con, doc) => {
-    return Topic.update(con, {$set: doc})
+    return Topic.update(con, { $set: doc })
   },
   newAndSave: (title, content, tab, authorId) => {
     return new Topic({

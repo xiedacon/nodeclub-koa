@@ -7,7 +7,7 @@ module.exports = exports = {
     return exports.sendMessage('at', masterId, authorId, topicId, replyId)
   },
   sendReplyMessage: (masterId, authorId, topicId, replyId) => {
-    return exports.sendMessage('reply', masterId, authorId, topicId, replyId, callback)
+    return exports.sendMessage('reply', masterId, authorId, topicId, replyId)
   },
   sendMessage: (type, masterId, authorId, topicId, replyId) => {
     return new MessageModel({

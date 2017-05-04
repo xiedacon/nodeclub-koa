@@ -19,11 +19,18 @@ module.exports = {
           User.getById(topic.author_id),
           Reply.findByTopicId(topic._id),
           // get author_other_topics
-          Topic.findByQuery({ author_id: topic.author_id, _id: { '$nin': [topic._id] } }, { limit: 5 }),
+          Topic.findByQuery(
+            { author_id: topic.author_id, _id: { '$nin': [topic._id] } },
+            { limit: 5 }
+          ),
           async (linkedContent, author, replies, otherTopics) => {
             if (!author) throw new Error('Error:话题的作者丢了。')
             topic.visit_count += 1
-            await Topic.update({ _id: topic._id }, { visit_count: topic.visit_count })
+            // !!! 不使用await，不执行
+            await Topic.update(
+              { _id: topic._id },
+              { visit_count: topic.visit_count }
+            )
 
             topic.linkedContent = linkedContent
             topic.author = author
@@ -50,9 +57,14 @@ module.exports = {
       }),
       // 取0回复的主题
       cache.get('no_reply_topics', () => {
-        return Topic.findByQuery({ reply_count: 0, tab: { $ne: 'job' } }, { limit: 5, sort: '-create_at' })
+        return Topic.findByQuery(
+          { reply_count: 0, tab: { $ne: 'job' } },
+          { limit: 5, sort: '-create_at' }
+        )
       }, 60 * 1),
-      currentUser ? TopicCollect.getByQuery({ user_id: currentUser._id, topic_id: topicId }) : null,
+      currentUser
+        ? TopicCollect.getByQuery({ user_id: currentUser._id, topic_id: topicId })
+        : null,
       ({ topic, author_other_topics }, noReplyTopics, isCollect) => {
         return ctx.render('topic/index', {
           topic: topic,
