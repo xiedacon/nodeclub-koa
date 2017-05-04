@@ -69,17 +69,17 @@ router.get('/my/messages', message.index) // 用户个人的所有消息页
 router.get('/topic/create', schema.topic.create, topic.create) // 新建文章界面
 router.post('/topic/create', schema.topic.put, topic.put) // 保存新建的文章
 router.get('/topic/:tid', schema.topic.index, topic.index) // 显示某个话题
+router.get('/topic/:tid/edit', schema.topic.showEdit, topic.showEdit) // 编辑某话题
+router.post('/topic/:tid/edit', schema.topic.update, topic.update)
 router.post('/topic/:tid/top', topic.top) // 将某话题置顶
 router.post('/topic/:tid/good', topic.good) // 将某话题加精
-router.get('/topic/:tid/edit', topic.showEdit) // 编辑某话题
 router.post('/topic/:tid/lock', topic.lock) // 锁定主题，不能再回复
 router.post('/topic/:tid/delete', topic.delete)
-router.post('/topic/:tid/edit', topic.update)
 router.post('/topic/collect', topic.collect) // 关注某话题
 router.post('/topic/de_collect', topic.de_collect) // 取消关注某话题
 
 // reply
-router.post('/:topic_id/reply', reply.add) // 提交一级回复
+router.post('/:topic_id/reply', schema.reply.add, reply.add) // 提交一级回复
 router.get('/reply/:reply_id/edit', reply.showEdit) // 修改自己的评论页
 router.post('/reply/:reply_id/edit', reply.update) // 修改某评论
 router.post('/reply/:reply_id/delete', reply.delete) // 删除某评论
