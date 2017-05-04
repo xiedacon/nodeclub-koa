@@ -17,7 +17,12 @@ module.exports = {
         return Promise.join(
           at.linkUsers(topic.content),
           User.getById(topic.author_id),
-          Reply.findByTopicId(topic._id),
+          Promise.map(Reply.findByTopicId(topic._id), async (reply) => {
+            reply.author = (await User.getById(reply.author_id)) || { _id: '' }
+            if (!reply.content_is_html) reply.content = at.linkUsers(reply.content)
+
+            return reply
+          }),
           // get author_other_topics
           Topic.findByQuery(
             { author_id: topic.author_id, _id: { '$nin': [topic._id] } },
@@ -87,7 +92,16 @@ module.exports = {
   },
   top: () => { },
   good: () => { },
-  showEdit: () => { },
+  showEdit: (ctx) => {
+    let topic = ctx.query.topic
+    return ctx.render('topic/edit', {
+      action: 'edit',
+      topic_id: topic._id,
+      title: topic.title,
+      content: topic.content,
+      tab: topic.tab
+    })
+  },
   lock: () => { },
   delete: () => { },
   put: (ctx) => {
@@ -106,11 +120,23 @@ module.exports = {
       (topic) => {
         // 发送at消息
         at.sendMessageToMentionUsers(content, topic._id, user._id)
-        ctx.redirect(`/topic/${topic._id}`)
+        return ctx.redirect(`/topic/${topic._id}`)
       }
     )
   },
-  update: () => { },
+  update: async (ctx) => {
+    let topic = ctx.query.topic
+
+    return Promise.all([
+      Topic.update(
+        { _id: topic._id },
+        { title: topic.title, tab: topic.tab, content: topic.content, update_at: new Date() }
+      ),
+      at.sendMessageToMentionUsers(topic.content, topic._id, ctx.session.user._id)
+    ]).then(() => {
+      return ctx.redirect(`/topic/${topic._id}`)
+    })
+  },
   collect: () => { },
   de_collect: () => { },
   upload: () => { }
