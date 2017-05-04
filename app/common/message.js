@@ -1,21 +1,21 @@
 'use strict'
 
-const MessageModel = require('../model').Message;
+const { Message: MessageModel } = require('../model')
 
 module.exports = exports = {
-  sendAtMessage: (master_id, author_id, topic_id, reply_id) => {
-    return exports.sendMessage('at', master_id, author_id, topic_id, reply_id);
+  sendAtMessage: (masterId, authorId, topicId, replyId) => {
+    return exports.sendMessage('at', masterId, authorId, topicId, replyId)
   },
-  sendReplyMessage: (master_id, author_id, topic_id, reply_id) => {
-    return exports.sendMessage('reply', master_id, author_id, topic_id, reply_id, callback)
+  sendReplyMessage: (masterId, authorId, topicId, replyId) => {
+    return exports.sendMessage('reply', masterId, authorId, topicId, replyId, callback)
   },
-  sendMessage: (type, master_id, author_id, topic_id, reply_id) => {
-    return new Message({
+  sendMessage: (type, masterId, authorId, topicId, replyId) => {
+    return new MessageModel({
       type: type,
-      master_id: master_id,
-      author_id: author_id,
-      topic_id: topic_id,
-      reply_id: reply_id
-    }).save();
+      master_id: masterId,
+      author_id: authorId,
+      topic_id: topicId,
+      reply_id: replyId
+    }).save()
   }
 }

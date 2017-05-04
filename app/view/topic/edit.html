@@ -135,8 +135,10 @@
                 <span class="tab-selector">选择版块：</span>
                 <select name="tab" id="tab-value">
               <option value="">请选择</option>
-                {{each config.tabs as pair}}
+                {{each config.tabs as pair index}}
+                {{if index > 1}} // hook
                 <option value="{{pair[0]}}" {{if tab === pair[0]}}selected{{/if}}>{{pair[1]}}</option>
+                {{/if}}
                 {{/each}}
             </select>
                 <span id="topic_create_warn"></span>
