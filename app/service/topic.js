@@ -43,5 +43,14 @@ module.exports = {
       tab: tab,
       author_id: authorId
     }).save()
+  },
+  updateLastReply: (topicId, replyId) => {
+    return Topic.update(
+      { _id: topicId },
+      {
+        $set: { last_reply: replyId, last_reply_at: new Date() },
+        $inc: { reply_count: 1 }
+      }
+    )
   }
 }
