@@ -40,7 +40,7 @@
           <title>
             {{config.description}}
           </title>
-          {{/if}}
+        {{/if}}
           <meta content="_csrf" name="csrf-param">
           <meta content="{{csrf}}" name="csrf-token">
 </head>
@@ -130,13 +130,14 @@
           </div>
           {{else}}
 
-            <form id='create_topic_form' action='/topic/{{if action === 'edit'}}{{topic_id}}/edit{{else}}create{{/if}}' method='post'>
+            <form id='create_topic_form' action='/topic/{{action === 'edit' ? `${topic_id}/edit` : 'create'}}' method='post'>
               <fieldset>
                 <span class="tab-selector">选择版块：</span>
                 <select name="tab" id="tab-value">
               <option value="">请选择</option>
                 {{each config.tabs as pair index}}
-                {{if index > 1}} // hook
+                <!--hook-->
+                {{if index > 1}} 
                 <option value="{{pair[0]}}" {{if tab === pair[0]}}selected{{/if}}>{{pair[1]}}</option>
                 {{/if}}
                 {{/each}}
