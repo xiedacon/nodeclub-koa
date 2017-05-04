@@ -26,7 +26,11 @@ module.exports = {
         return Promise.map(topics, (topic, i) => {
           return Promise.join(
             User.getById(topic.author_id),
-            Reply.getById(topic.last_reply),
+            Reply.getById(topic.last_reply).then(async(reply) => {
+              if (!reply) return
+              reply.author = await User.getById(reply.author_id)
+              return reply
+            }),
             (author, reply) => {
               // 保证顺序
               // 作者可能已被删除
