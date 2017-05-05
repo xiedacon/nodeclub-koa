@@ -66,7 +66,18 @@ module.exports = {
 
     ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`)
   },
-  delete: () => { },
+  delete: async (ctx) => {
+    let reply = ctx.query.reply
+
+    await Reply.update(
+      { _id: reply._id },
+      { deleted: true }
+    )
+
+    await User.reduceReply(reply.author_id)
+    Topic.reduceCount(reply.topic_id)
+    ctx.send({ status: 'success' })
+  },
   up: async (ctx, next) => {
     let reply = ctx.query.reply
     let userId = ctx.query.userId
@@ -81,6 +92,6 @@ module.exports = {
       { ups: reply.ups }
     )
 
-    ctx.body = { success: true, action: action }
+    ctx.send({ success: true, action: action })
   }
 }

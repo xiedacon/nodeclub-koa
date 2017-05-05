@@ -61,11 +61,24 @@ module.exports = {
     if (!reply) return ctx.renderError('此回复不存在或已被删除。')
     // 不能帮自己点赞
     if (reply.author_id.equals(userId)) {
-      ctx.body = { success: false, message: '呵呵，不能帮自己点赞。' }
+      ctx.send({ success: false, message: '呵呵，不能帮自己点赞。' })
       return
     }
 
     Object.assign(ctx.query, { reply: reply, userId: userId })
+
+    return next()
+  },
+  delete: async (ctx, next) => {
+    if (!helper.userRequired(ctx)) return
+    let replyId = ctx.params.reply_id
+
+    let reply = await Reply.getById(replyId)
+    if (!reply) return ctx.send({ status: `no reply ${replyId} exists` }, 422)
+
+    if (!reply.author_id.equals(ctx.session.user._id) && !ctx.session.user.isAdmin) return ctx.send({ status: 'failed' })
+
+    Object.assign(ctx.query, {reply: reply})
 
     return next()
   }

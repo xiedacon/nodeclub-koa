@@ -68,5 +68,11 @@ module.exports = {
   },
   update: (con, doc) => {
     return User.update(con, { $set: doc })
+  },
+  reduceReply: (id) => {
+    return User.update(
+      {_id: id},
+      {$inc: {score: -5, reply_count: -1}}
+    )
   }
 }

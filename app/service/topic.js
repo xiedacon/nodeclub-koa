@@ -1,5 +1,5 @@
 'use strict'
-const { Topic } = require('../model')
+const { Topic, Reply } = require('../model')
 
 module.exports = {
   /**
@@ -51,6 +51,13 @@ module.exports = {
         $set: { last_reply: replyId, last_reply_at: new Date() },
         $inc: { reply_count: 1 }
       }
+    )
+  },
+  reduceCount: async (id) => {
+    let reply = (await Reply.findOne({ topic_id: id }, {}, { sort: {create_at: -1} })) || { _id: null, create_at: (await Topic.getById(id)).create_at }
+    return Topic.update(
+      { _id: id },
+      { $inc: { reply_count: -1 }, last_reply: reply._id, last_reply_at: reply.create_at }
     )
   }
 }
