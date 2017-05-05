@@ -127,15 +127,13 @@ module.exports = {
   update: async (ctx) => {
     let topic = ctx.query.topic
 
-    return Promise.all([
-      Topic.update(
-        { _id: topic._id },
-        { title: topic.title, tab: topic.tab, content: topic.content, update_at: new Date() }
-      ),
-      at.sendMessageToMentionUsers(topic.content, topic._id, ctx.session.user._id)
-    ]).then(() => {
-      return ctx.redirect(`/topic/${topic._id}`)
-    })
+    await Topic.update(
+      { _id: topic._id },
+      { title: topic.title, tab: topic.tab, content: topic.content, update_at: new Date() }
+    )
+
+    at.sendMessageToMentionUsers(topic.content, topic._id, ctx.session.user._id)
+    return ctx.redirect(`/topic/${topic._id}`)
   },
   collect: () => { },
   de_collect: () => { },
