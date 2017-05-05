@@ -10,7 +10,9 @@ module.exports = {
       topic_id: topicId
     }).save()
   },
-  remove: (userId, topicId) => { },
+  remove: (userId, topicId) => {
+    return TopicCollect.remove({user_id: userId, topic_id: topicId})
+  },
   getByQuery: (query) => {
     return TopicCollect.findOne(query)
   }

@@ -154,9 +154,28 @@ module.exports = {
         { collect_count: topic.collect_count }
       )
     ])
-
     ctx.send({ status: 'success' })
   },
-  de_collect: () => { },
+  de_collect: async (ctx) => {
+    let topic = ctx.query.topic
+    let user = ctx.session.user
+
+    await TopicCollect.remove(user._id, topic._id)
+
+    user.collect_topic_count -= 1
+    topic.collect_count -= 1
+    //
+    await Promise.all([
+      User.update(
+        { _id: user._id },
+        { collect_topic_count: user.collect_topic_count }
+      ),
+      Topic.update(
+        { _id: topic._id },
+        { collect_count: topic.collect_count }
+      )
+    ])
+    ctx.send({ status: 'success' })
+  },
   upload: () => { }
 }

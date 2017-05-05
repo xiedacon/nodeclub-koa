@@ -104,7 +104,22 @@ module.exports = {
 
     if (!topic || topicCollect) return ctx.send({ status: 'failed' })
 
-    Object.assign(ctx.query, {topic: topic})
+    Object.assign(ctx.query, { topic: topic })
+
+    return next()
+  },
+  de_collect: async (ctx, next) => {
+    if (!helper.userRequired(ctx)) return
+    let topicId = validator.trim(ctx.request.body.topic_id)
+
+    let { topic, topicCollect } = await Promise.props({
+      topic: Topic.getById(topicId),
+      topicCollect: TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
+    })
+
+    if (!topic || !topicCollect) return ctx.send({ status: 'failed' })
+
+    Object.assign(ctx.query, { topic: topic })
 
     return next()
   }
