@@ -56,6 +56,7 @@ app.use(render(
 if (config.debug) app.use(require('./app/middleware/render_log.js'))
 
 app.use(require('./app/middleware/error_page.js'))
+app.use(require('./app/middleware/send.js'))
 
 // custom middleware
 app.use(auth.authUser)

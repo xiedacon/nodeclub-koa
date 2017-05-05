@@ -9,9 +9,7 @@ const separator = '$$$$'
 module.exports = {
   blockUser: (ctx, next) => {
     if (ctx.path !== '/signout' && ctx.session.user && ctx.session.user.is_block && ctx.method !== 'GET') {
-      ctx.status = 403
-      ctx.body = '您已被管理员屏蔽了。有疑问请联系 @alsotang。'
-      return
+      return ctx.renderError('您已被管理员屏蔽了。有疑问请联系 @alsotang。', 403)
     }
 
     return next()

@@ -7,8 +7,7 @@ const SEPARATOR = '^_^@T_T'
 module.exports = {
   userRequired: (ctx) => {
     if (!ctx.session || !ctx.session.user || !ctx.session.user._id) {
-      ctx.status = 403
-      ctx.body = 'forbidden!'
+      ctx.send('forbidden!', 403)
       return false
     }
     return true
@@ -43,10 +42,10 @@ function makePerDayLimiter (identityName, identityFn) {
       return true
     } else {
       if (options.showJson) {
-        ctx.body = JSON.stringify({
+        ctx.send(JSON.stringify({
           success: false,
           error_msg: `频率限制：当前操作每天可以进行 ${limitCount} 次`
-        })
+        }))
       } else {
         ctx.renderError(`频率限制：当前操作每天可以进行 ${limitCount} 次`, 403)
       }
