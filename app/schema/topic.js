@@ -1,7 +1,7 @@
 'use strict'
 const helper = require('./helper.js')
 const validator = require('validator')
-const { Topic } = require('../service')
+const { Topic, TopicCollect } = require('../service')
 
 const config = require('config-lite')
 const tabs = config.site.tabs
@@ -90,6 +90,21 @@ module.exports = {
     topic.content = content
 
     Object.assign(ctx.query, { topic: topic })
+
+    return next()
+  },
+  collect: async (ctx, next) => {
+    if (!helper.userRequired(ctx)) return
+    let topicId = validator.trim(ctx.request.body.topic_id)
+
+    let { topic, topicCollect } = await Promise.props({
+      topic: Topic.getById(topicId),
+      topicCollect: TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
+    })
+
+    if (!topic || topicCollect) return ctx.send({ status: 'failed' })
+
+    Object.assign(ctx.query, {topic: topic})
 
     return next()
   }
