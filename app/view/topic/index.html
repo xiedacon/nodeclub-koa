@@ -182,7 +182,7 @@
           {{if current_user}}
           <div id="manage_topic">
             {{if current_user.is_admin}}
-            <a href='/topic/{{topic.id}}/top' data-method="post">
+            <a href='/topic/{{topic._id.toString()}}/top' data-method="post">
             {{if topic.top}}
               <i class="fa fa-lg fa-star-o" title='取消置顶'></i>
             {{else}}
@@ -191,7 +191,7 @@
           </a>
 
 
-            <a href='/topic/{{topic.id}}/good' data-method="post">
+            <a href='/topic/{{topic._id.toString()}}/good' data-method="post">
             {{if topic.good}}
               <i class="fa fa-lg fa-heart-o" title="取消精华"></i>
             {{else}}
@@ -199,7 +199,7 @@
             {{/if}}
           </a>
 
-            <a href='/topic/{{topic.id}}/lock' data-method="post">
+            <a href='/topic/{{topic._id.toString()}}/lock' data-method="post">
             {{if topic.lock}}
               <i class="fa fa-lg fa-unlock" title='取消锁定'></i>
             {{else}}
@@ -208,15 +208,15 @@
           </a>
 
 
-            <a href='/topic/{{topic.id}}/edit'>
+            <a href='/topic/{{topic._id.toString()}}/edit'>
               <i class="fa fa-lg fa-pencil-square-o" title='编辑'></i></a>
-            <a href='javascript:;' data-id="{{topic.id}}" class='delete_topic_btn'>
+            <a href='javascript:;' data-id="{{topic._id.toString()}}" class='delete_topic_btn'>
               <i class="fa fa-lg fa-trash" title='删除'></i></a>
             {{else}}
-              {{if current_user.id == topic.author_id}}
-              <a href='/topic/{{topic.id}}/edit'>
+              {{if current_user._id.equals(topic.author_id)}}
+              <a href='/topic/{{topic._id.toString()}}/edit'>
                 <i class="fa fa-lg fa-pencil-square-o" title='编辑'></i></a>
-              <a href='javascript:;' data-id="{{topic.id}}" class='delete_topic_btn'>
+              <a href='javascript:;' data-id="{{topic._id.toString()}}" class='delete_topic_btn'>
                 <i class="fa fa-lg fa-trash" title='删除'></i></a>
               {{/if}}
             {{/if}}
@@ -246,7 +246,7 @@
           <span class='col_fade'>添加回复</span>
         </div>
         <div class='inner reply'>
-          <form id='reply_form' action='/{{topic.id}}/reply' method='post'>
+          <form id='reply_form' action='/{{topic._id.toString()}}/reply' method='post'>
 
             <div class='markdown_editor in_editor'>
               <div class='markdown_in_editor'>
@@ -373,7 +373,7 @@
           var $me = $(this);
           var action = $me.attr('action');
           var data = {
-            topic_id: '{{topic.id}}',
+            topic_id: '{{topic._id.toString()}}',
             _csrf: '{{csrf}}'
           };
           var $countSpan = $('.collect-topic-count');
