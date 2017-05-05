@@ -21,13 +21,13 @@ ReplySchema.index({ topic_id: 1 })
 ReplySchema.index({ author_id: 1, create_at: -1 })
 
 ReplySchema.pre('find', function (next) {
-  if (typeof this.deleted === 'undefined') this.deleted = false
+  if (typeof this._conditions.deleted === 'undefined') this._conditions.deleted = false
   if (typeof this.options.sort === 'undefined') this.options.sort = { create_at: 1 }
   next()
 })
 
 ReplySchema.pre('findOne', function (next) {
-  if (typeof this.deleted === 'undefined') this.deleted = false
+  if (typeof this._conditions.deleted === 'undefined') this._conditions.deleted = false
 
   next()
 })
