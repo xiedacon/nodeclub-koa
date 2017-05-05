@@ -37,5 +37,8 @@ module.exports = {
    */
   getLastReplyByTopId: (topicId) => {
     return Reply.findOne({ topic_id: topicId })
+  },
+  update: (con, doc) => {
+    return Reply.update(con, {$set: doc})
   }
 }

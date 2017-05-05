@@ -34,5 +34,22 @@ module.exports = {
     Object.assign(ctx.query, { reply: reply })
 
     return next()
+  },
+  update: async (ctx, next) => {
+    if (!helper.userRequired(ctx)) return
+    let replyId = ctx.params.reply_id
+    let content = validator.trim(ctx.request.body.t_content)
+
+    let reply = await Reply.getById(replyId)
+    if (!reply) return ctx.renderError('此回复不存在或已被删除。')
+
+    if (!reply.author_id.equals(ctx.session.user._id) && !ctx.session.user.isAdmin) return ctx.renderError('对不起，你不能编辑此回复。', 403)
+
+    if (content === '') return ctx.renderError('回复的字数太少。', 400)
+
+    reply.content = content
+    Object.assign(ctx.query, {reply: reply})
+
+    return next()
   }
 }

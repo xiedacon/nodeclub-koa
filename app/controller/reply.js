@@ -53,10 +53,19 @@ module.exports = {
 
     return ctx.render('reply/edit', {
       reply_id: reply._id,
-      content: reply.content
+      content: at.linkUsers(reply.content)
     })
   },
-  update: () => { },
+  update: async (ctx) => {
+    let reply = ctx.query.reply
+
+    await Reply.update(
+      { _id: reply._id },
+      { content: reply.content, update_at: new Date() }
+    )
+
+    ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`)
+  },
   delete: () => { },
   up: () => { }
 }
