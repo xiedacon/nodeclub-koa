@@ -45,7 +45,17 @@ module.exports = {
       }
     )
   },
-  showEdit: () => { },
+  /**
+   * 打开回复编辑器
+   */
+  showEdit: (ctx) => {
+    let reply = ctx.query.reply
+
+    return ctx.render('reply/edit', {
+      reply_id: reply._id,
+      content: reply.content
+    })
+  },
   update: () => { },
   delete: () => { },
   up: () => { }

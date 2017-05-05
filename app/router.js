@@ -80,7 +80,7 @@ router.post('/topic/de_collect', topic.de_collect) // 取消关注某话题
 
 // reply
 router.post('/:topic_id/reply', schema.reply.add, reply.add) // 提交一级回复
-router.get('/reply/:reply_id/edit', reply.showEdit) // 修改自己的评论页
+router.get('/reply/:reply_id/edit', schema.reply.showEdit, reply.showEdit) // 修改自己的评论页
 router.post('/reply/:reply_id/edit', reply.update) // 修改某评论
 router.post('/reply/:reply_id/delete', reply.delete) // 删除某评论
 router.post('/reply/:reply_id/up', reply.up) // 为评论点赞
