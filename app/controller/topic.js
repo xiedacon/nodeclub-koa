@@ -103,7 +103,25 @@ module.exports = {
     })
   },
   lock: () => { },
-  delete: () => { },
+  delete: async (ctx) => {
+    let topic = ctx.query.topic
+    let author = ctx.session.user
+
+    author.score -= 5
+    author.topic_count -= 1
+    await Promise.all([
+      User.update(
+        { _id: author._id },
+        { score: author.score, topic_count: author.topic_count }
+      ),
+      Topic.update(
+        { _id: topic._id },
+        { deleted: true }
+      )
+    ])
+
+    ctx.send({ success: true, message: '话题已被删除。' })
+  },
   put: (ctx) => {
     let title = ctx.query.title
     let tab = ctx.query.tab

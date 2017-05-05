@@ -122,6 +122,19 @@ module.exports = {
     Object.assign(ctx.query, { topic: topic })
 
     return next()
+  },
+  delete: async (ctx, next) => {
+    if (!helper.userRequired(ctx)) return
+    let topicId = ctx.params.tid
+    let user = ctx.session.user
+
+    let topic = await Topic.getById(topicId)
+    if (!topic) return ctx.send({ success: false, message: '此话题不存在或已被删除。' })
+    if (!topic.author_id.equals(user._id) && !user.is_admin) return ctx.send({ success: false, message: '无权限' })
+
+    Object.assign(ctx.query, { topic: topic })
+
+    return next()
   }
 }
 
