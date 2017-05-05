@@ -48,7 +48,24 @@ module.exports = {
     if (content === '') return ctx.renderError('回复的字数太少。', 400)
 
     reply.content = content
-    Object.assign(ctx.query, {reply: reply})
+    Object.assign(ctx.query, { reply: reply })
+
+    return next()
+  },
+  up: async (ctx, next) => {
+    if (!helper.userRequired(ctx)) return
+    let replyId = ctx.params.reply_id
+    let userId = ctx.session.user._id
+
+    let reply = await Reply.getById(replyId)
+    if (!reply) return ctx.renderError('此回复不存在或已被删除。')
+    // 不能帮自己点赞
+    if (reply.author_id.equals(userId)) {
+      ctx.body = { success: false, message: '呵呵，不能帮自己点赞。' }
+      return
+    }
+
+    Object.assign(ctx.query, { reply: reply, userId: userId })
 
     return next()
   }

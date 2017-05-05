@@ -67,5 +67,20 @@ module.exports = {
     ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`)
   },
   delete: () => { },
-  up: () => { }
+  up: async (ctx, next) => {
+    let reply = ctx.query.reply
+    let userId = ctx.query.userId
+    let action, index
+
+    action = (index = (reply.ups || []).indexOf(userId)) < 0
+      ? (reply.ups.push(userId) && 'up')
+      : (reply.ups.splice(index, 1) && 'down')
+
+    await Reply.update(
+      { _id: reply._id },
+      { ups: reply.ups }
+    )
+
+    ctx.body = { success: true, action: action }
+  }
 }
