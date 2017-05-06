@@ -76,7 +76,7 @@ router.post('/topic/collect', schema.topic.collect, topic.collect) // 关注某�
 router.post('/topic/de_collect', schema.topic.de_collect, topic.de_collect) // 取消关注某话题
 router.post('/upload', topic.upload) // 上传图片
 router.post('/topic/:tid/top', schema.topic.top, topic.top) // 将某话题置顶
-router.post('/topic/:tid/good', topic.good) // 将某话题加精
+router.post('/topic/:tid/good', schema.topic.good, topic.good) // 将某话题加精
 router.post('/topic/:tid/lock', topic.lock) // 锁定主题，不能再回复
 
 // reply

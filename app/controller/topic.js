@@ -104,7 +104,20 @@ module.exports = {
       ctx.render('notify/notify', { success: topic.top ? '此话题已置顶。' : '此话题已取消置顶。', referer: referer })
     ])
   },
-  good: () => { },
+  good: (ctx) => {
+    let topic = ctx.query.topic
+    let referer = ctx.get('referer')
+
+    topic.good = !topic.good
+
+    return Promise.all([
+      Topic.update(
+        { _id: topic._id },
+        { good: topic.good }
+      ),
+      ctx.render('notify/notify', { success: topic.good ? '此话题已加精。' : '此话题已取消加精。', referer: referer })
+    ])
+  },
   showEdit: (ctx) => {
     let topic = ctx.query.topic
     return ctx.render('topic/edit', {
