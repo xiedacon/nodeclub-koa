@@ -11,7 +11,7 @@ const Koa = require('koa')
 const config = require('config-lite')
 const router = require('./app/router.js')
 const session = require('koa-session2')
-const Store = require('./app/middleware/store.js')
+const RedisStore = require('./app/middleware/redis_store.js')
 const render = require('./app/middleware/render.js')
 const staticMiddle = require('./app/middleware/static/static.js')
 const less = require('less')
@@ -19,6 +19,8 @@ const mount = require('koa-mount')
 const bodyparser = require('koa-bodyparser')
 const auth = require('./app/middleware/auth.js')
 const requestLog = require('./app/middleware/request_log.js')
+const busboy = require('./app/middleware/busboy.js')
+const bytes = require('bytes')
 
 const app = new Koa()
 
@@ -46,9 +48,14 @@ app.keys = [config.cookie.name]
 app.use(bodyparser())
 app.use(session({
   key: config.session.secret,
-  store: new Store()
+  store: new RedisStore()
 }))
 
+app.use(busboy({
+  limits: {
+    fileSize: bytes(config.upload.file_limit)
+  }
+}))
 app.use(render(
   require('./app/middleware/template.js'),
   require('./app/middleware/render_config.js')

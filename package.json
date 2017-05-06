@@ -10,6 +10,8 @@
     "art-template": "^4.4.2",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.0",
+    "busboy": "^0.2.14",
+    "bytes": "^2.5.0",
     "colors": "^1.1.2",
     "config-lite": "^1.5.0",
     "koa": "^2.2.0",
