@@ -2,6 +2,8 @@
 const { Topic, User, TopicCollect, Reply } = require('../service')
 const at = require('../common/at.js')
 const cache = require('../middleware/cache.js')
+const fileLimit = require('config-lite').upload.file_limit
+const store = require('../middleware/store.js')
 
 module.exports = {
   create: (ctx) => {
@@ -213,5 +215,26 @@ module.exports = {
     ])
     ctx.send({ status: 'success' })
   },
-  upload: () => { }
+  upload: (ctx) => {
+    return new Promise((resolve, reject) => {
+      let isFileLimit = false
+      ctx.busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
+        file.on('limit', () => {
+          isFileLimit = true
+          ctx.send({ success: false, msg: `File size too large. Max is ${fileLimit}` })
+          resolve()
+        })
+
+        let { url } = await store.upload(file, { filename: filename })
+        if (isFileLimit) {
+          return
+        }
+
+        ctx.send({ success: true, url: url })
+        resolve()
+      })
+
+      ctx.req.pipe(ctx.busboy)
+    })
+  }
 }
