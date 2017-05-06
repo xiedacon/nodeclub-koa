@@ -1,7 +1,7 @@
 'use strict'
 const helper = require('./helper.js')
 const validator = require('validator')
-const { Topic, TopicCollect } = require('../service')
+const { Topic, TopicCollect, User } = require('../service')
 
 const config = require('config-lite')
 const tabs = config.site.tabs
@@ -37,25 +37,25 @@ module.exports = {
 
     return next()
   },
-  index: (ctx, next) => {
-    let topicId = ctx.params.tid
+  index: async (ctx, next) => {
+    let topic = await checkTopicExist(ctx, ctx.params.tid)
+    if (!topic) return
 
-    if (topicId.length !== 24) return ctx.renderError('此话题不存在或已被删除。', 404)
+    let author = await User.getById(topic.author_id)
+    if (!author) return ctx.renderError('话题的作者丢了。')
+
+    topic.author = author
+    Object.assign(ctx.query, { topic: topic })
 
     return next()
   },
   showEdit: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
 
-    let topicId = ctx.params.tid
+    let topic = await checkTopicExist(ctx, ctx.params.tid)
+    if (!topic) return
 
-    let topic = await Topic.getById(topicId)
-
-    if (!topic) return ctx.renderError('此话题不存在或已被删除。')
-
-    if (!topic.author_id.equals(ctx.session.user._id) && !ctx.session.user.is_admin) {
-      return ctx.renderError('对不起，你不能编辑此话题。', 403)
-    }
+    if (!topic.author_id.equals(ctx.session.user._id) && !ctx.session.user.is_admin) return ctx.renderError('对不起，你不能编辑此话题。', 403)
 
     Object.assign(ctx.query, { topic: topic })
     return next()
@@ -63,14 +63,12 @@ module.exports = {
   update: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
 
-    let topicId = ctx.params.tid
     let title = validator.trim(ctx.request.body.title)
     let tab = validator.trim(ctx.request.body.tab)
     let content = validator.trim(ctx.request.body.t_content)
 
-    let topic = await Topic.getById(topicId)
-
-    if (!topic) return ctx.renderError('此话题不存在或已被删除。')
+    let topic = await checkTopicExist(ctx, ctx.params.tid)
+    if (!topic) return
 
     if (!topic.author_id.equals(ctx.session.user._id) && !ctx.session.user.is_admin) return ctx.renderError('对不起，你不能编辑此话题。', 403)
 
@@ -125,11 +123,11 @@ module.exports = {
   },
   delete: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
-    let topicId = ctx.params.tid
     let user = ctx.session.user
 
-    let topic = await Topic.getById(topicId)
-    if (!topic) return ctx.send({ success: false, message: '此话题不存在或已被删除。' })
+    let topic = await checkTopicExist(ctx, ctx.params.tid)
+    if (!topic) return
+
     if (!topic.author_id.equals(user._id) && !user.is_admin) return ctx.send({ success: false, message: '无权限' })
 
     Object.assign(ctx.query, { topic: topic })
@@ -139,11 +137,8 @@ module.exports = {
   top: async (ctx, next) => {
     if (!helper.userRequired(ctx) && !ctx.session.user.is_admin) return
 
-    let topicId = ctx.params.tid
-    if (topicId.length !== 24) return ctx.renderError('此话题不存在或已被删除。')
-
-    let topic = await Topic.getById(topicId)
-    if (!topic) return ctx.renderError('此话题不存在或已被删除。')
+    let topic = await checkTopicExist(ctx, ctx.params.tid)
+    if (!topic) return
 
     Object.assign(ctx.query, { topic: topic })
 
@@ -152,11 +147,18 @@ module.exports = {
   good: async (ctx, next) => {
     if (!helper.userRequired(ctx) && !ctx.session.user.is_admin) return
 
-    let topicId = ctx.params.tid
-    if (topicId.length !== 24) return ctx.renderError('此话题不存在或已被删除。')
+    let topic = await checkTopicExist(ctx, ctx.params.tid)
+    if (!topic) return
 
-    let topic = await Topic.getById(topicId)
-    if (!topic) return ctx.renderError('此话题不存在或已被删除。')
+    Object.assign(ctx.query, { topic: topic })
+
+    return next()
+  },
+  lock: async (ctx, next) => {
+    if (!helper.userRequired(ctx) && !ctx.session.user.is_admin) return
+
+    let topic = await checkTopicExist(ctx, ctx.params.tid)
+    if (!topic) return
 
     Object.assign(ctx.query, { topic: topic })
 
@@ -169,4 +171,11 @@ function checkTopicFrom (title, tab, content) {
     ((title.length < 5 || title.length > 100) && '标题字数太多或太少。') ||
     ((!tab || tabs.find((pair) => { return tab === pair[0] }) < 0) && '必须选择一个版块。') ||
     ((content === '') && '内容不可为空')
+}
+
+async function checkTopicExist (ctx, topicId) {
+  if (topicId.length !== 24) return ctx.renderError('此话题不存在或已被删除。')
+  let topic = await Topic.getById(topicId)
+  if (!topic) return ctx.renderError('此话题不存在或已被删除。')
+  return topic
 }

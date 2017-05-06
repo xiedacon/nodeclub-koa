@@ -2,64 +2,30 @@
 const { Topic, User, TopicCollect, Reply } = require('../service')
 const at = require('../common/at.js')
 const cache = require('../middleware/cache.js')
-const logger = require('../middleware/logger.js')
 
 module.exports = {
   create: (ctx) => {
     return ctx.render('topic/edit')
   },
   index: (ctx) => {
-    let topicId = ctx.params.tid
+    let topic = ctx.query.topic
     let currentUser = ctx.session.user
+
+    topic.linkedContent = at.linkUsers(topic.content)
+    topic.visit_count += 1
+
     return Promise.join(
-      Topic.getById(topicId).then((topic) => {
-        if (!topic) throw new Error('Error:此话题不存在或已被删除。')
-        return Promise.join(
-          at.linkUsers(topic.content),
-          User.getById(topic.author_id),
-          Promise.map(Reply.findByTopicId(topic._id), async (reply) => {
-            reply.author = (await User.getById(reply.author_id)) || { _id: '' }
-            if (!reply.content_is_html) reply.content = at.linkUsers(reply.content)
+      Promise.map(Reply.findByTopicId(topic._id), async (reply) => {
+        reply.author = (await User.getById(reply.author_id)) || { _id: '' }
+        if (!reply.content_is_html) reply.content = at.linkUsers(reply.content)
 
-            return reply
-          }),
-          // get author_other_topics
-          Topic.findByQuery(
-            { author_id: topic.author_id, _id: { '$nin': [topic._id] } },
-            { limit: 5 }
-          ),
-          async (linkedContent, author, replies, otherTopics) => {
-            if (!author) throw new Error('Error:话题的作者丢了。')
-            topic.visit_count += 1
-            // !!! 不使用await，不执行
-            await Topic.update(
-              { _id: topic._id },
-              { visit_count: topic.visit_count }
-            )
-
-            topic.linkedContent = linkedContent
-            topic.author = author
-            topic.replies = replies
-            // 点赞数排名第三的回答，它的点赞数就是阈值
-            topic.reply_up_threshold = (() => {
-              let allUpCount = replies.map((reply) => {
-                return (reply.ups && reply.ups.length) || 0
-              }).sort((pre, next) => {
-                return next - pre
-              })
-
-              let threshold = allUpCount[2] || 0
-              if (threshold < 3) threshold = 3
-              return threshold
-            })()
-
-            return {
-              topic: topic,
-              author_other_topics: otherTopics
-            }
-          }
-        )
+        return reply
       }),
+      // get author_other_topics
+      Topic.findByQuery(
+        { author_id: topic.author_id, _id: { '$nin': [topic._id] } },
+        { limit: 5 }
+      ),
       // 取0回复的主题
       cache.get('no_reply_topics', () => {
         return Topic.findByQuery(
@@ -68,12 +34,31 @@ module.exports = {
         )
       }, 60 * 1),
       currentUser
-        ? TopicCollect.getByQuery({ user_id: currentUser._id, topic_id: topicId })
+        ? TopicCollect.getByQuery({ user_id: currentUser._id, topic_id: topic._id })
         : null,
-      ({ topic, author_other_topics }, noReplyTopics, isCollect) => {
+      Topic.update(
+        // !!! 不使用await，不执行
+        { _id: topic._id },
+        { visit_count: topic.visit_count }
+      ),
+      (replies, otherTopics, noReplyTopics, isCollect) => {
+        topic.replies = replies
+        // 点赞数排名第三的回答，它的点赞数就是阈值
+        topic.reply_up_threshold = (() => {
+          let allUpCount = replies.map((reply) => {
+            return (reply.ups && reply.ups.length) || 0
+          }).sort((pre, next) => {
+            return next - pre
+          })
+
+          let threshold = allUpCount[2] || 0
+          if (threshold < 3) threshold = 3
+          return threshold
+        })()
+
         return ctx.render('topic/index', {
           topic: topic,
-          author_other_topics: author_other_topics,
+          author_other_topics: otherTopics,
           no_reply_topics: noReplyTopics,
           is_collect: isCollect,
           is_uped: (user, reply) => {
@@ -82,13 +67,7 @@ module.exports = {
           }
         })
       }
-    ).catch((e) => {
-      if (/^Error:\w+/.test(e.message)) {
-        logger.error(`getFullTopic error topic_id: ${topicId}`)
-        return ctx.renderError(e.message.match(/^Error:(w+)/)[1])
-      }
-      throw e
-    })
+    )
   },
   top: (ctx) => {
     let topic = ctx.query.topic
@@ -128,7 +107,20 @@ module.exports = {
       tab: topic.tab
     })
   },
-  lock: () => { },
+  lock: (ctx) => {
+    let topic = ctx.query.topic
+    let referer = ctx.get('referer')
+
+    topic.lock = !topic.lock
+
+    return Promise.all([
+      Topic.update(
+        { _id: topic._id },
+        { lock: topic.lock }
+      ),
+      ctx.render('notify/notify', { success: topic.lock ? '此话题已锁定。' : '此话题已取消锁定。', referer: referer })
+    ])
+  },
   delete: async (ctx) => {
     let topic = ctx.query.topic
     let author = ctx.session.user
