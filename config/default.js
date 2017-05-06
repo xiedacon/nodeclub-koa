@@ -44,9 +44,9 @@ module.exports = {
     httpOnly: true
   },
 
-  // admin 可删除话题，编辑标签。把 user_login_name 换成你的登录名
+  // admin 可删除话题，编辑标签。在 names 中加上你的登录名
   admin: {
-    names: []
+    names: ['xiedacon']
   },
 
   site: {

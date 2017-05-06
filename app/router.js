@@ -71,12 +71,13 @@ router.post('/topic/create', schema.topic.put, topic.put) // 保存新建的文�
 router.get('/topic/:tid', schema.topic.index, topic.index) // 显示某个话题
 router.get('/topic/:tid/edit', schema.topic.showEdit, topic.showEdit) // 编辑某话题
 router.post('/topic/:tid/edit', schema.topic.update, topic.update)
-router.post('/topic/:tid/top', topic.top) // 将某话题置顶
-router.post('/topic/:tid/good', topic.good) // 将某话题加精
-router.post('/topic/:tid/lock', topic.lock) // 锁定主题，不能再回复
 router.post('/topic/:tid/delete', schema.topic.delete, topic.delete)
 router.post('/topic/collect', schema.topic.collect, topic.collect) // 关注某话题
 router.post('/topic/de_collect', schema.topic.de_collect, topic.de_collect) // 取消关注某话题
+router.post('/upload', topic.upload) // 上传图片
+router.post('/topic/:tid/top', schema.topic.top, topic.top) // 将某话题置顶
+router.post('/topic/:tid/good', topic.good) // 将某话题加精
+router.post('/topic/:tid/lock', topic.lock) // 锁定主题，不能再回复
 
 // reply
 router.post('/:topic_id/reply', schema.reply.add, reply.add) // 提交一级回复
@@ -84,7 +85,6 @@ router.get('/reply/:reply_id/edit', schema.reply.showEdit, reply.showEdit) // �
 router.post('/reply/:reply_id/edit', schema.reply.update, reply.update) // 修改某评论
 router.post('/reply/:reply_id/delete', schema.reply.delete, reply.delete) // 删除某评论
 router.post('/reply/:reply_id/up', schema.reply.up, reply.up) // 为评论点赞
-router.post('/upload', topic.upload) // 上传图片
 
 // static
 router.get('/about', staticController.about)

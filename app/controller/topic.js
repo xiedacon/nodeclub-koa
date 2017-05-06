@@ -90,7 +90,20 @@ module.exports = {
       throw e
     })
   },
-  top: () => { },
+  top: (ctx) => {
+    let topic = ctx.query.topic
+    let referer = ctx.get('referer')
+
+    topic.top = !topic.top
+
+    return Promise.all([
+      Topic.update(
+        { _id: topic._id },
+        { top: topic.top }
+      ),
+      ctx.render('notify/notify', { success: topic.top ? '此话题已置顶。' : '此话题已取消置顶。', referer: referer })
+    ])
+  },
   good: () => { },
   showEdit: (ctx) => {
     let topic = ctx.query.topic

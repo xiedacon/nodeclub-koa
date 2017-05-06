@@ -135,6 +135,19 @@ module.exports = {
     Object.assign(ctx.query, { topic: topic })
 
     return next()
+  },
+  top: async (ctx, next) => {
+    if (!helper.userRequired(ctx) && !ctx.session.user.is_admin) return
+
+    let topicId = ctx.params.tid
+    if (topicId.length !== 24) return ctx.renderError('此话题不存在或已被删除。')
+
+    let topic = await Topic.getById(topicId)
+    if (!topic) return ctx.renderError('此话题不存在或已被删除。')
+
+    Object.assign(ctx.query, {topic: topic})
+
+    return next()
   }
 }
 
