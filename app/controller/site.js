@@ -26,7 +26,7 @@ module.exports = {
         return Promise.map(topics, (topic, i) => {
           return Promise.join(
             User.getById(topic.author_id),
-            Reply.getById(topic.last_reply).then(async(reply) => {
+            Reply.getById(topic.last_reply).then(async (reply) => {
               if (!reply) return
               reply.author = await User.getById(reply.author_id)
               return reply
@@ -72,9 +72,6 @@ module.exports = {
       // END 取分页数据
 
       (topics, tops, noReplyTopics, pages) => {
-        let tabName = config.site.tabs.find((part) => {
-          return part[0] === tab
-        })
         return ctx.render('index', {
           topics: topics,
           current_page: page,
@@ -82,8 +79,7 @@ module.exports = {
           tops: tops,
           no_reply_topics: noReplyTopics,
           pages: pages,
-          tab: tab,
-          pageTitle: tabName && `${tabName}版块`
+          tab: tab
         })
       }
     )
