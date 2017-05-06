@@ -63,7 +63,7 @@ router.post('/user/:name/block', user.block) // 禁言某用户
 router.post('/user/:name/delete_all', user.deleteAll) // 删除某用户所有发言
 
 // message
-router.get('/my/messages', message.index) // 用户个人的所有消息页
+router.get('/my/messages', schema.message.index, message.index) // 用户个人的所有消息页
 
 // topic
 router.get('/topic/create', schema.topic.create, topic.create) // 新建文章界面
