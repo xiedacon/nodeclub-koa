@@ -49,7 +49,17 @@ module.exports = {
   showSetting: () => { },
   setting: () => { },
   listStars: () => { },
-  top100: () => { },
+  top100: async (ctx) => {
+    let tops = await User.findByQuery(
+      { is_block: false },
+      { limit: 100, sort: '-score' }
+    )
+
+    return ctx.render('user/top100', {
+      users: tops,
+      pageTitle: 'top100'
+    })
+  },
   listCollectedTopics: async (ctx) => {
     let user = ctx.query.user
     let page = ctx.query.page || 1
