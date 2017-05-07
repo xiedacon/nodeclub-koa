@@ -76,5 +76,10 @@ module.exports = {
     Object.assign(ctx.query, { user: user })
 
     return next()
+  },
+  showSetting: async (ctx, next) => {
+    if (!helper.userRequired(ctx)) return
+
+    return next()
   }
 }

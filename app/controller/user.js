@@ -46,7 +46,12 @@ module.exports = {
       }
     )
   },
-  showSetting: () => { },
+  showSetting: (ctx) => {
+    return ctx.render('user/setting', Object.assign({}, ctx.session.user.toObject({ virtual: true }), {
+      error: null,
+      success: ctx.query.success === 'success' ? '保存成功。' : ctx.session.user.success
+    }))
+  },
   setting: () => { },
   listStars: async (ctx) => {
     return ctx.render('user/stars', { stars: await User.findByQuery({ is_star: true }) })

@@ -52,7 +52,7 @@ router.post('/reset_pass', sign.updatePass) // 更新密码
 router.get('/user/:name', schema.user.index, user.index) // 用户个人主页
 router.get('/user/:name/topics', schema.user.listTopics, user.listTopics) // 用户发布的所有话题页
 router.get('/user/:name/replies', schema.user.listReplies, user.listReplies) // 用户参与的所有回复页
-router.get('/setting', user.showSetting) // 用户个人设置页
+router.get('/setting', schema.user.showSetting, user.showSetting) // 用户个人设置页
 router.post('/setting', user.setting) // 提交个人信息设置
 router.get('/stars', user.listStars) // 显示所有达人列表页
 router.get('/users/top100', user.top100) // 显示积分前一百用户页
