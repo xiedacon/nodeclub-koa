@@ -39,6 +39,11 @@ module.exports = {
     return Reply.findOne({ topic_id: topicId })
   },
   update: (con, doc) => {
-    return Reply.update(con, {$set: doc})
+    return Reply.update(con, { $set: doc })
+  },
+  findByAuthorId: (authorId) => {
+    return Reply.find(
+      { author_id: authorId }
+    )
   }
 }

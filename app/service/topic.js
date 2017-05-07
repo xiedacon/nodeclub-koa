@@ -1,7 +1,7 @@
 'use strict'
-const { Topic, Reply } = require('../model')
+const { Topic, Reply, User } = require('../model')
 
-module.exports = {
+module.exports = exports = {
   /**
    * 根据主题ID获取主题
    * @param {String} id 主题ID
@@ -23,6 +23,29 @@ module.exports = {
    */
   findByQuery: (query, opt) => {
     return Topic.find(query, {}, opt)
+  },
+  findFullTopicByQuery: (query, opt) => {
+    return Promise.map(
+      exports.findByQuery(query, opt),
+      (topic) => {
+        return Promise.join(
+          User.findOne({ _id: topic.author_id }),
+          Reply.findOne({ _id: topic.last_reply }).then(async (reply) => {
+            if (!reply) return
+            reply.author = await User.findOne({ _id: reply.author_id })
+            return reply
+          }),
+          (author, reply) => {
+            // 保证顺序
+            // 作者可能已被删除
+            if (!author) return null
+
+            topic.author = author
+            topic.reply = reply
+            return topic
+          }
+        )
+      }).filter((topic) => { return topic !== null })
   },
   // for sitemap
   getLimit5w: () => {
@@ -54,7 +77,7 @@ module.exports = {
     )
   },
   reduceCount: async (id) => {
-    let reply = (await Reply.findOne({ topic_id: id }, {}, { sort: {create_at: -1} })) || { _id: null, create_at: (await Topic.getById(id)).create_at }
+    let reply = (await Reply.findOne({ topic_id: id }, {}, { sort: { create_at: -1 } })) || { _id: null, create_at: (await Topic.getById(id)).create_at }
     return Topic.update(
       { _id: id },
       { $inc: { reply_count: -1 }, last_reply: reply._id, last_reply_at: reply.create_at }
