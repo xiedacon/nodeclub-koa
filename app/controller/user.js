@@ -2,7 +2,7 @@
 
 const { Topic, Reply } = require('../service')
 const tools = require('../common/tools.js')
-const secret = require('config-lite').session.secret
+const { session: { secret }, site: { list_topic_count: limit } } = require('config-lite')
 
 module.exports = {
   index: (ctx) => {
@@ -49,7 +49,28 @@ module.exports = {
   listStars: () => { },
   top100: () => { },
   listCollectedTopics: () => { },
-  listTopics: () => { },
+  listTopics: (ctx) => {
+    let user = ctx.query.user
+    let page = ctx.query.page || 1
+
+    return Promise.join(
+      Topic.findFullTopicByQuery(
+        { author_id: user._id },
+        { skip: (page - 1) * limit, limit: limit, sort: '-create_at' }
+      ),
+      Topic.getCountByQuery({ author_id: user._id }).then((count) => {
+        return Math.ceil(count / limit)
+      }),
+      (topics, pages) => {
+        return ctx.render('user/topics', {
+          user: user,
+          topics: topics,
+          current_page: page,
+          pages: pages
+        })
+      }
+    )
+  },
   listReplies: () => { },
   toggleStar: () => { },
   block: () => { },
