@@ -203,7 +203,7 @@
           var $me = $(this);
           var action = $me.attr('action');
           var params = {
-            user_id: '{{user._id}}',
+            user_id: '{{user._id.toString()}}',
             _csrf: '{{csrf}}'
           };
           $.post('/user/' + action, params, function (data) {

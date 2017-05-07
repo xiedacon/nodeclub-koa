@@ -1,6 +1,6 @@
 'use strict'
 
-const { Topic, Reply } = require('../service')
+const { User, Topic, Reply } = require('../service')
 const tools = require('../common/tools.js')
 const { session: { secret }, site: { list_topic_count: limit } } = require('config-lite')
 
@@ -102,7 +102,18 @@ module.exports = {
       }
     )
   },
-  toggleStar: () => { },
+  toggleStar: async (ctx) => {
+    let user = ctx.query.user
+
+    user.is_star = !user.is_star
+
+    await User.update(
+      { _id: user._id },
+      { is_star: user.is_star }
+    )
+
+    ctx.send({ status: 'success' })
+  },
   block: () => { },
   deleteAll: () => { }
 }
