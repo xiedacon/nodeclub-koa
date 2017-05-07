@@ -56,7 +56,7 @@ router.get('/setting', user.showSetting) // 用户个人设置页
 router.post('/setting', user.setting) // 提交个人信息设置
 router.get('/stars', user.listStars) // 显示所有达人列表页
 router.get('/users/top100', user.top100) // 显示积分前一百用户页
-router.get('/user/:name/collections', user.listCollectedTopics) // 用户收藏的所有话题页
+router.get('/user/:name/collections', schema.user.listCollectedTopics, user.listCollectedTopics) // 用户收藏的所有话题页
 router.post('/user/set_star', schema.user.toggleStar, user.toggleStar) // 把某用户设为达人
 router.post('/user/cancel_star', schema.user.toggleStar, user.toggleStar) // 取消某用户的达人身份
 router.post('/user/:name/block', schema.user.block, user.block) // 禁言某用户

@@ -1,6 +1,6 @@
 'use strict'
 
-const { User, Topic, Reply } = require('../service')
+const { User, Topic, Reply, TopicCollect } = require('../service')
 const tools = require('../common/tools.js')
 const { session: { secret }, site: { list_topic_count: limit } } = require('config-lite')
 
@@ -50,7 +50,28 @@ module.exports = {
   setting: () => { },
   listStars: () => { },
   top100: () => { },
-  listCollectedTopics: () => { },
+  listCollectedTopics: async (ctx) => {
+    let user = ctx.query.user
+    let page = ctx.query.page || 1
+
+    let topicCollects = await TopicCollect.findByUserId(user._id, { skip: (page - 1) * limit, limit: limit })
+    let ids = topicCollects.map((topicCollect) => { return topicCollect.topic_id.toString() })
+
+    return Promise.join(
+      Topic.findFullTopicByQuery({ _id: { '$in': ids } }),
+      Topic.getCountByQuery({ _id: { '$in': ids } }).then((count) => {
+        return Math.ceil(count / limit)
+      }),
+      (topics, pages) => {
+        return ctx.render('user/collect_topics', {
+          topics: topics,
+          current_page: page,
+          pages: pages,
+          user: user
+        })
+      }
+    )
+  },
   listTopics: (ctx) => {
     let user = ctx.query.user
     let page = ctx.query.page || 1
