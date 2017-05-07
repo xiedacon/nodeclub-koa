@@ -48,7 +48,9 @@ module.exports = {
   },
   showSetting: () => { },
   setting: () => { },
-  listStars: () => { },
+  listStars: async (ctx) => {
+    return ctx.render('user/stars', { stars: await User.findByQuery({ is_star: true }) })
+  },
   top100: async (ctx) => {
     let tops = await User.findByQuery(
       { is_block: false },
