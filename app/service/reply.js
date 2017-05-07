@@ -38,8 +38,11 @@ module.exports = {
   getLastReplyByTopId: (topicId) => {
     return Reply.findOne({ topic_id: topicId })
   },
-  update: (con, doc) => {
-    return Reply.update(con, { $set: doc })
+  update: (con, doc, opt) => {
+    return Reply.update(con, { $set: doc }, opt)
+  },
+  updateRaw: (con, doc, opt) => {
+    return Reply.update(con, doc, opt)
   },
   findByAuthorId: (authorId) => {
     return Reply.find(

@@ -129,5 +129,28 @@ module.exports = {
 
     ctx.send({ status: 'success' })
   },
-  deleteAll: () => { }
+  deleteAll: (ctx) => {
+    let user = ctx.query.user
+
+    return Promise.all([
+      // 删除主题
+      Topic.update(
+        { author_id: user._id },
+        { deleted: true },
+        { multi: true }
+      ),
+      // 删除评论
+      Reply.update(
+        { author_id: user._id },
+        { deleted: true },
+        { multi: true }
+      ),
+      // 点赞数也全部干掉
+      Reply.updateRaw(
+        {},
+        { $pull: { ups: user._id } },
+        { multi: true }
+      )
+    ]).then(() => { ctx.send({ status: 'success' }) })
+  }
 }

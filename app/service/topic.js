@@ -56,8 +56,8 @@ module.exports = exports = {
    * @param {Object} con 搜索关键词
    * @param {Object} doc 需要更新的字段
    */
-  update: (con, doc) => {
-    return Topic.update(con, { $set: doc })
+  update: (con, doc, opt) => {
+    return Topic.update(con, { $set: doc }, opt)
   },
   newAndSave: (title, content, tab, authorId) => {
     return new Topic({

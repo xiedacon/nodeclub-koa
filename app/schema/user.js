@@ -46,6 +46,18 @@ module.exports = {
     return next()
   },
   block: async (ctx, next) => {
+    if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
+    let username = ctx.params.name
+
+    let user = await User.getByLoginName(username)
+    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' })
+
+    Object.assign(ctx.query, { user: user })
+
+    return next()
+  },
+  deleteAll: async (ctx, next) => {
+    if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
     let username = ctx.params.name
 
     let user = await User.getByLoginName(username)

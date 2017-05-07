@@ -60,7 +60,7 @@ router.get('/user/:name/collections', user.listCollectedTopics) // 用户收藏�
 router.post('/user/set_star', schema.user.toggleStar, user.toggleStar) // 把某用户设为达人
 router.post('/user/cancel_star', schema.user.toggleStar, user.toggleStar) // 取消某用户的达人身份
 router.post('/user/:name/block', schema.user.block, user.block) // 禁言某用户
-router.post('/user/:name/delete_all', user.deleteAll) // 删除某用户所有发言
+router.post('/user/:name/delete_all', schema.user.deleteAll, user.deleteAll) // 删除某用户所有发言
 
 // message
 router.get('/my/messages', schema.message.index, message.index) // 用户个人的所有消息页
