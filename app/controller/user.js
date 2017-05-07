@@ -16,12 +16,14 @@ module.exports = {
       Reply.findByAuthorId(user._id, { limit: 20, sort: '-create_at' }).then(async (replies) => {
         let ids = []
         replies
-          .map((reply) => { return reply.topic_id })
-          .forEach((topicId) => { ids.indexOf(topicId) < 0 && ids.push(topicId) })
+          .map((reply) => { return reply.topic_id.toString() })
+          .forEach((topicId) => {
+            ids.indexOf(topicId) < 0 && ids.push(topicId)
+          })
         ids = ids.slice(0, 5) //  只显示最近5条
 
         let topics = await Topic.findFullTopicByQuery({ _id: { '$in': ids } })
-        topics.sort((x, y) => { return ids.indexOf(x._id) - ids.indexOf(y._id) })
+        topics.sort((x, y) => { return ids.indexOf(x._id.toString()) - ids.indexOf(y._id.toString()) })
         return topics
       }),
       (recentTopics, recentReplies) => {
@@ -71,7 +73,35 @@ module.exports = {
       }
     )
   },
-  listReplies: () => { },
+  listReplies: (ctx) => {
+    let user = ctx.query.user
+    let page = ctx.query.page || 1
+    let limit = 50
+
+    return Promise.join(
+      Reply.findByAuthorId(user._id, { skip: (page - 1) * limit, limit: limit, sort: '-create_at' }).then(async (replies) => {
+        let ids = []
+        replies
+          .map((reply) => { return reply.topic_id.toString() })
+          .forEach((topicId) => { ids.indexOf(topicId) < 0 && ids.push(topicId) })
+
+        let topics = await Topic.findFullTopicByQuery({ _id: { '$in': ids } })
+        topics.sort((x, y) => { return ids.indexOf(x._id.toString()) - ids.indexOf(y._id.toString()) })
+        return topics
+      }),
+      Reply.getCountByQuery({ author_id: user._id }).then((count) => {
+        return Math.ceil(count / limit)
+      }),
+      (topics, pages) => {
+        return ctx.render('user/replies', {
+          user: user,
+          topics: topics,
+          current_page: page,
+          pages: pages
+        })
+      }
+    )
+  },
   toggleStar: () => { },
   block: () => { },
   deleteAll: () => { }

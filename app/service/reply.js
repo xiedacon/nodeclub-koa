@@ -1,5 +1,5 @@
 'use strict'
-const { Reply } = require('../model')
+const { Reply, Topic } = require('../model')
 
 module.exports = {
   /**
@@ -45,5 +45,8 @@ module.exports = {
     return Reply.find(
       { author_id: authorId }
     )
+  },
+  getCountByQuery: (query) => {
+    return Topic.count(query)
   }
 }
