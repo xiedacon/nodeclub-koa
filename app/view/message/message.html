@@ -11,17 +11,14 @@
 	<a href="/topic/{{message.topic._id.toString()}}/{{message.reply && `#${message.reply._id.toString()}`}}" target='_blank'>{{message.topic.title}}</a>
 	{{/if}}
 	{{if message.type === 'reply2'}}
-	{{console.log('reply2')}}
 	在话题
 	<a href="/topic/{{message.topic._id.toString()}}/{{message.reply && `#${message.reply._id.toString()}`}}" target='_blank'>{{message.topic.title}}</a>
 	中回复了你的回复
 	{{/if}}
 	{{if message.type === 'follow'}}
-	{{console.log('follow')}}
 	关注了你
 	{{/if}}
 	{{if message.type === 'at'}}
-	{{console.log('at')}}
 	在话题
 	<a href="/topic/{{message.topic._id.toString()}}/{{message.reply && `#${message.reply._id.toString()}`}}" target='_blank'>{{message.topic.title}}</a>
 	中@了你
