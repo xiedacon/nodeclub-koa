@@ -1,52 +1,23 @@
 'use strict'
 const cache = require('../middleware/cache.js')
 const Promiss = require('bluebird')
-const config = require('config-lite')
-const { Topic, User, Reply } = require('../service')
+const { site: { list_topic_count: limit } } = require('config-lite')
+const { Topic, User } = require('../service')
 
 module.exports = {
   index: (ctx) => {
-    let page = parseInt(ctx.request.query.page, 10) || 1
+    let page = ctx.query.page || 1
     page = page > 0 ? page : 1
-    let query = {}
-    let tab = ctx.request.query.tab || 'all'
-    if (tab === 'all') {
-      query.tab = { $ne: 'job' }
-    } else if (tab === 'good') {
-      query.good = true
-    } else {
-      query.tab = tab
-    }
-    let limit = config.site.list_topic_count
-    let options = { skip: (page - 1) * limit, limit: limit }
+    let tab = ctx.query.tab || 'all'
+    let query = tab === 'good'
+      ? { good: true }
+      : { tab: tab === 'all' ? { $ne: 'job' } : tab }
 
     return Promiss.join(
-      (async () => {
-        let topics = await Topic.findByQuery(query, options)
-        return Promise.map(topics, (topic, i) => {
-          return Promise.join(
-            User.getById(topic.author_id),
-            Reply.getById(topic.last_reply).then(async (reply) => {
-              if (!reply) return
-              reply.author = await User.getById(reply.author_id)
-              return reply
-            }),
-            (author, reply) => {
-              // 保证顺序
-              // 作者可能已被删除
-              if (!author) return null
-
-              topic.author = author
-              topic.reply = reply
-              return topic
-            }
-          )
-        }).then((topics) => {
-          return topics.filter((topic) => {
-            return topic !== null
-          })
-        })
-      })(),
+      Topic.findFullTopicByQuery(
+        query,
+        { skip: (page - 1) * limit, limit: limit }
+      ),
       // 取排行榜上的用户
       cache.get('tops', () => {
         return User.findByQuery(
