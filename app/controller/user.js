@@ -114,6 +114,20 @@ module.exports = {
 
     ctx.send({ status: 'success' })
   },
-  block: () => { },
+  block: async (ctx) => {
+    let user = ctx.query.user
+    let action = ctx.request.body.action
+
+    user.is_block =
+      ((action === 'set_block') && true) ||
+      ((action === 'cancel_block') && false)
+
+    await User.update(
+      { _id: user._id },
+      { is_block: user.is_block }
+    )
+
+    ctx.send({ status: 'success' })
+  },
   deleteAll: () => { }
 }

@@ -59,7 +59,7 @@ router.get('/users/top100', user.top100) // 显示积分前一百用户页
 router.get('/user/:name/collections', user.listCollectedTopics) // 用户收藏的所有话题页
 router.post('/user/set_star', schema.user.toggleStar, user.toggleStar) // 把某用户设为达人
 router.post('/user/cancel_star', schema.user.toggleStar, user.toggleStar) // 取消某用户的达人身份
-router.post('/user/:name/block', user.block) // 禁言某用户
+router.post('/user/:name/block', schema.user.block, user.block) // 禁言某用户
 router.post('/user/:name/delete_all', user.deleteAll) // 删除某用户所有发言
 
 // message

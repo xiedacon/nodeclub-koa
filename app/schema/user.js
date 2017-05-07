@@ -44,5 +44,15 @@ module.exports = {
     Object.assign(ctx.query, { user: user })
 
     return next()
+  },
+  block: async (ctx, next) => {
+    let username = ctx.params.name
+
+    let user = await User.getByLoginName(username)
+    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' })
+
+    Object.assign(ctx.query, { user: user })
+
+    return next()
   }
 }
