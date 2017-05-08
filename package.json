@@ -6,6 +6,14 @@
   "scripts": {
     "test": "standard"
   },
+  "standard": {
+    "ignore": [
+      "/app/public",
+      // 以后移除
+      "/test",
+      "/app/middleware/art-template"
+    ]
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.0",
