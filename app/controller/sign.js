@@ -95,14 +95,15 @@ module.exports = {
     let retrieveKey = uuid.v4()
     let retrieveTime = Date.now()
 
-    await User.update(
-      { _id: user._id },
-      { retrieve_key: retrieveKey, retrieve_time: retrieveTime }
-    )
-
-    mail.sendResetPassMail(user.email, retrieveKey, user.loginname)
-
-    return ctx.render('notify/notify', { success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。' })
+    return Promise.all([
+      User.update(
+        { _id: user._id },
+        { retrieve_key: retrieveKey, retrieve_time: retrieveTime }
+      ),
+      ctx.render('notify/notify', { success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。' })
+    ]).then(() => {
+      mail.sendResetPassMail(user.email, retrieveKey, user.loginname)
+    })
   },
   resetPass: (ctx) => {
     let key = ctx.query.key
@@ -110,5 +111,16 @@ module.exports = {
 
     return ctx.render('sign/reset', { name: name, key: key })
   },
-  updatePass: () => { }
+  updatePass: async (ctx) => {
+    let user = ctx.query.user
+    let pass = ctx.query.pass
+
+    return Promise.all([
+      User.update(
+        { _id: user._id },
+        { pass: await tools.bhash(pass), retrieve_key: null, retrieve_time: null }
+      ),
+      ctx.render('notify/notify', { success: '你的密码已重置。' })
+    ])
+  }
 }

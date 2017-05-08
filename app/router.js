@@ -46,7 +46,7 @@ router.get('/active_account', sign.activeAccount) // 帐号激活
 router.get('/search_pass', sign.showSearchPass) // 找回密码页面
 router.post('/search_pass', schema.sign.updateSearchPass, sign.updateSearchPass) // 更新密码
 router.get('/reset_pass', schema.sign.resetPass, sign.resetPass) // 进入重置密码页面
-router.post('/reset_pass', sign.updatePass) // 更新密码
+router.post('/reset_pass', schema.sign.updatePass, sign.updatePass) // 更新密码
 
 // user
 router.get('/user/:name', schema.user.index, user.index) // 用户个人主页

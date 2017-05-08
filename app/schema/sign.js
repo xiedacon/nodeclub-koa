@@ -122,5 +122,21 @@ module.exports = {
     Object.assign(ctx.query, { name: name, key: key })
 
     return next()
+  },
+  updatePass: async (ctx, next) => {
+    let pass = validator.trim(ctx.request.body.psw || '')
+    let repass = validator.trim(ctx.request.body.repsw || '')
+    let key = validator.trim(ctx.request.body.key || '')
+    let name = validator.trim(ctx.request.body.name || '')
+
+    if (pass === '') return ctx.render('sign/reset', { name: name, key: key, error: '密码不能为空' })
+    if (pass !== repass) return ctx.render('sign/reset', { name: name, key: key, error: '两次密码输入不一致。' })
+
+    let user = await User.getByNameAndKey(name, key)
+    if (!user) return ctx.render('notify/notify', { error: '错误的激活链接' })
+
+    Object.assign(ctx.query, { user: user, pass: pass })
+
+    return next()
   }
 }
