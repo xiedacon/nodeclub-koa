@@ -9,7 +9,6 @@
   "standard": {
     "ignore": [
       "/app/public",
-      // 以后移除
       "/test",
       "/app/middleware/art-template"
     ]

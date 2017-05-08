@@ -25,7 +25,6 @@
       {{#Loader( '/public/index.min.js') .js( '/public/libs/jquery-2.1.0.js') .js( '/public/libs/lodash.compat.js') .js( '/public/libs/jquery-ujs.js') .js( '/public/libs/bootstrap/js/bootstrap.js') .js( '/public/libs/jquery.caret.js') .js(
         '/public/libs/jquery.atwho.js') .js( '/public/libs/markdownit.js') .js( '/public/libs/code-prettify/prettify.js') .js( '/public/libs/qrcode.js') .js( '/public/javascripts/main.js') .js( '/public/javascripts/responsive.js') .done({prefix: config.static_host, env: config.env,
         CDNMap: assets})}}
-
         {{if topic}}
         <title>
           {{topic.title}} - {{config.name}}
@@ -35,10 +34,10 @@
           {{pageTitle}} - {{config.name}}
         </title>
         {{else}}
-          <title>
-            {{config.description}}
-          </title>
-          {{/if}}
+        <title>
+          {{config.description}}
+        </title>
+        {{/if}}
           <meta content="_csrf" name="csrf-param">
           <meta content="{{csrf}}" name="csrf-token">
 </head>

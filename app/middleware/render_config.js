@@ -3,6 +3,7 @@
 const config = require('config-lite')
 
 module.exports = {
+  console: console,
   config: config.site,
   Loader: require('./loader.js'),
   assets: config.assets,
@@ -46,6 +47,6 @@ module.exports = {
       return (content += `<li><a href='${base + pages}'>»</a></li>`)
     }
   },
-  markdown: require('./markdown.js')
-  // multiline: require('multiline')
+  markdown: require('./markdown.js'),
+  multiline: require('multiline')
 }
