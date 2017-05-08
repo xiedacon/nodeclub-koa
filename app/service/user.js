@@ -1,5 +1,6 @@
 'use strict'
 const { User } = require('../model')
+const uuid = require('uuid')
 
 module.exports = {
   /**
@@ -64,15 +65,15 @@ module.exports = {
    * @param {Boolean} active
    */
   newAndSave: (user) => {
-    return new User(user).save()
+    return new User(Object.assign({ accessToken: uuid.v4() }, user)).save()
   },
   update: (con, doc) => {
     return User.update(con, { $set: doc })
   },
   reduceReply: (id) => {
     return User.update(
-      {_id: id},
-      {$inc: {score: -5, reply_count: -1}}
+      { _id: id },
+      { $inc: { score: -5, reply_count: -1 } }
     )
   }
 }
