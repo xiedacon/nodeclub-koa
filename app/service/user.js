@@ -53,7 +53,7 @@ module.exports = {
    * @param {String} key 激活码
    */
   getByNameAndKey: (loginname, key) => {
-
+    return User.findOne({ loginname: loginname, retrieve_key: key })
   },
   /**
    * 保存用户

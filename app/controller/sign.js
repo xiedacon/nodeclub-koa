@@ -104,6 +104,11 @@ module.exports = {
 
     return ctx.render('notify/notify', { success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。' })
   },
-  resetPass: () => { },
+  resetPass: (ctx) => {
+    let key = ctx.query.key
+    let name = ctx.query.name
+
+    return ctx.render('sign/reset', { name: name, key: key })
+  },
   updatePass: () => { }
 }

@@ -108,5 +108,19 @@ module.exports = {
     Object.assign(ctx.query, { user: user })
 
     return next()
+  },
+  resetPass: async (ctx, next) => {
+    let key = validator.trim(ctx.request.body.key || '')
+    let name = validator.trim(ctx.request.body.name || '')
+
+    let user = await User.getByNameAndKey(name, key)
+    if (!user) return ctx.renderError({ error: '信息有误，密码无法重置。' }, 403)
+    let now = Date.now()
+    let oneDay = 1000 * 60 * 60 * 24
+    if (!user.retrieve_time || now - user.retrieve_time > oneDay) return ctx.render('notify/notify', { error: '该链接已过期，请重新申请。' })
+
+    Object.assign(ctx.query, { name: name, key: key })
+
+    return next()
   }
 }
