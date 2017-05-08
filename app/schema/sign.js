@@ -95,9 +95,18 @@ module.exports = {
       return ctx.renderError(`此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。`, 403, 'sign/signin')
     }
 
-    Object.assign(ctx.query, {
-      user: user
-    })
+    Object.assign(ctx.query, { user: user })
+    return next()
+  },
+  updateSearchPass: async (ctx, next) => {
+    let email = validator.trim(ctx.request.body.email).toLowerCase()
+    if (!validator.isEmail(email)) return ctx.render('sign/search_pass', { error: '邮箱不合法', email: email })
+
+    let user = await User.getByMail(email)
+    if (!user) return ctx.render('sign/search_pass', { error: '没有这个电子邮箱。', email: email })
+
+    Object.assign(ctx.query, { user: user })
+
     return next()
   }
 }

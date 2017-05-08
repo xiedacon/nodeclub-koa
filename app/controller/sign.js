@@ -3,6 +3,7 @@ const tools = require('../common/tools.js')
 const { User } = require('../service')
 const auth = require('../middleware/auth.js')
 const mail = require('../middleware/mail.js')
+const uuid = require('uuid')
 const secret = require('config-lite').session.secret
 const notJump = [
   '/active_account', // active page
@@ -85,8 +86,24 @@ module.exports = {
       })
     ])
   },
-  showSearchPass: () => { },
-  updateSearchPass: () => { },
+  showSearchPass: (ctx) => {
+    return ctx.render('sign/search_pass')
+  },
+  updateSearchPass: async (ctx) => {
+    let user = ctx.query.user
+    // 动态生成retrive_key和timestamp到users collection,之后重置密码进行验证
+    let retrieveKey = uuid.v4()
+    let retrieveTime = Date.now()
+
+    await User.update(
+      { _id: user._id },
+      { retrieve_key: retrieveKey, retrieve_time: retrieveTime }
+    )
+
+    mail.sendResetPassMail(user.email, retrieveKey, user.loginname)
+
+    return ctx.render('notify/notify', { success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。' })
+  },
   resetPass: () => { },
   updatePass: () => { }
 }
