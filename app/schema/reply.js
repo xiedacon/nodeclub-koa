@@ -3,10 +3,12 @@
 const validator = require('validator')
 const { Topic, Reply } = require('../service')
 const helper = require('./helper.js')
+const config = require('config-lite')
 
 module.exports = {
   add: async (ctx, next) => {
-    if (!helper.userRequired(ctx)) return
+    if (!helper.userRequired(ctx) ||
+      !(await helper.peruserperday(ctx, 'create_reply', config.create_reply_per_day, { showJson: false }))) return
 
     let content = validator.trim(ctx.request.body.r_content)
     let topicId = ctx.params.topic_id
@@ -78,7 +80,7 @@ module.exports = {
 
     if (!reply.author_id.equals(ctx.session.user._id) && !ctx.session.user.isAdmin) return ctx.send({ status: 'failed' })
 
-    Object.assign(ctx.query, {reply: reply})
+    Object.assign(ctx.query, { reply: reply })
 
     return next()
   }

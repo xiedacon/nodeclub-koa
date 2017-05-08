@@ -21,8 +21,25 @@ const auth = require('./app/middleware/auth.js')
 const requestLog = require('./app/middleware/request_log.js')
 const busboy = require('./app/middleware/busboy.js')
 const bytes = require('bytes')
+const helmet = require('koa-helmet')
+const CSRF = require('koa-csrf').default
 
 const app = new Koa()
+
+app.use(require('./app/middleware/error_page.js'))
+app.use(require('./app/middleware/send.js'))
+
+// error handler
+if ((!config.debug)) {
+  app.use((ctx, next) => {
+    try {
+      return next()
+    } catch (e) {
+      logger.error(e)
+      return ctx.send('500 status', 500)
+    }
+  })
+}
 
 app.use(mount('/public', staticMiddle(config.staticPath, {
   compress: true,
@@ -45,11 +62,24 @@ app.use(mount('/public', staticMiddle(config.staticPath, {
 app.use(requestLog)
 
 app.keys = [config.cookie.name]
+app.use(helmet({ frameguard: { action: 'sameorigin' } }))
 app.use(bodyparser())
 app.use(session({
   key: config.session.secret,
   store: new RedisStore()
 }))
+
+// crsf
+if (config.debug) {
+  app.use((ctx, next) => {
+    if (ctx.path === '/api' || ctx.path.indexOf('/api') < 0) {
+      return (new CSRF())(ctx, () => {
+        ctx.state.csrf = ctx.csrf
+        return next()
+      })
+    }
+  })
+}
 
 app.use(busboy({
   limits: {
@@ -61,9 +91,6 @@ app.use(render(
   require('./app/middleware/render_config.js')
 ))
 if (config.debug) app.use(require('./app/middleware/render_log.js'))
-
-app.use(require('./app/middleware/error_page.js'))
-app.use(require('./app/middleware/send.js'))
 
 // custom middleware
 app.use(auth.authUser)
