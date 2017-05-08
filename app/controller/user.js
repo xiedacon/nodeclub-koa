@@ -47,12 +47,36 @@ module.exports = {
     )
   },
   showSetting: (ctx) => {
-    return ctx.render('user/setting', Object.assign({}, ctx.session.user.toObject({ virtual: true }), {
+    return ctx.render('user/setting', Object.assign({
       error: null,
-      success: ctx.query.success === 'success' ? '保存成功。' : ctx.session.user.success
-    }))
+      success: ctx.query.save === 'success' ? '保存成功。' : null
+    }, ctx.session.user.toObject({ virtual: true })))
   },
-  setting: () => { },
+  setting: async (ctx) => {
+    let action = ctx.query.action
+
+    if (action === 'change_setting') {
+      let user = ctx.query.user
+
+      await User.update(
+        { _id: user._id },
+        { url: user.url, location: user.location, weibo: user.weibo, signature: user.signature }
+      )
+
+      return ctx.redirect('/setting?save=success')
+    }
+
+    if (action === 'change_password') {
+      let user = ctx.query.user
+      return Promise.all([
+        User.update(
+          { _id: user._id },
+          { pass: user.pass }
+        ),
+        ctx.render('user/setting', Object.assign({ success: '密码已被修改。' }, user.toObject({ virtual: true })))
+      ])
+    }
+  },
   listStars: async (ctx) => {
     return ctx.render('user/stars', { stars: await User.findByQuery({ is_star: true }) })
   },
