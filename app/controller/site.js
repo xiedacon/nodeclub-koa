@@ -1,6 +1,6 @@
 'use strict'
 const cache = require('../middleware/cache.js')
-const Promiss = require('bluebird')
+const xmlbuilder = require('xmlbuilder')
 const { site: { list_topic_count: limit } } = require('config-lite')
 const { Topic, User } = require('../service')
 
@@ -13,7 +13,7 @@ module.exports = {
       ? { good: true }
       : { tab: tab === 'all' ? { $ne: 'job' } : tab }
 
-    return Promiss.join(
+    return Promise.join(
       Topic.findFullTopicByQuery(
         query,
         { skip: (page - 1) * limit, limit: limit }
@@ -55,6 +55,24 @@ module.exports = {
       }
     )
   },
-  sitemap: (ctx) => { },
-  appDownload: (ctx) => { }
+  sitemap: async (ctx) => {
+    let urlset = xmlbuilder.create('urlset', { version: '1.0', encoding: 'UTF-8' })
+    urlset.att('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+
+    let sitemap = await cache.get('sitemap', async () => {
+      let topics = await Topic.getLimit5w()
+
+      topics.forEach((topic) => {
+        urlset.ele('url').ele('loc', 'http://cnodejs.org/topic/' + topic._id)
+      })
+
+      return urlset.end()
+    }, 24 * 60 * 60) // 缓存一天
+
+    ctx.type = 'xml'
+    ctx.send(sitemap)
+  },
+  appDownload: (ctx) => {
+    ctx.redirect('https://github.com/soliury/noder-react-native/blob/master/README.md')
+  }
 }
