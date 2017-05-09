@@ -1,3 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <!-- meta -->
+  <meta charset="utf-8" />
+  <meta name='description' content='{{config.description}}'>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="{{config.keywords}}" />
+  <!-- see http://smerity.com/articles/2013/where_did_all_the_http_referrers_go.html -->
+  <meta name="referrer" content="always"> {{each config.headers as header}}
+  {{#header}}
+    {{/each}}
+
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss" /> {{if config.icon}}
+    <link rel="icon" href="{{staticFile(config.icon)}}" type="image/x-icon" />
+    {{/if}}
+
+
+
+    <!-- style -->
+    {{#Loader( '/public/stylesheets/index.min.css') .css( '/public/libs/bootstrap/css/bootstrap.css') .css( '/public/stylesheets/common.css') .css( '/public/stylesheets/style.less') .css( '/public/stylesheets/responsive.css') .css(
+      '/public/stylesheets/jquery.atwho.css') .css( '/public/libs/editor/editor.css') .css( '/public/libs/webuploader/webuploader.css') .css( '/public/libs/code-prettify/prettify.css') .css( '/public/libs/font-awesome/css/font-awesome.css') .done({prefix: config.static_host, env: config.env,
+      CDNMap: assets})}}
+
+      <!-- scripts -->
+      {{#Loader( '/public/index.min.js') .js( '/public/libs/jquery-2.1.0.js') .js( '/public/libs/lodash.compat.js') .js( '/public/libs/jquery-ujs.js') .js( '/public/libs/bootstrap/js/bootstrap.js') .js( '/public/libs/jquery.caret.js') .js(
+        '/public/libs/jquery.atwho.js') .js( '/public/libs/markdownit.js') .js( '/public/libs/code-prettify/prettify.js') .js( '/public/libs/qrcode.js') .js( '/public/javascripts/main.js') .js( '/public/javascripts/responsive.js') .done({prefix: config.static_host, env: config.env,
+        CDNMap: assets})}}
+
+        {{if topic}}
+        <title>
+          {{topic.title}} - {{config.name}}
+        </title>
+        {{else if pageTitle}}
+        <title>
+          {{pageTitle}} - {{config.name}}
+        </title>
+        {{else}}
+          <title>
+            {{config.description}}
+          </title>
+          {{/if}}
+          <meta content="_csrf" name="csrf-param">
+          <meta content="{{csrf}}" name="csrf-token">
+</head>
+
+<body>
+  <!-- navbar -->
+  <div class='navbar'>
+    <div class='navbar-inner'>
+      <div class='container'>
+        <a class='brand' href='/'>
+          {{if config.logo}}
+          <img src="{{staticFile(config.logo)}}" />
+          {{else}}
+            {{config.name}}
+          {{/if}}
+        </a>
+
+        <form id='search_form' class='navbar-search' action="/search">
+          <input type='text' id='q' name='q' class='search-query span3' value='' />
+        </form>
+        <ul class='nav pull-right'>
+          <li><a href='/'>首页</a></li>
+          {{if current_user}}
+          <li>
+            <a href='/my/messages'>
+              {{if current_user.messages_count}}
+              <span class='big messages_count'>
+                {{current_user.messages_count}}
+              </span>
+              {{/if}}
+              未读消息
+            </a>
+          </li>
+          {{/if}}
+          <li><a href='/getstart'>新手入门</a></li>
+          <li><a href='/api'>API</a></li>
+          {{each config.navs as nav}}
+          <li>
+            <a href="{{nav[0]}}" target="{{nav[2]}}">
+              {{nav[1]}}
+            </a>
+          </li>
+          {{/each}}
+          {{if current_user}}
+          <li><a href='/setting'>设置</a></li>
+          <li>
+            <a href='/signout' data-method="post" rel="nofollow">退出</a>
+          </li>
+          {{else}}
+            <li><a href='/signup'>注册</a></li>
+            <li><a href='/signin'>登录</a></li>
+            {{/if}}
+        </ul>
+        <a class="btn btn-navbar" id="responsive-sidebar-trigger">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div id='main'>
 GitHub 登陆出错
 
 <ul>
@@ -9,4 +114,49 @@ GitHub 登陆出错
   <a href="https://github.com/alsotang" target="_blank"><img src="http://alsotang.u.qiniudn.com/QQ20140807-1.png"></a>
 </ul>
 
+  </div>
+  <div id='backtotop'>回到顶部</div>
+  <div id='footer'>
+    <div id='footer_main'>
+      <div class="links">
+        <a class='dark' href='/rss'>RSS</a> |
+        <a class='dark' href='https://github.com/cnodejs/nodeclub/'>源码地址</a>
+      </div>
+
+      {{include '/_sponsors'}}
+
+    </div>
+  </div>
+  <div id="sidebar-mask"></div>
+
+  {{if config.google_tracker_id}}
+  <script>
+    // google analytics
+    (function(i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function() {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', "{{proxy('https://www.google-analytics.com/analytics.js')}}", 'ga');
+
+    ga('create', '{{config.google_tracker_id}}', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+  {{/if}}
+
+  {{if config.cnzz_tracker_id}}
+  <div style="display:none;">
+    <script src="//s95.cnzz.com/z_stat.php?id={{config.cnzz_tracker_id}}&web_id={{config.cnzz_tracker_id}}" language="JavaScript"></script>
+  </div>
+  {{/if}}
+
+</body>
+
+</html>
 

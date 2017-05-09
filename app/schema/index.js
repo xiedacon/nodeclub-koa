@@ -5,5 +5,6 @@ module.exports = {
   topic: require('./topic.js'),
   reply: require('./reply.js'),
   message: require('./message.js'),
-  user: require('./user.js')
+  user: require('./user.js'),
+  github: require('./github.js')
 }

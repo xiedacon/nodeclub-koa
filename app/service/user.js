@@ -24,6 +24,9 @@ module.exports = {
   getByMail: (email) => {
     return User.findOne({ email: email })
   },
+  getByGitHubId: (githubId) => {
+    return User.findOne({ githubId: githubId })
+  },
   /**
    * 根据关键字，获取一组用户
    * @param {String} query 关键字

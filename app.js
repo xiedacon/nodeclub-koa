@@ -23,6 +23,8 @@ const busboy = require('./app/middleware/busboy.js')
 const bytes = require('bytes')
 const helmet = require('koa-helmet')
 const CSRF = require('koa-csrf').default
+const passport = require('koa-passport')
+const GitHubStrategy = require('passport-github').Strategy
 
 const app = new Koa()
 
@@ -68,6 +70,14 @@ app.use(session({
   key: config.session.secret,
   store: new RedisStore()
 }))
+
+// oauth 中间件
+app.use(passport.initialize())
+
+// github oauth
+passport.serializeUser((user, done) => { done(null, user) })
+passport.deserializeUser((user, done) => { done(null, user) })
+passport.use(new GitHubStrategy(config.oauth.github, require('./app/middleware/github_strategy.js')))
 
 // crsf
 if (config.debug) {

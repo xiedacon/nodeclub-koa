@@ -97,14 +97,15 @@ router.get('/api', staticController.api)
 router.get('/rss', rss.index)
 
 // github
-router.get('/auth/github', passport.authenticate('github'))
+router.get('/auth/github', (ctx, next) => {
+  if (config.oauth.github.clientID === 'your GITHUB_CLIENT_ID') return ctx.send('call the admin to set github oauth.')
+  return next()
+}, passport.authenticate('github'))
 router.get('/auth/github/callback',
-  passport.authenticate('github', {
-    failureRedirect: '/signin'
-  }),
-  github.callback)
+  passport.authenticate('github', { failureRedirect: '/signin' }),
+  schema.github.callback, github.callback)
 router.get('/auth/github/new', github.new)
-router.post('/auth/github/create', github.create)
+router.post('/auth/github/create', schema.github.create, github.create)
 
 // search
 router.get('/search', search.index)
