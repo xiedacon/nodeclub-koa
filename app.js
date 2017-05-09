@@ -116,6 +116,6 @@ app.use(apiRouter.allowedMethods())
 app.listen(config.port, () => {
   logger.info('NodeClub listening on port', config.port)
   logger.info('God bless love....')
-  logger.info('You can debug your app with http://' + config.host + ':' + config.port)
+  logger.info(`You can debug your app with http://${config.host}:${config.port}`)
   logger.info('')
 })

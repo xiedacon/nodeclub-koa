@@ -4,7 +4,8 @@
   "description": "A node.js bbs using Redis, Mongodb, koa",
   "main": "app.js",
   "scripts": {
-    "test": "standard && codecov"
+    "test": "standard && codecov",
+    "start": "node app.js"
   },
   "standard": {
     "ignore": [
