@@ -10,6 +10,7 @@ require('colors')
 const Koa = require('koa')
 const config = require('config-lite')
 const router = require('./app/router.js')
+const apiRouter = require('./app/api_router.js')
 const session = require('koa-session2')
 const RedisStore = require('./app/middleware/redis_store.js')
 const render = require('./app/middleware/render.js')
@@ -88,6 +89,7 @@ if (config.debug) {
         return next()
       })
     }
+    return next()
   })
 }
 
@@ -108,6 +110,8 @@ app.use(auth.blockUser)
 
 app.use(router.routes())
 app.use(router.allowedMethods())
+app.use(apiRouter.routes())
+app.use(apiRouter.allowedMethods())
 
 app.listen(config.port, () => {
   logger.info('NodeClub listening on port', config.port)

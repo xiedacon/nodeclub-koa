@@ -19,8 +19,6 @@ const schema = require('./schema')
 
 const router = new Router()
 
-// require('./api_router.js')
-
 // site
 // home page
 router.get('/', site.index)
@@ -109,8 +107,5 @@ router.post('/auth/github/create', schema.github.create, github.create)
 
 // search
 router.get('/search', search.index)
-
-// api
-// router.use('/api/v1', require('./api_router'));
 
 module.exports = router
