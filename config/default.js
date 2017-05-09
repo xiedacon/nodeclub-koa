@@ -46,7 +46,7 @@ module.exports = {
 
   // admin 可删除话题，编辑标签。在 names 中加上你的登录名
   admin: {
-    names: ['xiedacon']
+    names: ['you loginname']
   },
 
   site: {
@@ -98,8 +98,8 @@ module.exports = {
     host: 'smtp.163.com',
     port: 25,
     auth: {
-      user: 'xiedacon@163.com',
-      pass: 'xieda1995'
+      user: 'nodeclub@163.com',
+      pass: 'nodeclub'
     },
     ignoreTLS: true
   },
