@@ -50,7 +50,8 @@ module.exports = {
           githubUsername: user.githubUsername,
           githubId: user.githubId,
           avatar: user.avatar,
-          githubAccessToken: user.accessToken
+          githubAccessToken: user.accessToken,
+          email: user.email
         }
       )
       auth.gen_session(user._id.toString(), ctx)
