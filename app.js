@@ -23,7 +23,7 @@ const requestLog = require('./app/middleware/request_log.js')
 const busboy = require('./app/middleware/busboy.js')
 const bytes = require('bytes')
 const helmet = require('koa-helmet')
-const CSRF = require('koa-csrf').default
+const CSRF = require('koa-csrf')
 const passport = require('koa-passport')
 const GitHubStrategy = require('passport-github').Strategy
 
@@ -119,3 +119,5 @@ app.listen(config.port, () => {
   logger.info(`You can debug your app with http://${config.host}:${config.port}`)
   logger.info('')
 })
+
+module.exports = app

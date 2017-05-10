@@ -4,14 +4,20 @@
   "description": "A node.js bbs using Redis, Mongodb, koa",
   "main": "app.js",
   "scripts": {
-    "test": "standard && codecov",
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "npm run test-local",
+    "test-local": "standard && mocha",
+    "test-cov": "standard && istanbul cover _mocha -- --compilers js:babel-core/register"
   },
   "standard": {
     "ignore": [
       "/app/public",
       "/test",
       "/app/middleware/art-template"
+    ],
+    "global": [
+      "describe",
+      "it"
     ]
   },
   "dependencies": {
@@ -57,9 +63,11 @@
   },
   "homepage": "https://github.com/xiedacon/nodeclub-koa#readme",
   "devDependencies": {
-    "codecov": "^2.1.0",
-    "mocha": "^3.2.0",
+    "babel-core": "^6.24.1",
+    "istanbul": "^1.0.0-alpha.2",
+    "mocha": "^3.3.0",
     "power-assert": "^1.4.2",
-    "standard": "^10.0.2"
+    "standard": "^10.0.2",
+    "supertest": "^3.0.0"
   }
 }
