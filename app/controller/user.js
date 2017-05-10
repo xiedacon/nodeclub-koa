@@ -13,21 +13,21 @@ module.exports = {
         { author_id: user._id },
         { limit: 5, sort: '-create_at' }
       ),
-      Reply.findByAuthorId(user._id, { limit: 20, sort: '-create_at' }).then(async (replies) => {
+      (async () => {
         let ids = []
-        replies
-          .map((reply) => { return reply.topic_id.toString() })
-          .forEach((topicId) => {
-            ids.indexOf(topicId) < 0 && ids.push(topicId)
-          })
+        await Promise.each(Reply.findByAuthorId(user._id, { limit: 20, sort: '-create_at' }), (reply) => {
+          let topicId = reply.topic_id.toString()
+          ids.indexOf(topicId) < 0 && ids.push(topicId)
+        })
+
         ids = ids.slice(0, 5) //  只显示最近5条
 
         let topics = await Topic.findFullTopicByQuery({ _id: { '$in': ids } })
         topics.sort((x, y) => { return ids.indexOf(x._id.toString()) - ids.indexOf(y._id.toString()) })
         return topics
-      }),
+      })(),
       (recentTopics, recentReplies) => {
-        user.url = (user.url && user.url.indexof('http') !== 0)
+        user.url = (user.url && user.url.indexOf('http') !== 0)
           ? `http://${user.url}`
           : user.url
 
@@ -100,9 +100,9 @@ module.exports = {
 
     return Promise.join(
       Topic.findFullTopicByQuery({ _id: { '$in': ids } }),
-      Topic.getCountByQuery({ _id: { '$in': ids } }).then((count) => {
-        return Math.ceil(count / limit)
-      }),
+      (async () => {
+        return Math.ceil(await Topic.getCountByQuery({ _id: { '$in': ids } }) / limit)
+      })(),
       (topics, pages) => {
         return ctx.render('user/collect_topics', {
           topics: topics,
@@ -122,9 +122,9 @@ module.exports = {
         { author_id: user._id },
         { skip: (page - 1) * limit, limit: limit, sort: '-create_at' }
       ),
-      Topic.getCountByQuery({ author_id: user._id }).then((count) => {
-        return Math.ceil(count / limit)
-      }),
+      (async () => {
+        return Math.ceil(await Topic.getCountByQuery({ author_id: user._id }) / limit)
+      })(),
       (topics, pages) => {
         return ctx.render('user/topics', {
           user: user,
@@ -141,19 +141,20 @@ module.exports = {
     let limit = 50
 
     return Promise.join(
-      Reply.findByAuthorId(user._id, { skip: (page - 1) * limit, limit: limit, sort: '-create_at' }).then(async (replies) => {
+      (async () => {
         let ids = []
-        replies
-          .map((reply) => { return reply.topic_id.toString() })
-          .forEach((topicId) => { ids.indexOf(topicId) < 0 && ids.push(topicId) })
+        await Promise.each(Reply.findByAuthorId(user._id, { skip: (page - 1) * limit, limit: limit, sort: '-create_at' }), (reply) => {
+          let topicId = reply.topic_id.toString()
+          ids.indexOf(topicId) < 0 && ids.push(topicId)
+        })
 
         let topics = await Topic.findFullTopicByQuery({ _id: { '$in': ids } })
         topics.sort((x, y) => { return ids.indexOf(x._id.toString()) - ids.indexOf(y._id.toString()) })
         return topics
-      }),
-      Reply.getCountByQuery({ author_id: user._id }).then((count) => {
-        return Math.ceil(count / limit)
-      }),
+      })(),
+      (async () => {
+        return Math.ceil(await Reply.getCountByQuery({ author_id: user._id }) / limit)
+      })(),
       (topics, pages) => {
         return ctx.render('user/replies', {
           user: user,
@@ -191,10 +192,10 @@ module.exports = {
 
     ctx.send({ status: 'success' })
   },
-  deleteAll: (ctx) => {
+  deleteAll: async (ctx) => {
     let user = ctx.query.user
 
-    return Promise.all([
+    await Promise.all([
       // 删除主题
       Topic.update(
         { author_id: user._id },
@@ -213,6 +214,8 @@ module.exports = {
         { $pull: { ups: user._id } },
         { multi: true }
       )
-    ]).then(() => { ctx.send({ status: 'success' }) })
+    ])
+
+    return ctx.send({ status: 'success' })
   }
 }
