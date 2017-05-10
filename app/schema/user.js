@@ -86,39 +86,33 @@ module.exports = {
   },
   setting: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
-    let action = validator.trim(ctx.request.body.action)
+    let action = validator.trim(ctx.request.body.action || '')
 
     if (action === 'change_setting') {
-      let url = validator.trim(ctx.request.body.url)
-      let location = validator.trim(ctx.request.body.location)
-      let weibo = validator.trim(ctx.request.body.weibo)
-      let signature = validator.trim(ctx.request.body.signature)
+      let url = validator.trim(ctx.request.body.url || '')
+      let location = validator.trim(ctx.request.body.location || '')
+      let weibo = validator.trim(ctx.request.body.weibo || '')
+      let signature = validator.trim(ctx.request.body.signature || '')
       let user = ctx.session.user
 
       user.url = url
       user.location = location
       user.weibo = weibo
       user.signature = signature
-      Object.assign(ctx.query, {
-        action: action,
-        user: user
-      })
+      Object.assign(ctx.query, { action: action, user: user })
 
       return next()
     }
     if (action === 'change_password') {
-      let oldPass = validator.trim(ctx.request.body.old_pass)
-      let newPass = validator.trim(ctx.request.body.new_pass)
+      let oldPass = validator.trim(ctx.request.body.old_pass || '')
+      let newPass = validator.trim(ctx.request.body.new_pass || '')
       let user = ctx.session.user
 
       if (!oldPass || !newPass) return ctx.send('旧密码或新密码不得为空')
       if (!await tools.bcompare(oldPass, user.pass)) return ctx.render('user/setting', Object.assign({ error: '当前密码不正确。' }, user.toObject({ virtual: true })))
 
       user.pass = await tools.bhash(newPass)
-      Object.assign(ctx.query, {
-        action: action,
-        user: user
-      })
+      Object.assign(ctx.query, { action: action, user: user })
 
       return next()
     }

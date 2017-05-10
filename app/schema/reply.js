@@ -3,14 +3,14 @@
 const validator = require('validator')
 const { Topic, Reply } = require('../service')
 const helper = require('./helper.js')
-const config = require('config-lite')
+const { create_reply_per_day } = require('config-lite')
 
 module.exports = {
   add: async (ctx, next) => {
     if (!helper.userRequired(ctx) ||
-      !(await helper.peruserperday(ctx, 'create_reply', config.create_reply_per_day, { showJson: false }))) return
+      !(await helper.peruserperday(ctx, 'create_reply', create_reply_per_day, { showJson: false }))) return
 
-    let content = validator.trim(ctx.request.body.r_content)
+    let content = validator.trim(ctx.request.body.r_content || '')
     let topicId = ctx.params.topic_id
     let replyId = ctx.request.body.replyId
 
@@ -38,7 +38,7 @@ module.exports = {
   },
   update: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
-    let content = validator.trim(ctx.request.body.t_content)
+    let content = validator.trim(ctx.request.body.t_content || '')
 
     let reply = await Reply.getById(ctx.params.reply_id)
     if (!reply) return ctx.renderError('此回复不存在或已被删除。')

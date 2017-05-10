@@ -2,9 +2,7 @@
 const helper = require('./helper.js')
 const validator = require('validator')
 const { Topic, TopicCollect, User } = require('../service')
-
-const config = require('config-lite')
-const tabs = config.site.tabs
+const { create_post_per_day, site: { tabs } } = require('config-lite')
 
 module.exports = {
   create: (ctx, next) => {
@@ -13,11 +11,11 @@ module.exports = {
   },
   put: async (ctx, next) => {
     if (!helper.userRequired(ctx) ||
-      !(await helper.peruserperday(ctx, 'create_topic', config.create_post_per_day, { showJson: false }))) return
+      !(await helper.peruserperday(ctx, 'create_topic', create_post_per_day, { showJson: false }))) return
 
-    let title = validator.trim(ctx.request.body.title)
-    let tab = validator.trim(ctx.request.body.tab)
-    let content = validator.trim(ctx.request.body.t_content)
+    let title = validator.trim(ctx.request.body.title || '')
+    let tab = validator.trim(ctx.request.body.tab || '')
+    let content = validator.trim(ctx.request.body.t_content || '')
     let error = checkTopicFrom(title, tab, content)
 
     if (error) {
@@ -63,9 +61,9 @@ module.exports = {
   update: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
 
-    let title = validator.trim(ctx.request.body.title)
-    let tab = validator.trim(ctx.request.body.tab)
-    let content = validator.trim(ctx.request.body.t_content)
+    let title = validator.trim(ctx.request.body.title || '')
+    let tab = validator.trim(ctx.request.body.tab || '')
+    let content = validator.trim(ctx.request.body.t_content || '')
 
     let topic = await checkTopicExist(ctx, ctx.params.tid)
     if (!topic) return
@@ -93,12 +91,12 @@ module.exports = {
   },
   collect: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
-    let topicId = validator.trim(ctx.request.body.topic_id)
+    let topicId = validator.trim(ctx.request.body.topic_id || '')
 
-    let { topic, topicCollect } = await Promise.props({
-      topic: Topic.getById(topicId),
-      topicCollect: TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
-    })
+    let [topic, topicCollect] = await Promise.all([
+      Topic.getById(topicId),
+      TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
+    ])
 
     if (!topic || topicCollect) return ctx.send({ status: 'failed' })
 
@@ -108,12 +106,12 @@ module.exports = {
   },
   de_collect: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
-    let topicId = validator.trim(ctx.request.body.topic_id)
+    let topicId = validator.trim(ctx.request.body.topic_id || '')
 
-    let { topic, topicCollect } = await Promise.props({
-      topic: Topic.getById(topicId),
-      topicCollect: TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
-    })
+    let [topic, topicCollect] = await Promise.all([
+      Topic.getById(topicId),
+      TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
+    ])
 
     if (!topic || !topicCollect) return ctx.send({ status: 'failed' })
 
@@ -135,7 +133,7 @@ module.exports = {
     return next()
   },
   top: async (ctx, next) => {
-    if (!helper.userRequired(ctx) && !ctx.session.user.is_admin) return
+    if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
 
     let topic = await checkTopicExist(ctx, ctx.params.tid)
     if (!topic) return
@@ -145,7 +143,7 @@ module.exports = {
     return next()
   },
   good: async (ctx, next) => {
-    if (!helper.userRequired(ctx) && !ctx.session.user.is_admin) return
+    if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
 
     let topic = await checkTopicExist(ctx, ctx.params.tid)
     if (!topic) return
@@ -155,7 +153,7 @@ module.exports = {
     return next()
   },
   lock: async (ctx, next) => {
-    if (!helper.userRequired(ctx) && !ctx.session.user.is_admin) return
+    if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
 
     let topic = await checkTopicExist(ctx, ctx.params.tid)
     if (!topic) return
