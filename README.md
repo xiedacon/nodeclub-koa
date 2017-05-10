@@ -71,6 +71,7 @@
 * 升级为 [art-template@4](https://github.com/aui/art-template)
 * 集成测试和测试覆盖率
 * 重构
+* 尝试将busboy中间件改为Promise的形式
 * 尝试将controller跟schema合为一层，形成
 
   ```

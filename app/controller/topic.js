@@ -2,7 +2,7 @@
 const { Topic, User, TopicCollect, Reply } = require('../service')
 const at = require('../common/at.js')
 const cache = require('../middleware/cache.js')
-const fileLimit = require('config-lite').upload.file_limit
+const { upload: { fileLimit } } = require('config-lite')
 const store = require('../middleware/store.js')
 
 module.exports = {
@@ -181,7 +181,7 @@ module.exports = {
 
     user.collect_topic_count += 1
     topic.collect_count += 1
-    //
+    // 可异步处理
     await Promise.all([
       User.update(
         { _id: user._id },
@@ -192,7 +192,7 @@ module.exports = {
         { collect_count: topic.collect_count }
       )
     ])
-    ctx.send({ status: 'success' })
+    return ctx.send({ status: 'success' })
   },
   de_collect: async (ctx) => {
     let topic = ctx.query.topic
@@ -202,7 +202,7 @@ module.exports = {
 
     user.collect_topic_count -= 1
     topic.collect_count -= 1
-    //
+    // 可异步处理
     await Promise.all([
       User.update(
         { _id: user._id },
@@ -216,6 +216,7 @@ module.exports = {
     ctx.send({ status: 'success' })
   },
   upload: (ctx) => {
+    // TODO: 尝试弄成Promise的形式
     return new Promise((resolve, reject) => {
       let isFileLimit = false
       ctx.busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {

@@ -41,6 +41,6 @@ module.exports = {
   },
   des_session: (ctx) => {
     ctx.cookies.set(cookie.name, { path: cookie.path })
-    ctx.session = undefined
+    ctx.session = null
   }
 }
