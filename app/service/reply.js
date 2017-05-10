@@ -44,9 +44,11 @@ module.exports = {
   updateRaw: (con, doc, opt) => {
     return Reply.update(con, doc, opt)
   },
-  findByAuthorId: (authorId) => {
+  findByAuthorId: (authorId, opt) => {
     return Reply.find(
-      { author_id: authorId }
+      { author_id: authorId },
+      {},
+      opt
     )
   },
   getCountByQuery: (query) => {

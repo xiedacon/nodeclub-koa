@@ -36,13 +36,6 @@ module.exports = {
     return User.find(query, {}, opt)
   },
   /**
-   * 根据用户ID列表，获取一组用户
-   * @param {Array} ids 用户ID列表
-   */
-  findByIds: (ids) => {
-
-  },
-  /**
    * 根据用户名列表查找用户列表
    * @param {Array} names 用户名列表
    */

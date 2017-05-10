@@ -34,11 +34,12 @@ module.exports = {
             { _id: replyAuthor._id },
             { score: replyAuthor.score, reply_count: replyAuthor.reply_count }
           ),
-          Topic.updateLastReply(topic._id, reply._id).then(() => {
+          (async () => {
+            await Topic.updateLastReply(topic._id, reply._id)
             if (!topic.author_id.equals(replyAuthor._id)) {
               message.sendReplyMessage(topic.author_id, replyAuthor._id, topic._id, reply._id)
             }
-          })
+          })()
         ])
 
         return ctx.redirect(`/topic/${topic._id}#${reply._id}`)

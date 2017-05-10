@@ -30,11 +30,12 @@ module.exports = exports = {
       (topic) => {
         return Promise.join(
           User.findOne({ _id: topic.author_id }),
-          Reply.findOne({ _id: topic.last_reply }).then(async (reply) => {
+          (async () => {
+            let reply = await Reply.findOne({ _id: topic.last_reply })
             if (!reply) return
             reply.author = await User.findOne({ _id: reply.author_id })
             return reply
-          }),
+          })(),
           (author, reply) => {
             // 保证顺序
             // 作者可能已被删除
