@@ -17,7 +17,7 @@ module.exports = {
     return Promise.join(
       Reply.newAndSave(content, topic._id, replyAuthor._id, replyId),
       User.getById(topic.author_id),
-      (reply, topicAuthor) => {
+      async (reply, topicAuthor) => {
         replyAuthor.score += 5
         replyAuthor.reply_count += 1
 
@@ -29,7 +29,7 @@ module.exports = {
           reply._id
         )
 
-        return Promise.all([
+        await Promise.all([
           User.update(
             { _id: replyAuthor._id },
             { score: replyAuthor.score, reply_count: replyAuthor.reply_count }
@@ -39,9 +39,9 @@ module.exports = {
               message.sendReplyMessage(topic.author_id, replyAuthor._id, topic._id, reply._id)
             }
           })
-        ]).then(() => {
-          ctx.redirect(`/topic/${topic._id}#${reply._id}`)
-        })
+        ])
+
+        return ctx.redirect(`/topic/${topic._id}#${reply._id}`)
       }
     )
   },
@@ -64,7 +64,7 @@ module.exports = {
       { content: reply.content, update_at: new Date() }
     )
 
-    ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`)
+    return ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`)
   },
   delete: async (ctx) => {
     let reply = ctx.query.reply
@@ -73,10 +73,10 @@ module.exports = {
       { _id: reply._id },
       { deleted: true }
     )
-
     await User.reduceReply(reply.author_id)
+
     Topic.reduceCount(reply.topic_id)
-    ctx.send({ status: 'success' })
+    return ctx.send({ status: 'success' })
   },
   up: async (ctx, next) => {
     let reply = ctx.query.reply
@@ -92,6 +92,6 @@ module.exports = {
       { ups: reply.ups }
     )
 
-    ctx.send({ success: true, action: action })
+    return ctx.send({ success: true, action: action })
   }
 }

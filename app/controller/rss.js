@@ -38,6 +38,6 @@ module.exports = {
       })
     }, 60 * 5) // 五分钟
 
-    ctx.send(rssContent)
+    return ctx.send(rssContent)
   }
 }

@@ -28,7 +28,6 @@ module.exports = {
     if (!helper.userRequired(ctx)) return
 
     let reply = await Reply.getById(ctx.params.reply_id)
-
     if (!reply) return ctx.renderError('此回复不存在或已被删除。')
 
     if (!ctx.session.user._id.equals(reply.author_id) && ctx.session.user.isAdmin) return ctx.renderError('对不起，你不能编辑此回复。', 403)
@@ -39,13 +38,12 @@ module.exports = {
   },
   update: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
-    let replyId = ctx.params.reply_id
     let content = validator.trim(ctx.request.body.t_content)
 
-    let reply = await Reply.getById(replyId)
+    let reply = await Reply.getById(ctx.params.reply_id)
     if (!reply) return ctx.renderError('此回复不存在或已被删除。')
 
-    if (!reply.author_id.equals(ctx.session.user._id) && !ctx.session.user.isAdmin) return ctx.renderError('对不起，你不能编辑此回复。', 403)
+    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.isAdmin) return ctx.renderError('对不起，你不能编辑此回复。', 403)
 
     if (content === '') return ctx.renderError('回复的字数太少。', 400)
 
@@ -56,18 +54,13 @@ module.exports = {
   },
   up: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
-    let replyId = ctx.params.reply_id
-    let userId = ctx.session.user._id
 
-    let reply = await Reply.getById(replyId)
+    let reply = await Reply.getById(ctx.params.reply_id)
     if (!reply) return ctx.renderError('此回复不存在或已被删除。')
     // 不能帮自己点赞
-    if (reply.author_id.equals(userId)) {
-      ctx.send({ success: false, message: '呵呵，不能帮自己点赞。' })
-      return
-    }
+    if (ctx.session.user._id.equals(reply.author_id)) return ctx.send({ success: false, message: '呵呵，不能帮自己点赞。' })
 
-    Object.assign(ctx.query, { reply: reply, userId: userId })
+    Object.assign(ctx.query, { reply: reply, userId: ctx.session.user._id })
 
     return next()
   },
@@ -78,7 +71,7 @@ module.exports = {
     let reply = await Reply.getById(replyId)
     if (!reply) return ctx.send({ status: `no reply ${replyId} exists` }, 422)
 
-    if (!reply.author_id.equals(ctx.session.user._id) && !ctx.session.user.isAdmin) return ctx.send({ status: 'failed' })
+    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.isAdmin) return ctx.send({ status: 'failed' })
 
     Object.assign(ctx.query, { reply: reply })
 

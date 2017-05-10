@@ -63,7 +63,7 @@ module.exports = {
       let topics = await Topic.getLimit5w()
 
       topics.forEach((topic) => {
-        urlset.ele('url').ele('loc', 'http://cnodejs.org/topic/' + topic._id)
+        urlset.ele('url').ele('loc', `http://cnodejs.org/topic/${topic._id}`)
       })
 
       return urlset.end()
