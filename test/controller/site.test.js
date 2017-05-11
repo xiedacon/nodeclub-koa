@@ -30,7 +30,7 @@ describe('test/controller/site.test.js', function () {
         .get('/sitemap.xml')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes('<url>'))
+          assert(res.text.includes('http://www.sitemaps.org/schemas/sitemap/0.9'))
         })
     })
   })

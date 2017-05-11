@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "test": "npm run test-local",
-    "test-local": "standard && mocha ./test/*",
-    "test-cov": "standard && istanbul cover _mocha -- ./test/* --compilers js:babel-core/register"
+    "test-local": "standard && mocha ./test/* --require intelli-espower-loader",
+    "test-cov": "standard && istanbul cover _mocha -- ./test/* --compilers js:babel-core/register --require intelli-espower-loader"
   },
   "standard": {
     "ignore": [
@@ -65,6 +65,7 @@
   "homepage": "https://github.com/xiedacon/nodeclub-koa#readme",
   "devDependencies": {
     "babel-core": "^6.24.1",
+    "intelli-espower-loader": "^1.0.1",
     "istanbul": "^1.0.0-alpha.2",
     "mocha": "^3.3.0",
     "power-assert": "^1.4.2",
