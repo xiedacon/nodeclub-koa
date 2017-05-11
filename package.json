@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "test": "npm run test-local",
-    "test-local": "standard && mocha",
-    "test-cov": "standard && istanbul cover _mocha -- --compilers js:babel-core/register"
+    "test-local": "standard && mocha ./test/*",
+    "test-cov": "standard && istanbul cover _mocha -- ./test/* --compilers js:babel-core/register"
   },
   "standard": {
     "ignore": [
@@ -17,7 +17,8 @@
     ],
     "global": [
       "describe",
-      "it"
+      "it",
+      "beforeEach"
     ]
   },
   "dependencies": {
