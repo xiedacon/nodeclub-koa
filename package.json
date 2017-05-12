@@ -67,6 +67,7 @@
     "babel-core": "^6.24.1",
     "intelli-espower-loader": "^1.0.1",
     "istanbul": "^1.0.0-alpha.2",
+    "mm": "^2.1.0",
     "mocha": "^3.3.0",
     "power-assert": "^1.4.2",
     "standard": "^10.0.2",

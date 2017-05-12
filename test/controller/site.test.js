@@ -1,7 +1,7 @@
 'use strict'
 
 const assert = require('power-assert')
-const { request, config } = require('../helper.js')
+const { request, config, helper } = require('../support.js')
 
 describe('test/controller/site.test.js', function () {
   describe('GET / app/controller/site.index', function () {
@@ -10,7 +10,7 @@ describe('test/controller/site.test.js', function () {
         .get('/')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes(config.site.description))
+          assert(helper.includes(res.text, config.site.description))
         })
     })
 
@@ -19,7 +19,7 @@ describe('test/controller/site.test.js', function () {
         .get('/?page=-1')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes(config.site.description))
+          assert(helper.includes(res.text, config.site.description))
         })
     })
   })
@@ -30,7 +30,7 @@ describe('test/controller/site.test.js', function () {
         .get('/sitemap.xml')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes('http://www.sitemaps.org/schemas/sitemap/0.9'))
+          assert(helper.includes(res.text, 'http://www.sitemaps.org/schemas/sitemap/0.9'))
         })
     })
   })

@@ -1,7 +1,7 @@
 'use strict'
 
 const assert = require('power-assert')
-const { request, config } = require('./helper.js')
+const { request, config, helper } = require('./support.js')
 
 describe('test/app.test.js', function () {
   describe('GET /', function () {
@@ -10,7 +10,7 @@ describe('test/app.test.js', function () {
         .get('/')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes(config.site.description))
+          assert(helper.includes(res.text, config.site.description))
         })
     })
   })

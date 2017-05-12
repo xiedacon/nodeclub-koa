@@ -1,6 +1,6 @@
 'use strict'
 
-const { request } = require('../helper.js')
+const { request, helper } = require('../support.js')
 const assert = require('power-assert')
 
 describe('test/controller/static.test.js', function () {
@@ -10,7 +10,7 @@ describe('test/controller/static.test.js', function () {
         .get('/about')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes('CNode 社区由一批热爱 Node.js 技术的工程师发起'))
+          assert(helper.includes(res.text, 'CNode 社区由一批热爱 Node.js 技术的工程师发起'))
         })
     })
   })
@@ -21,7 +21,7 @@ describe('test/controller/static.test.js', function () {
         .get('/faq')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes('CNode 社区和 Node Club 是什么关系？'))
+          assert(helper.includes(res.text, 'CNode 社区和 Node Club 是什么关系？'))
         })
     })
   })
@@ -32,7 +32,7 @@ describe('test/controller/static.test.js', function () {
         .get('/getstart')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes('Node.js 新手入门'))
+          assert(helper.includes(res.text, 'Node.js 新手入门'))
         })
     })
   })
@@ -43,7 +43,7 @@ describe('test/controller/static.test.js', function () {
         .get('/robots.txt')
         .expect(200)
         .expect((res) => {
-          assert(res.text.includes('User-Agent: *'))
+          assert(helper.includes(res.text, 'User-Agent: *'))
         })
     })
   })
