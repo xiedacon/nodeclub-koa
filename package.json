@@ -18,7 +18,10 @@
     "global": [
       "describe",
       "it",
-      "beforeEach"
+      "beforeEach",
+      "afterEach",
+      "before",
+      "after"
     ]
   },
   "dependencies": {

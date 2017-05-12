@@ -11,7 +11,7 @@ const from = `${siteName} ${config.email.auth.user}`
 
 module.exports = exports = {
   sendMail: (data) => {
-    if (config.debug) return
+    if (config.debug || process.env.NODE_ENV === 'test') return
 
     // 重试5次
     Promise.resolve(5).then(function retry (times, resolve) {

@@ -22,7 +22,7 @@ module.exports = {
   },
   // mongodb 配置
   db: {
-    uri: 'mongodb://127.0.0.1/node_club_koa_dev',
+    uri: 'mongodb://127.0.0.1/node_club_koa_test',
     options: { poolSize: 20 }
   },
   viewPath: path.join(__dirname, '../app/view'),

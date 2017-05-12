@@ -42,7 +42,7 @@ module.exports = {
     let error =
       (([loginname, pass].some((item) => { return item === '' })) && '信息不完整。') ||
       ((loginname.length < 5) && '用户名至少需要5个字符。') ||
-      ((!tools.validateId(loginname)) && '用户名不合法。')
+      ((!tools.validateId(loginname) && !validator.isEmail(loginname)) && '用户名不合法。')
 
     if (error) return ctx.renderError(error, 422, 'sign/signin')
     // END 验证信息的正确性
