@@ -74,12 +74,12 @@ module.exports = {
     return next()
   },
   updateSearchPass: async (ctx, next) => {
-    let email = validator.trim(ctx.request.body.email).toLowerCase()
+    let email = validator.trim(ctx.request.body.email || '').toLowerCase()
 
-    if (!validator.isEmail(email)) return ctx.render('sign/search_pass', { error: '邮箱不合法', email: email })
+    if (!validator.isEmail(email)) return ctx.renderError({ error: '邮箱不合法', email: email }, 422, 'sign/search_pass')
 
     let user = await User.getByMail(email)
-    if (!user) return ctx.render('sign/search_pass', { error: '没有这个电子邮箱。', email: email })
+    if (!user) return ctx.renderError({ error: '没有这个电子邮箱。', email: email }, 422, 'sign/search_pass')
 
     Object.assign(ctx.query, { user: user })
 

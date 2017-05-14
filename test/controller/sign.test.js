@@ -310,11 +310,41 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .get('/search_pass')
         .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '找回密码'))
+        })
     })
   })
 
   describe('POST /search_pass', function () {
+    it('200: success', function () {
+      return request
+        .post('/search_pass')
+        .send({ email: user_actived.email })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'))
+        })
+    })
 
+    it('422: email is wrongful', function () {
+      return request
+        .post('/search_pass')
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '邮箱不合法'))
+        })
+    })
+
+    it('422: email not in db', function () {
+      return request
+        .post('/search_pass')
+        .send({ email: user_actived.email + 'm' })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '没有这个电子邮箱。'))
+        })
+    })
   })
 
   describe('GET /reset_pass', function () {
