@@ -1,8 +1,42 @@
 'use strict'
 
-describe('test/controller/user.test.js', function () {
-  describe('GET /user/:name', function () {
+const { request, helper } = require('../support.js')
+const assert = require('power-assert')
 
+describe('test/controller/user.test.js', function () {
+  let user, name
+
+  before(async function () {
+    user = await helper.createUser()
+    name = user.name
+  })
+
+  describe('GET /user/:name', function () {
+    it('200: success', function () {
+      return request
+        .get('/user/' + name)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, [
+            `@${name} 的个人主页`,
+            '注册时间',
+            '这家伙很懒，什么个性签名都没有留下。',
+            '最近创建的话题',
+            '无话题',
+            '最近参与的话题',
+            '无话题'
+          ]))
+        })
+    })
+
+    it('404: with wrong name', function () {
+      return request
+        .get('/user/@aaa')
+        .expect(404)
+        .expect((res) => {
+          assert(helper.includes(res.text, '这个用户不存在。'))
+        })
+    })
   })
 
   describe('GET /user/:name/topics', function () {
