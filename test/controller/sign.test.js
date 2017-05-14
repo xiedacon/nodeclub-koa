@@ -4,38 +4,27 @@ const { request, helper, config, tools, User } = require('../support.js')
 const assert = require('power-assert')
 const Promise = require('bluebird')
 
-describe('test/controller/sign.test.js', async function () {
-  let t = Date.now()
-  let key = (i = 0) => { return `${i}YYYYtest${t}` }
+describe('test/controller/sign.test.js', function () {
+  let user, unactivedUser, activedUser
 
-  let { user, user_reigsted, user_actived } = await Promise.props({
-    user: {
-      loginname: key(1),
-      email: `${key(1)}@qq.com`,
-      pass: 'test',
-      re_pass: 'test'
-    },
-    user_reigsted: helper.createUser({
-      loginname: key(2),
-      email: `${key(2)}@qq.com`,
-      pass: 'test'
-    }),
-    user_actived: helper.createUser({
-      loginname: key(3),
-      email: `${key(3)}@qq.com`,
-      pass: 'test',
-      active: true
-    })
-  })
+  before(async function () {
+    [user, unactivedUser, activedUser] = await Promise.all([
+      helper.createUser({}, true),
+      helper.createUser({ active: false }),
+      helper.createUser()
+    ])
 
-  describe('GET /signup', function () {
-    it('200', function () {
-      return request
-        .get('/signup')
-        .expect(200)
-        .expect((res) => {
-          assert(helper.includes(res.text, '确认密码'))
-        })
+    user.re_pass = user.pass
+
+    describe('GET /signup', function () {
+      it('200', function () {
+        return request
+          .get('/signup')
+          .expect(200)
+          .expect((res) => {
+            assert(helper.includes(res.text, '确认密码'))
+          })
+      })
     })
   })
 
@@ -127,8 +116,8 @@ describe('test/controller/sign.test.js', async function () {
       await request
         .post('/signin')
         .send({
-          name: user_actived.loginname,
-          pass: user_actived.pass
+          name: activedUser.loginname,
+          pass: activedUser.pass
         })
         .expect((res) => {
           cookies = res.headers['set-cookie'].reduce((str, cookie) => {
@@ -168,8 +157,8 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .post('/signin')
         .send({
-          name: user_actived.loginname,
-          pass: user_actived.pass
+          name: activedUser.loginname,
+          pass: activedUser.pass
         })
         .expect(302)
         .expect((res) => {
@@ -181,8 +170,8 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .post('/signin')
         .send({
-          name: user_actived.email,
-          pass: user_actived.pass
+          name: activedUser.email,
+          pass: activedUser.pass
         })
         .expect(302)
         .expect((res) => {
@@ -194,7 +183,7 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .post('/signin')
         .send({
-          pass: user_reigsted.pass
+          pass: unactivedUser.pass
         })
         .expect(422)
         .expect((res) => {
@@ -207,7 +196,7 @@ describe('test/controller/sign.test.js', async function () {
         .post('/signin')
         .send({
           name: `test`,
-          pass: user_reigsted.pass
+          pass: unactivedUser.pass
         })
         .expect(422)
         .expect((res) => {
@@ -219,8 +208,8 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .post('/signin')
         .send({
-          name: `@${user_reigsted.loginname}`,
-          pass: user_reigsted.pass
+          name: `@${unactivedUser.loginname}`,
+          pass: unactivedUser.pass
         })
         .expect(422)
         .expect((res) => {
@@ -232,8 +221,8 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .post('/signin')
         .send({
-          name: user_reigsted.loginname,
-          pass: user_reigsted.pass + '1'
+          name: unactivedUser.loginname,
+          pass: unactivedUser.pass + '1'
         })
         .expect(403)
         .expect((res) => {
@@ -245,12 +234,12 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .post('/signin')
         .send({
-          name: user_reigsted.loginname,
-          pass: user_reigsted.pass
+          name: unactivedUser.loginname,
+          pass: unactivedUser.pass
         })
         .expect(403)
         .expect((res) => {
-          assert(helper.includes(res.text, `此帐号还没有被激活，激活链接已发送到 ${user_reigsted.email} 邮箱，请查收。`))
+          assert(helper.includes(res.text, `此帐号还没有被激活，激活链接已发送到 ${unactivedUser.email} 邮箱，请查收。`))
         })
     })
   })
@@ -269,8 +258,8 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .get('/active_account')
         .query({
-          key: tools.md5(user_actived.email + user_actived.pass_db + config.session.secret),
-          name: user_actived.name
+          key: tools.md5(activedUser.email + activedUser.pass_db + config.session.secret),
+          name: activedUser.name
         })
         .expect(422)
         .expect((res) => {
@@ -283,7 +272,7 @@ describe('test/controller/sign.test.js', async function () {
         .get('/active_account')
         .query({
           key: '',
-          name: user_reigsted.name
+          name: unactivedUser.name
         })
         .expect(422)
         .expect((res) => {
@@ -295,8 +284,8 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .get('/active_account')
         .query({
-          key: tools.md5(user_reigsted.email + user_reigsted.pass_db + config.session.secret),
-          name: user_reigsted.name
+          key: tools.md5(unactivedUser.email + unactivedUser.pass_db + config.session.secret),
+          name: unactivedUser.name
         })
         .expect(200)
         .expect((res) => {
@@ -320,7 +309,7 @@ describe('test/controller/sign.test.js', async function () {
     it('200: success', function () {
       return request
         .post('/search_pass')
-        .send({ email: user_actived.email })
+        .send({ email: activedUser.email })
         .expect(200)
         .expect((res) => {
           assert(helper.includes(res.text, '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'))
@@ -339,7 +328,7 @@ describe('test/controller/sign.test.js', async function () {
     it('422: email not in db', function () {
       return request
         .post('/search_pass')
-        .send({ email: user_actived.email + 'm' })
+        .send({ email: activedUser.email + 'm' })
         .expect(422)
         .expect((res) => {
           assert(helper.includes(res.text, '没有这个电子邮箱。'))
@@ -352,13 +341,13 @@ describe('test/controller/sign.test.js', async function () {
     let time = Date.now()
 
     beforeEach(function () {
-      return User.update({ loginname: user_actived.loginname }, { $set: { retrieve_key: key, retrieve_time: time } })
+      return User.update({ loginname: activedUser.loginname }, { $set: { retrieve_key: key, retrieve_time: time } })
     })
 
     it('200: success', async function () {
       return request
         .get('/reset_pass')
-        .send({ key: key, name: user_actived.loginname })
+        .send({ key: key, name: activedUser.loginname })
         .expect(200)
         .expect((res) => {
           assert(helper.includes(res.text, '重置密码'))
@@ -376,11 +365,11 @@ describe('test/controller/sign.test.js', async function () {
     })
 
     it('403: reset time more than one day', async function () {
-      await User.update({ loginname: user_actived.loginname }, { $set: { retrieve_time: Date.now() - 1000 * 60 * 60 * 24 - 1 } })
+      await User.update({ loginname: activedUser.loginname }, { $set: { retrieve_time: Date.now() - 1000 * 60 * 60 * 24 - 1 } })
 
       return request
         .get('/reset_pass')
-        .send({ key: key, name: user_actived.loginname })
+        .send({ key: key, name: activedUser.loginname })
         .expect(403)
         .expect((res) => {
           assert(helper.includes(res.text, '该链接已过期，请重新申请。'))
@@ -393,17 +382,17 @@ describe('test/controller/sign.test.js', async function () {
     let time = Date.now()
 
     beforeEach(function () {
-      return User.update({ loginname: user_actived.loginname }, { $set: { retrieve_key: key, retrieve_time: time } })
+      return User.update({ loginname: activedUser.loginname }, { $set: { retrieve_key: key, retrieve_time: time } })
     })
 
     it('200: success', function () {
       return request
         .post('/reset_pass')
         .send({
-          psw: user_actived.pass + '1',
-          repsw: user_actived.pass + '1',
+          psw: activedUser.pass + '1',
+          repsw: activedUser.pass + '1',
           key: key,
-          name: user_actived.loginname
+          name: activedUser.loginname
         })
         .expect(200)
         .expect((res) => {
@@ -424,10 +413,10 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .post('/reset_pass')
         .send({
-          psw: user_actived.pass + '1',
-          repsw: user_actived.pass,
+          psw: activedUser.pass + '1',
+          repsw: activedUser.pass,
           key: key,
-          name: user_actived.loginname
+          name: activedUser.loginname
         })
         .expect(422)
         .expect((res) => {
@@ -439,9 +428,9 @@ describe('test/controller/sign.test.js', async function () {
       return request
         .post('/reset_pass')
         .send({
-          psw: user_actived.pass + '1',
-          repsw: user_actived.pass + '1',
-          name: user_actived.loginname
+          psw: activedUser.pass + '1',
+          repsw: activedUser.pass + '1',
+          name: activedUser.loginname
         })
         .expect(403)
         .expect((res) => {
@@ -450,7 +439,7 @@ describe('test/controller/sign.test.js', async function () {
     })
 
     afterEach(function () {
-      return User.update({ loginname: user_actived.loginname }, { $set: { pass: user_actived.pass } })
+      return User.update({ loginname: activedUser.loginname }, { $set: { pass: activedUser.pass } })
     })
   })
 })

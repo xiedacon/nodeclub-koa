@@ -3,13 +3,30 @@
 const { User } = require('../app/service')
 const tools = require('../app/common/tools.js')
 
+const uuid = ((i) => { return () => { return `${i++}yyyytest${Date.now()}` } })(0)
+const template = {
+  get User () {
+    let key = uuid()
+    return {
+      loginname: key,
+      email: `${key}@qq.com`,
+      pass: 'test',
+      active: true
+    }
+  }
+}
+
 module.exports = {
   includes: (str, ...parts) => {
     if (!parts) return
 
     return parts.reduce((result, part) => { if (result) return str.includes(part) }, true)
   },
-  createUser: async (doc) => {
+  createUser: async (doc, unsave) => {
+    doc = Object.assign(template.User, doc)
+
+    if (unsave) return doc
+
     let user = await User.newAndSave({
       name: doc.loginname.toLowerCase(),
       loginname: doc.loginname.toLowerCase(),
