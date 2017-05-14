@@ -41,6 +41,8 @@ module.exports = {
   },
   des_session: (ctx) => {
     ctx.cookies.set(cookie.name, { path: cookie.path })
-    ctx.session = null
+    console.log('this is a issue flag')
+    // ctx.session = null
+    ctx.session = {}
   }
 }
