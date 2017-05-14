@@ -65,7 +65,7 @@ module.exports = {
     let name = ctx.query.name
 
     let user = await User.getByLoginName(name)
-    if (!user) throw new Error(`[ACTIVE_ACCOUNT] no such user: ${name}`)
+    if (!user) return ctx.renderError(`[ACTIVE_ACCOUNT] no such user: ${name}`, 500)
     if (user.active) return ctx.renderError('帐号已经是激活状态。', 422)
     if (tools.md5(user.email + user.pass + secret) !== key) return ctx.renderError('信息有误，帐号无法被激活。', 422)
 

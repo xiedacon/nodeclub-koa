@@ -20,6 +20,14 @@ module.exports = {
   includes: (str, ...parts) => {
     if (!parts) return
 
+    parts = (function reduce (oldParts, newParts) {
+      return oldParts.reduce((parts, part) => {
+        if (Array.isArray(part)) return reduce(part, parts)
+        parts.push(part)
+        return parts
+      }, newParts)
+    })(parts, [])
+
     return parts.reduce((result, part) => { if (result) return str.includes(part) }, true)
   },
   createUser: async (doc, unsave) => {

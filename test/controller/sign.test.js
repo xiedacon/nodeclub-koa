@@ -250,7 +250,7 @@ describe('test/controller/sign.test.js', function () {
         .get('/active_account')
         .expect(500)
         .expect((res) => {
-          assert(helper.includes(res.text, '500 status'))
+          assert(helper.includes(res.text, `[ACTIVE_ACCOUNT] no such user: `))
         })
     })
 
