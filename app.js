@@ -33,10 +33,11 @@ app.use(require('./app/middleware/error_page.js'))
 app.use(require('./app/middleware/send.js'))
 
 // error handler
-if ((!config.debug)) {
-  app.use((ctx, next) => {
+if (!config.debug) {
+  app.use(async (ctx, next) => {
     try {
-      return next()
+      await next()
+      return
     } catch (e) {
       logger.error(e)
       return ctx.send('500 status', 500)
@@ -81,7 +82,7 @@ passport.deserializeUser((user, done) => { done(null, user) })
 passport.use(new GitHubStrategy(config.oauth.github, require('./app/middleware/github_strategy.js')))
 
 // crsf
-if (config.debug) {
+if (!config.debug && process.env.NODE_ENV !== 'test') {
   app.use((ctx, next) => {
     if (ctx.path === '/api' || ctx.path.indexOf('/api') < 0) {
       return (new CSRF())(ctx, () => {
