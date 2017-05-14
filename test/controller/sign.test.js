@@ -122,6 +122,34 @@ describe('test/controller/sign.test.js', async function () {
   })
 
   describe('POST /signout', function () {
+    it('302: success', async function () {
+      let cookies
+      await request
+        .post('/signin')
+        .send({
+          name: user_actived.loginname,
+          pass: user_actived.pass
+        })
+        .expect((res) => {
+          cookies = res.headers['set-cookie'].reduce((str, cookie) => {
+            return str + cookie.split(';')[0] + ';'
+          }, '')
+        })
+
+      return request
+        .post('/signout')
+        .set('Cookie', cookies)
+        .expect(302)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'Redirecting to', 'href', '/'))
+        })
+    })
+
+    it('404: without session', function () {
+      return request
+        .post('/signout')
+        .expect(404)
+    })
   })
 
   describe('GET /signin', function () {

@@ -37,7 +37,7 @@ if (config.allow_sign_up) {
     ctx.redirect('/auth/github')
   })
 }
-router.post('/signout', sign.signout) // 登出
+router.post('/signout', schema.sign.signout, sign.signout) // 登出
 router.get('/signin', sign.showLogin) // 进入登录页面
 router.post('/signin', schema.sign.login, sign.login) // 登录校验
 router.get('/active_account', schema.sign.activeAccount, sign.activeAccount) // 帐号激活

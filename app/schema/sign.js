@@ -114,5 +114,8 @@ module.exports = {
     Object.assign(ctx.query, { user: user, pass: pass })
 
     return next()
+  },
+  signout: (ctx, next) => {
+    if (ctx.session.user) return next()
   }
 }
