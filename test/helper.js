@@ -23,8 +23,5 @@ module.exports = {
     user.pass_db = user.pass
     user.pass = doc.pass
     return user
-  },
-  getActiveUser: () => {
-
   }
 }

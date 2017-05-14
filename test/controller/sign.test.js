@@ -1,6 +1,6 @@
 'use strict'
 
-const { request, helper, config, tools } = require('../support.js')
+const { request, helper, config, tools, User } = require('../support.js')
 const assert = require('power-assert')
 const Promise = require('bluebird')
 
@@ -348,7 +348,44 @@ describe('test/controller/sign.test.js', async function () {
   })
 
   describe('GET /reset_pass', function () {
+    let key = 'test'
+    let time = Date.now()
 
+    beforeEach(function () {
+      return User.update({ loginname: user_actived.loginname }, { $set: { retrieve_key: key, retrieve_time: time } })
+    })
+
+    it('200: success', async function () {
+      return request
+        .get('/reset_pass')
+        .send({ key: key, name: user_actived.loginname })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '重置密码'))
+        })
+    })
+
+    it('403: name or key are wrongful', function () {
+      return request
+        .get('/reset_pass')
+        .send({ key: key })
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '信息有误，密码无法重置。'))
+        })
+    })
+
+    it('403: reset time more than one day', async function () {
+      await User.update({ loginname: user_actived.loginname }, { $set: { retrieve_time: Date.now() - 1000 * 60 * 60 * 24 - 1 } })
+
+      return request
+        .get('/reset_pass')
+        .send({ key: key, name: user_actived.loginname })
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '该链接已过期，请重新申请。'))
+        })
+    })
   })
 
   describe('POST /reset_pass', function () {

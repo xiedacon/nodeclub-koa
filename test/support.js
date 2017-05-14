@@ -9,5 +9,6 @@ module.exports = {
   request: request,
   config: require('config-lite'),
   helper: require('./helper.js'),
-  tools: require('../app/common/tools.js')
+  tools: require('../app/common/tools.js'),
+  User: require('mongoose').model('User')
 }
