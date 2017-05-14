@@ -1,6 +1,6 @@
 'use strict'
 
-const { request, helper } = require('../support.js')
+const { request, helper, config, tools } = require('../support.js')
 const assert = require('power-assert')
 const Promise = require('bluebird')
 
@@ -256,7 +256,53 @@ describe('test/controller/sign.test.js', async function () {
   })
 
   describe('GET /active_account', function () {
+    it('500: no such user', function () {
+      return request
+        .get('/active_account')
+        .expect(500)
+        .expect((res) => {
+          assert(helper.includes(res.text, '500 status'))
+        })
+    })
 
+    it('422: user is active', function () {
+      return request
+        .get('/active_account')
+        .query({
+          key: tools.md5(user_actived.email + user_actived.pass_db + config.session.secret),
+          name: user_actived.name
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '帐号已经是激活状态。'))
+        })
+    })
+
+    it('422: message error', function () {
+      return request
+        .get('/active_account')
+        .query({
+          key: '',
+          name: user_reigsted.name
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '信息有误，帐号无法被激活。'))
+        })
+    })
+
+    it('200: success', function () {
+      return request
+        .get('/active_account')
+        .query({
+          key: tools.md5(user_reigsted.email + user_reigsted.pass_db + config.session.secret),
+          name: user_reigsted.name
+        })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '帐号已被激活，请登录'))
+        })
+    })
   })
 
   describe('GET /search_pass', function () {

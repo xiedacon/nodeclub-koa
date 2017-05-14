@@ -8,5 +8,6 @@ const request = require('supertest')(app.listen())
 module.exports = {
   request: request,
   config: require('config-lite'),
-  helper: require('./helper.js')
+  helper: require('./helper.js'),
+  tools: require('../app/common/tools.js')
 }

@@ -20,6 +20,7 @@ module.exports = {
     })
 
     user = user.toObject({ virtual: true })
+    user.pass_db = user.pass
     user.pass = doc.pass
     return user
   },
