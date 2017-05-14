@@ -389,6 +389,68 @@ describe('test/controller/sign.test.js', async function () {
   })
 
   describe('POST /reset_pass', function () {
+    let key = 'test'
+    let time = Date.now()
 
+    beforeEach(function () {
+      return User.update({ loginname: user_actived.loginname }, { $set: { retrieve_key: key, retrieve_time: time } })
+    })
+
+    it('200: success', function () {
+      return request
+        .post('/reset_pass')
+        .send({
+          psw: user_actived.pass + '1',
+          repsw: user_actived.pass + '1',
+          key: key,
+          name: user_actived.loginname
+        })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '你的密码已重置。'))
+        })
+    })
+
+    it('422: no pass', function () {
+      return request
+        .post('/reset_pass')
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '密码不能为空'))
+        })
+    })
+
+    it('422: pass !== repass', function () {
+      return request
+        .post('/reset_pass')
+        .send({
+          psw: user_actived.pass + '1',
+          repsw: user_actived.pass,
+          key: key,
+          name: user_actived.loginname
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '两次密码输入不一致。'))
+        })
+    })
+
+    it('403: key or name are wrongful', function () {
+      return request
+        .post('/reset_pass')
+        .send({
+          psw: user_actived.pass + '1',
+          repsw: user_actived.pass + '1',
+          name: user_actived.loginname
+        })
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '错误的激活链接'))
+        })
+    })
+
+    afterEach(function () {
+      return User.update({ loginname: user_actived.loginname }, { $set: { pass: user_actived.pass } })
+    })
   })
 })
