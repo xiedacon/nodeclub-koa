@@ -260,7 +260,23 @@ describe('test/controller/user.test.js', function () {
   })
 
   describe('GET /user/:name/collections', function () {
+    it('200: success', function () {
+      return request
+        .get('/user/' + name + '/collections')
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '收藏的话题'))
+        })
+    })
 
+    it('404: user not exist', function () {
+      return request
+        .get('/user/@aaa/collections')
+        .expect(404)
+        .expect((res) => {
+          assert(helper.includes(res.text, '这个用户不存在。'))
+        })
+    })
   })
 
   describe('POST /user/set_star', function () {
