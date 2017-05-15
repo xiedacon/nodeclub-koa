@@ -9,7 +9,8 @@ const separator = '$$$$'
 module.exports = {
   blockUser: (ctx, next) => {
     if (ctx.path !== '/signout' && ctx.session.user && ctx.session.user.is_block && ctx.method !== 'GET') {
-      return ctx.renderError('您已被管理员屏蔽了。有疑问请联系 @alsotang。', 403)
+      let admins = adminNames.reduce((admins, adminName) => { return admins + ` @${adminName}` }, '')
+      return ctx.renderError(`您已被管理员屏蔽了。有疑问请联系 ${admins}。`, 403)
     }
 
     return next()

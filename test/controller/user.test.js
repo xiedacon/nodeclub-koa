@@ -2,12 +2,17 @@
 
 const { request, helper } = require('../support.js')
 const assert = require('power-assert')
+const Promise = require('bluebird')
 
 describe('test/controller/user.test.js', function () {
-  let user, name
+  let user, name, admin
 
   before(async function () {
-    user = await helper.createUser()
+    [user, admin] = await Promise.all([
+      helper.createUser(),
+      helper.createAdmin()
+    ])
+
     name = user.name
   })
 
@@ -88,25 +93,10 @@ describe('test/controller/user.test.js', function () {
   })
 
   describe('GET /setting', function () {
-    let cookies
-    before(function () {
-      return request
-        .post('/signin')
-        .send({
-          name: user.loginname,
-          pass: user.pass
-        })
-        .expect((res) => {
-          cookies = res.headers['set-cookie'].reduce((str, cookie) => {
-            return str + cookie.split(';')[0] + ';'
-          }, '')
-        })
-    })
-
     it('200: success', function () {
       return request
         .get('/setting')
-        .set('Cookie', cookies)
+        .set('Cookie', user.cookie)
         .expect(200)
         .expect((res) => {
           assert(helper.includes(res.text, [
@@ -123,7 +113,7 @@ describe('test/controller/user.test.js', function () {
       return request
         .get('/setting')
         .query({ save: 'success' })
-        .set('Cookie', cookies)
+        .set('Cookie', user.cookie)
         .expect(200)
         .expect((res) => {
           assert(helper.includes(res.text, [
@@ -144,25 +134,10 @@ describe('test/controller/user.test.js', function () {
   })
 
   describe('POST /setting', function () {
-    let cookies
-    before(function () {
-      return request
-        .post('/signin')
-        .send({
-          name: user.loginname,
-          pass: user.pass
-        })
-        .expect((res) => {
-          cookies = res.headers['set-cookie'].reduce((str, cookie) => {
-            return str + cookie.split(';')[0] + ';'
-          }, '')
-        })
-    })
-
     it('302: success action === "change_setting"', function () {
       return request
         .post('/setting')
-        .set('Cookie', cookies)
+        .set('Cookie', user.cookie)
         .send({
           action: 'change_setting',
           url: 'http://fxck.it',
@@ -182,7 +157,7 @@ describe('test/controller/user.test.js', function () {
     it('200: success action === "change_password"', function () {
       return request
         .post('/setting')
-        .set('Cookie', cookies)
+        .set('Cookie', user.cookie)
         .send({
           action: 'change_password',
           old_pass: user.pass,
@@ -197,7 +172,7 @@ describe('test/controller/user.test.js', function () {
     it('422: no old_pass or new_pass', function () {
       return request
         .post('/setting')
-        .set('Cookie', cookies)
+        .set('Cookie', user.cookie)
         .send({
           action: 'change_password',
           new_pass: user.pass
@@ -211,7 +186,7 @@ describe('test/controller/user.test.js', function () {
     it('422: old_pass is wrong', function () {
       return request
         .post('/setting')
-        .set('Cookie', cookies)
+        .set('Cookie', user.cookie)
         .send({
           action: 'change_password',
           old_pass: user.pass + '1',
@@ -226,7 +201,7 @@ describe('test/controller/user.test.js', function () {
     it('422: action not support', function () {
       return request
         .post('/setting')
-        .set('Cookie', cookies)
+        .set('Cookie', user.cookie)
         .send({
           action: 'aaa'
         })

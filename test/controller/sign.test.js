@@ -111,23 +111,10 @@ describe('test/controller/sign.test.js', function () {
   })
 
   describe('POST /signout', function () {
-    it('302: success', async function () {
-      let cookies
-      await request
-        .post('/signin')
-        .send({
-          name: activedUser.loginname,
-          pass: activedUser.pass
-        })
-        .expect((res) => {
-          cookies = res.headers['set-cookie'].reduce((str, cookie) => {
-            return str + cookie.split(';')[0] + ';'
-          }, '')
-        })
-
+    it('302: success', function () {
       return request
         .post('/signout')
-        .set('Cookie', cookies)
+        .set('Cookie', activedUser.cookie)
         .expect(302)
         .expect((res) => {
           assert(helper.includes(res.text, 'Redirecting to', 'href', '/'))
@@ -341,7 +328,7 @@ describe('test/controller/sign.test.js', function () {
     let time = Date.now()
 
     beforeEach(function () {
-      return User.update({ loginname: activedUser.loginname }, { $set: { retrieve_key: key, retrieve_time: time } })
+      return User.update({ loginname: activedUser.loginname }, { retrieve_key: key, retrieve_time: time })
     })
 
     it('200: success', async function () {
@@ -365,7 +352,7 @@ describe('test/controller/sign.test.js', function () {
     })
 
     it('403: reset time more than one day', async function () {
-      await User.update({ loginname: activedUser.loginname }, { $set: { retrieve_time: Date.now() - 1000 * 60 * 60 * 24 - 1 } })
+      await User.update({ loginname: activedUser.loginname }, { retrieve_time: Date.now() - 1000 * 60 * 60 * 24 - 1 })
 
       return request
         .get('/reset_pass')
@@ -382,7 +369,7 @@ describe('test/controller/sign.test.js', function () {
     let time = Date.now()
 
     beforeEach(function () {
-      return User.update({ loginname: activedUser.loginname }, { $set: { retrieve_key: key, retrieve_time: time } })
+      return User.update({ loginname: activedUser.loginname }, { retrieve_key: key, retrieve_time: time })
     })
 
     it('200: success', function () {
@@ -439,7 +426,7 @@ describe('test/controller/sign.test.js', function () {
     })
 
     afterEach(function () {
-      return User.update({ loginname: activedUser.loginname }, { $set: { pass: activedUser.pass } })
+      return User.update({ loginname: activedUser.loginname }, { pass: activedUser.pass })
     })
   })
 })
