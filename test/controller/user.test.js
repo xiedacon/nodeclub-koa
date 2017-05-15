@@ -40,7 +40,27 @@ describe('test/controller/user.test.js', function () {
   })
 
   describe('GET /user/:name/topics', function () {
+    it('200: success', function () {
+      return request
+        .get('/user/' + name + '/topics')
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, [
+            `${name}的主页`,
+            `${name} 创建的话题`,
+            '这家伙很懒，什么个性签名都没有留下。'
+          ]))
+        })
+    })
 
+    it('404: with wrong name', function () {
+      return request
+        .get('/user/@aaa/topics')
+        .expect(404)
+        .expect((res) => {
+          assert(helper.includes(res.text, '这个用户不存在。'))
+        })
+    })
   })
 
   describe('GET /user/:name/replies', function () {
