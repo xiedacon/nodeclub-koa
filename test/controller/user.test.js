@@ -238,11 +238,25 @@ describe('test/controller/user.test.js', function () {
   })
 
   describe('GET /stars', function () {
-
+    it('200: success', function () {
+      return request
+        .get('/stars')
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '社区达人'))
+        })
+    })
   })
 
   describe('GET /users/top100', function () {
-
+    it('200: success', function () {
+      return request
+        .get('/users/top100')
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'Top100 积分榜'))
+        })
+    })
   })
 
   describe('GET /user/:name/collections', function () {
