@@ -144,7 +144,97 @@ describe('test/controller/user.test.js', function () {
   })
 
   describe('POST /setting', function () {
+    let cookies
+    before(function () {
+      return request
+        .post('/signin')
+        .send({
+          name: user.loginname,
+          pass: user.pass
+        })
+        .expect((res) => {
+          cookies = res.headers['set-cookie'].reduce((str, cookie) => {
+            return str + cookie.split(';')[0] + ';'
+          }, '')
+        })
+    })
 
+    it('302: success action === "change_setting"', function () {
+      return request
+        .post('/setting')
+        .set('Cookie', cookies)
+        .send({
+          action: 'change_setting',
+          url: 'http://fxck.it',
+          location: 'west lake',
+          weibo: 'http://weibo.com/tangzhanli',
+          github: '@alsotang',
+          signature: '仍然很懒',
+          name: user.loginname,
+          email: user.email
+        })
+        .expect(302)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'Redirecting to <a href="/setting?save=success">/setting?save=success</a>'))
+        })
+    })
+
+    it('200: success action === "change_password"', function () {
+      return request
+        .post('/setting')
+        .set('Cookie', cookies)
+        .send({
+          action: 'change_password',
+          old_pass: user.pass,
+          new_pass: user.pass
+        })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '密码已被修改。'))
+        })
+    })
+
+    it('422: no old_pass or new_pass', function () {
+      return request
+        .post('/setting')
+        .set('Cookie', cookies)
+        .send({
+          action: 'change_password',
+          new_pass: user.pass
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '旧密码或新密码不得为空'))
+        })
+    })
+
+    it('422: old_pass is wrong', function () {
+      return request
+        .post('/setting')
+        .set('Cookie', cookies)
+        .send({
+          action: 'change_password',
+          old_pass: user.pass + '1',
+          new_pass: user.pass
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '当前密码不正确。'))
+        })
+    })
+
+    it('422: action not support', function () {
+      return request
+        .post('/setting')
+        .set('Cookie', cookies)
+        .send({
+          action: 'aaa'
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '不支持的action类型'))
+        })
+    })
   })
 
   describe('GET /stars', function () {

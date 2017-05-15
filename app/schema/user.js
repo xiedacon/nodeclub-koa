@@ -108,8 +108,8 @@ module.exports = {
       let newPass = validator.trim(ctx.request.body.new_pass || '')
       let user = ctx.session.user
 
-      if (!oldPass || !newPass) return ctx.send('旧密码或新密码不得为空')
-      if (!await tools.bcompare(oldPass, user.pass)) return ctx.render('user/setting', Object.assign({ error: '当前密码不正确。' }, user.toObject({ virtual: true })))
+      if (!oldPass || !newPass) return ctx.renderError(Object.assign({ error: '旧密码或新密码不得为空' }, user.toObject({ virtual: true })), 422, 'user/setting')
+      if (!await tools.bcompare(oldPass, user.pass)) return ctx.renderError(Object.assign({ error: '当前密码不正确。' }, user.toObject({ virtual: true })), 422, 'user/setting')
 
       user.pass = await tools.bhash(newPass)
       Object.assign(ctx.query, { action: action, user: user })
@@ -117,6 +117,6 @@ module.exports = {
       return next()
     }
 
-    return ctx.send({ success: 'failed', message: '不支持的action类型' })
+    return ctx.send({ success: 'failed', message: '不支持的action类型' }, 422)
   }
 }
