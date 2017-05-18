@@ -40,8 +40,8 @@ module.exports = {
     if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
     let userId = ctx.request.body.user_id
 
-    let user = await User.getById(userId)
-    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' })
+    let user
+    if (!helper.isValid(userId) || !(user = await User.getById(userId))) return ctx.send({ status: 'failed', message: 'user is not exists' }, 422)
 
     Object.assign(ctx.query, { user: user })
 

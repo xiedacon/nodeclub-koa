@@ -254,12 +254,35 @@ describe('test/controller/user.test.js', function () {
     })
   })
 
-  describe('POST /user/set_star', function () {
+  describe('POST /user/set_star | /user/cancel_star', function () {
+    it('200: success', function () {
+      return request
+        .post('/user/set_star')
+        .set('Cookie', admin.cookie)
+        .send({ user_id: user._id })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'success'))
+        })
+    })
 
-  })
+    it('422: user not exist', function () {
+      return request
+        .post('/user/set_star')
+        .set('Cookie', admin.cookie)
+        .send({ user_id: '@aaa' })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'user is not exists'))
+        })
+    })
 
-  describe('POST /user/cancel_star', function () {
-
+    it('403: not admin', function () {
+      return request
+        .post('/user/set_star')
+        .send({ user_id: user._id })
+        .expect(403)
+    })
   })
 
   describe('POST /user/:name/block', function () {
