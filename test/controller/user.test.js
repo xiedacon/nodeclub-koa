@@ -352,6 +352,30 @@ describe('test/controller/user.test.js', function () {
   })
 
   describe('POST /user/:name/delete_all', function () {
+    it('403: not admin', function () {
+      return request
+        .post('/user/' + name + '/delete_all')
+        .expect(403)
+    })
 
+    it('422: user not exist', function () {
+      return request
+        .post('/user/@aaa/delete_all')
+        .set('Cookie', admin.cookie)
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'user is not exists'))
+        })
+    })
+
+    it('200: success', function () {
+      return request
+        .post('/user/' + name + '/delete_all')
+        .set('Cookie', admin.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'success'))
+        })
+    })
   })
 })

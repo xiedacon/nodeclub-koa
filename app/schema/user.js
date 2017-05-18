@@ -65,7 +65,7 @@ module.exports = {
     let username = ctx.params.name
 
     let user = await User.getByLoginName(username)
-    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' })
+    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' }, 422)
 
     Object.assign(ctx.query, { user: user })
 
