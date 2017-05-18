@@ -15,16 +15,16 @@ describe('test/controller/sign.test.js', function () {
     ])
 
     user.re_pass = user.pass
+  })
 
-    describe('GET /signup', function () {
-      it('200', function () {
-        return request
-          .get('/signup')
-          .expect(200)
-          .expect((res) => {
-            assert(helper.includes(res.text, '确认密码'))
-          })
-      })
+  describe('GET /signup', function () {
+    it('200', function () {
+      return request
+        .get('/signup')
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '确认密码'))
+        })
     })
   })
 
