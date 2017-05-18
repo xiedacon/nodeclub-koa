@@ -286,7 +286,69 @@ describe('test/controller/user.test.js', function () {
   })
 
   describe('POST /user/:name/block', function () {
+    it('200: success action = set_block', async function () {
+      await request
+        .post('/user/' + name + '/block')
+        .set('Cookie', admin.cookie)
+        .send({ action: 'set_block' })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'success'))
+        })
 
+      return request
+        .post('/user/' + name + '/block')
+        .set('Cookie', user.cookie)
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '您已被管理员屏蔽了。有疑问请联系'))
+        })
+    })
+
+    it('200: success action = cancel_block', async function () {
+      await request
+        .post('/user/' + name + '/block')
+        .set('Cookie', admin.cookie)
+        .send({ action: 'cancel_block' })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'success'))
+        })
+
+      return request
+        .post('/user/' + name + '/block')
+        .send({ action: 'cancel_block' })
+        .expect(403)
+    })
+
+    it('403: not admin', function () {
+      return request
+        .post('/user/' + name + '/block')
+        .send({ action: 'cancel_block' })
+        .expect(403)
+    })
+
+    it('422: user not exist', function () {
+      return request
+        .post('/user/@aaa/block')
+        .set('Cookie', admin.cookie)
+        .send({ action: 'cancel_block' })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'user is not exists'))
+        })
+    })
+
+    it('422: not support action', function () {
+      return request
+        .post('/user/' + name + '/block')
+        .set('Cookie', admin.cookie)
+        .send({ action: 'aaa' })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'not support action'))
+        })
+    })
   })
 
   describe('POST /user/:name/delete_all', function () {

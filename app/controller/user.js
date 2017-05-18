@@ -179,7 +179,7 @@ module.exports = {
   },
   block: async (ctx) => {
     let user = ctx.query.user
-    let action = ctx.request.body.action
+    let action = ctx.query.action
 
     user.is_block =
       ((action === 'set_block') && true) ||

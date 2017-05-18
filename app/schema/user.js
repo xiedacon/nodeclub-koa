@@ -50,11 +50,13 @@ module.exports = {
   block: async (ctx, next) => {
     if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
     let username = ctx.params.name
+    let action = ctx.request.body.action
 
     let user = await User.getByLoginName(username)
-    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' })
+    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' }, 422)
+    if (['set_block', 'cancel_block'].indexOf(action) < 0) return ctx.send({ status: 'failed', message: 'not support action' }, 422)
 
-    Object.assign(ctx.query, { user: user })
+    Object.assign(ctx.query, { user: user }, { action: action })
 
     return next()
   },
