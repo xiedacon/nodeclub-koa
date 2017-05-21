@@ -40,8 +40,8 @@ module.exports = {
     if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
     let userId = ctx.request.body.user_id
 
-    let user = await User.getById(userId)
-    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' })
+    let user
+    if (!helper.isValid(userId) || !(user = await User.getById(userId))) return ctx.send({ status: 'failed', message: 'user is not exists' }, 422)
 
     Object.assign(ctx.query, { user: user })
 
@@ -50,11 +50,13 @@ module.exports = {
   block: async (ctx, next) => {
     if (!helper.userRequired(ctx) || !ctx.session.user.is_admin) return
     let username = ctx.params.name
+    let action = ctx.request.body.action
 
     let user = await User.getByLoginName(username)
-    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' })
+    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' }, 422)
+    if (['set_block', 'cancel_block'].indexOf(action) < 0) return ctx.send({ status: 'failed', message: 'not support action' }, 422)
 
-    Object.assign(ctx.query, { user: user })
+    Object.assign(ctx.query, { user: user }, { action: action })
 
     return next()
   },
@@ -63,7 +65,7 @@ module.exports = {
     let username = ctx.params.name
 
     let user = await User.getByLoginName(username)
-    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' })
+    if (!user) return ctx.send({ status: 'failed', message: 'user is not exists' }, 422)
 
     Object.assign(ctx.query, { user: user })
 
@@ -108,8 +110,8 @@ module.exports = {
       let newPass = validator.trim(ctx.request.body.new_pass || '')
       let user = ctx.session.user
 
-      if (!oldPass || !newPass) return ctx.send('旧密码或新密码不得为空')
-      if (!await tools.bcompare(oldPass, user.pass)) return ctx.render('user/setting', Object.assign({ error: '当前密码不正确。' }, user.toObject({ virtual: true })))
+      if (!oldPass || !newPass) return ctx.renderError(Object.assign({ error: '旧密码或新密码不得为空' }, user.toObject({ virtual: true })), 422, 'user/setting')
+      if (!await tools.bcompare(oldPass, user.pass)) return ctx.renderError(Object.assign({ error: '当前密码不正确。' }, user.toObject({ virtual: true })), 422, 'user/setting')
 
       user.pass = await tools.bhash(newPass)
       Object.assign(ctx.query, { action: action, user: user })
@@ -117,6 +119,6 @@ module.exports = {
       return next()
     }
 
-    return ctx.send({ success: 'failed', message: '不支持的action类型' })
+    return ctx.send({ success: 'failed', message: '不支持的action类型' }, 422)
   }
 }

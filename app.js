@@ -23,7 +23,7 @@ const requestLog = require('./app/middleware/request_log.js')
 const busboy = require('./app/middleware/busboy.js')
 const bytes = require('bytes')
 const helmet = require('koa-helmet')
-const CSRF = require('koa-csrf').default
+const CSRF = require('koa-csrf')
 const passport = require('koa-passport')
 const GitHubStrategy = require('passport-github').Strategy
 
@@ -33,10 +33,11 @@ app.use(require('./app/middleware/error_page.js'))
 app.use(require('./app/middleware/send.js'))
 
 // error handler
-if ((!config.debug)) {
-  app.use((ctx, next) => {
+if (!config.debug) {
+  app.use(async (ctx, next) => {
     try {
-      return next()
+      await next()
+      return
     } catch (e) {
       logger.error(e)
       return ctx.send('500 status', 500)
@@ -81,7 +82,7 @@ passport.deserializeUser((user, done) => { done(null, user) })
 passport.use(new GitHubStrategy(config.oauth.github, require('./app/middleware/github_strategy.js')))
 
 // crsf
-if (config.debug) {
+if (!config.debug && process.env.NODE_ENV !== 'test') {
   app.use((ctx, next) => {
     if (ctx.path === '/api' || ctx.path.indexOf('/api') < 0) {
       return (new CSRF())(ctx, () => {
@@ -119,3 +120,5 @@ app.listen(config.port, () => {
   logger.info(`You can debug your app with http://${config.host}:${config.port}`)
   logger.info('')
 })
+
+module.exports = app

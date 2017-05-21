@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/xiedacon/nodeclub-koa.svg?branch=master)](https://travis-ci.org/xiedacon/nodeclub-koa)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![codecov](https://codecov.io/gh/xiedacon/nodeclub-koa/branch/master/graph/badge.svg)](https://codecov.io/gh/xiedacon/nodeclub-koa)
 
 使用koa2重写的nodeclub
 

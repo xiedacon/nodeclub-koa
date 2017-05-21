@@ -42,7 +42,7 @@ module.exports = {
     let error =
       (([loginname, pass].some((item) => { return item === '' })) && '信息不完整。') ||
       ((loginname.length < 5) && '用户名至少需要5个字符。') ||
-      ((!tools.validateId(loginname)) && '用户名不合法。')
+      ((!tools.validateId(loginname) && !validator.isEmail(loginname)) && '用户名不合法。')
 
     if (error) return ctx.renderError(error, 422, 'sign/signin')
     // END 验证信息的正确性
@@ -65,7 +65,7 @@ module.exports = {
     let name = ctx.query.name
 
     let user = await User.getByLoginName(name)
-    if (!user) throw new Error(`[ACTIVE_ACCOUNT] no such user: ${name}`)
+    if (!user) return ctx.renderError(`[ACTIVE_ACCOUNT] no such user: ${name}`, 500)
     if (user.active) return ctx.renderError('帐号已经是激活状态。', 422)
     if (tools.md5(user.email + user.pass + secret) !== key) return ctx.renderError('信息有误，帐号无法被激活。', 422)
 
@@ -74,12 +74,12 @@ module.exports = {
     return next()
   },
   updateSearchPass: async (ctx, next) => {
-    let email = validator.trim(ctx.request.body.email).toLowerCase()
+    let email = validator.trim(ctx.request.body.email || '').toLowerCase()
 
-    if (!validator.isEmail(email)) return ctx.render('sign/search_pass', { error: '邮箱不合法', email: email })
+    if (!validator.isEmail(email)) return ctx.renderError({ error: '邮箱不合法', email: email }, 422, 'sign/search_pass')
 
     let user = await User.getByMail(email)
-    if (!user) return ctx.render('sign/search_pass', { error: '没有这个电子邮箱。', email: email })
+    if (!user) return ctx.renderError({ error: '没有这个电子邮箱。', email: email }, 422, 'sign/search_pass')
 
     Object.assign(ctx.query, { user: user })
 
@@ -93,7 +93,7 @@ module.exports = {
     if (!user) return ctx.renderError({ error: '信息有误，密码无法重置。' }, 403)
 
     let oneDay = 1000 * 60 * 60 * 24
-    if (!user.retrieve_time || Date.now() - user.retrieve_time > oneDay) return ctx.render('notify/notify', { error: '该链接已过期，请重新申请。' })
+    if (!user.retrieve_time || Date.now() - user.retrieve_time > oneDay) return ctx.renderError({ error: '该链接已过期，请重新申请。' }, 403)
 
     Object.assign(ctx.query, { name: name, key: key })
 
@@ -105,14 +105,17 @@ module.exports = {
     let key = validator.trim(ctx.request.body.key || '')
     let name = validator.trim(ctx.request.body.name || '')
 
-    if (pass === '') return ctx.render('sign/reset', { name: name, key: key, error: '密码不能为空' })
-    if (pass !== repass) return ctx.render('sign/reset', { name: name, key: key, error: '两次密码输入不一致。' })
+    if (pass === '') return ctx.renderError({ name: name, key: key, error: '密码不能为空' }, 422, 'sign/reset')
+    if (pass !== repass) return ctx.renderError({ name: name, key: key, error: '两次密码输入不一致。' }, 422, 'sign/reset')
 
     let user = await User.getByNameAndKey(name, key)
-    if (!user) return ctx.render('notify/notify', { error: '错误的激活链接' })
+    if (!user) return ctx.renderError({ error: '错误的激活链接' }, 403)
 
     Object.assign(ctx.query, { user: user, pass: pass })
 
     return next()
+  },
+  signout: (ctx, next) => {
+    if (ctx.session.user) return next()
   }
 }

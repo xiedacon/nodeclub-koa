@@ -1,6 +1,7 @@
 'use strict'
 const moment = require('moment')
 const cache = require('../middleware/cache.js')
+const { Types: { ObjectId } } = require('mongoose')
 
 const SEPARATOR = '^_^@T_T'
 
@@ -20,7 +21,8 @@ module.exports = {
     if (!realIP) throw new Error('should provice `x-real-ip` header')
 
     return realIP
-  })
+  }),
+  isValid: ObjectId.isValid
 }
 
 function makePerDayLimiter (identityName, identityFn) {
