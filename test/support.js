@@ -4,7 +4,7 @@ process.env.NODE_ENV = 'test'
 
 const app = require('../app.js')
 const request = require('supertest')(app.listen())
-const { User } = require('../app/service')
+const { User, Topic } = require('../app/service')
 const tools = require('../app/common/tools.js')
 const config = require('config-lite')
 
@@ -18,8 +18,18 @@ const template = {
       pass: 'test',
       active: true
     }
+  },
+  get Topic () {
+    let key = uuid()
+    return {
+      title: key,
+      content: 'test',
+      tab: 'share'
+    }
   }
 }
+
+let defaultAuthor
 
 const helper = {
   includes: (str, ...parts) => {
@@ -73,6 +83,21 @@ const helper = {
     let admin = await helper.createUser(doc)
     config.admin.names.push(admin.name)
     return admin
+  },
+  createTopic: async (doc, unsave) => {
+    doc = Object.assign(template.Topic, doc)
+
+    if (unsave) return doc
+
+    doc.authorId = doc.authorId
+      ? doc.authorId
+      : (defaultAuthor || (defaultAuthor = await helper.createUser()))._id
+
+    let topic = await Topic.newAndSave(doc.title, doc.content, doc.tab, doc.authorId)
+
+    topic = topic.toObject({ virtual: true })
+
+    return topic
   }
 }
 
