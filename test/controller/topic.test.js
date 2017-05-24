@@ -5,16 +5,18 @@ const assert = require('power-assert')
 const Promise = require('bluebird')
 
 describe('test/controller/topic.test.js', function () {
-  let user, topic, dbTopic, deletedTopic, withoutAuthorTopic
+  let user, topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser
 
   before(async function () {
     user = await helper.createUser();
 
-    [topic, dbTopic, deletedTopic, withoutAuthorTopic] = await Promise.all([
+    [topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser] = await Promise.all([
       helper.createTopic({}, true),
       helper.createTopic({ authorId: user._id }),
       helper.createTopic({ authorId: user._id, deleted: true }),
-      helper.createTopic({ authorId: 'aaaaaaaaaaaaaaaaaaaaaaaa' })
+      helper.createTopic({ authorId: 'aaaaaaaaaaaaaaaaaaaaaaaa' }),
+      helper.createAdmin(),
+      helper.createUser()
     ])
 
     topic.t_content = topic.content
@@ -148,7 +150,70 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('GET /topic/:tid/edit', function () {
+    it('200: success', function () {
+      return request
+        .get('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', user.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, [
+            '编辑话题',
+            dbTopic.title,
+            dbTopic.content,
+            dbTopic.tab
+          ]))
+        })
+    })
 
+    it('200: user is admin', function () {
+      return request
+        .get('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', admin.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, [
+            '编辑话题',
+            dbTopic.title,
+            dbTopic.content,
+            dbTopic.tab
+          ]))
+        })
+    })
+
+    it('403: without cookie', function () {
+      return request
+        .get('/topic/' + dbTopic._id + '/edit')
+        .expect(403)
+    })
+
+    it('404: topic not exist', function () {
+      return Promise.all([
+        request
+          .get('/topic/aaa' + dbTopic._id + '/edit')
+          .set('Cookie', user.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          }),
+        request
+          .get('/topic/' + deletedTopic._id + '/edit')
+          .set('Cookie', user.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          })
+      ])
+    })
+
+    it('403: user not author', function () {
+      return request
+        .get('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', otherUser.cookie)
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '对不起，你不能编辑此话题。'))
+        })
+    })
   })
 
   describe('POST /topic/:tid/edit', function () {
