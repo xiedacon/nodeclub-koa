@@ -5,18 +5,19 @@ const assert = require('power-assert')
 const Promise = require('bluebird')
 
 describe('test/controller/topic.test.js', function () {
-  let user, topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser
+  let user, topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser, dbTopic1
 
   before(async function () {
     user = await helper.createUser();
 
-    [topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser] = await Promise.all([
+    [topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser, dbTopic1] = await Promise.all([
       helper.createTopic({}, true),
       helper.createTopic({ authorId: user._id }),
       helper.createTopic({ authorId: user._id, deleted: true }),
       helper.createTopic({ authorId: 'aaaaaaaaaaaaaaaaaaaaaaaa' }),
       helper.createAdmin(),
-      helper.createUser()
+      helper.createUser(),
+      helper.createTopic({ authorId: user._id })
     ])
 
     topic.t_content = topic.content
@@ -364,7 +365,60 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('POST /topic/:tid/delete', function () {
+    it('403: without cookie', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/delete')
+        .expect(403)
+    })
 
+    it('404: topic not exist', function () {
+      return Promise.all([
+        request
+          .post('/topic/aaa' + dbTopic._id + '/delete')
+          .set('Cookie', user.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          }),
+        request
+          .post('/topic/' + deletedTopic._id + '/delete')
+          .set('Cookie', user.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          })
+      ])
+    })
+
+    it('403: user not author', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/delete')
+        .set('Cookie', otherUser.cookie)
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '无权限'))
+        })
+    })
+
+    it('200: success', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/delete')
+        .set('Cookie', user.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '话题已被删除。'))
+        })
+    })
+
+    it('200: user is admin', function () {
+      return request
+        .post('/topic/' + dbTopic1._id + '/delete')
+        .set('Cookie', admin.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '话题已被删除。'))
+        })
+    })
   })
 
   describe('POST /topic/collect', function () {

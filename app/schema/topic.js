@@ -126,7 +126,7 @@ module.exports = {
     let topic = await checkTopicExist(ctx, ctx.params.tid)
     if (!topic) return
 
-    if (!topic.author_id.equals(user._id) && !user.is_admin) return ctx.send({ success: false, message: '无权限' })
+    if (!topic.author_id.equals(user._id) && !user.is_admin) return ctx.send({ success: false, message: '无权限' }, 403)
 
     Object.assign(ctx.query, { topic: topic })
 
