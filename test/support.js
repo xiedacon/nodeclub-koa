@@ -9,6 +9,7 @@ const tools = require('../app/common/tools.js')
 const config = require('config-lite')
 
 const uuid = ((i) => { return () => { return `${i++}yyyytest${Date.now()}` } })(0)
+const tabs = ['share', 'ask', 'job']
 const template = {
   get User () {
     let key = uuid()
@@ -23,8 +24,8 @@ const template = {
     let key = uuid()
     return {
       title: key,
-      content: 'test',
-      tab: 'share'
+      content: `${key} test content`,
+      tab: tabs[parseInt(Math.random() * tabs.length)]
     }
   }
 }
@@ -93,7 +94,13 @@ const helper = {
       ? doc.authorId
       : (defaultAuthor || (defaultAuthor = await helper.createUser()))._id
 
-    let topic = await Topic.newAndSave(doc.title, doc.content, doc.tab, doc.authorId)
+    let topic = await Topic.newAndSave({
+      title: doc.title,
+      content: doc.content,
+      tab: doc.tab,
+      author_id: doc.authorId,
+      deleted: doc.deleted
+    })
 
     topic = topic.toObject({ virtual: true })
 
@@ -106,5 +113,6 @@ module.exports = {
   config: config,
   helper: helper,
   tools: tools,
-  User: User
+  User: User,
+  Topic: Topic
 }

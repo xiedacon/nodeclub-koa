@@ -60,13 +60,8 @@ module.exports = exports = {
   update: (con, doc, opt) => {
     return Topic.update(con, { $set: doc }, opt)
   },
-  newAndSave: (title, content, tab, authorId) => {
-    return new Topic({
-      title: title,
-      content: content,
-      tab: tab,
-      author_id: authorId
-    }).save()
+  newAndSave: (doc) => {
+    return new Topic(doc).save()
   },
   updateLastReply: (topicId, replyId) => {
     return Topic.update(

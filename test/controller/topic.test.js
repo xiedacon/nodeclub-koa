@@ -1,16 +1,20 @@
 'use strict'
 
-const { helper, request } = require('../support.js')
+const { helper, request, config } = require('../support.js')
 const assert = require('power-assert')
 const Promise = require('bluebird')
 
 describe('test/controller/topic.test.js', function () {
-  let user, topic
+  let user, topic, dbTopic, deletedTopic, withoutAuthorTopic
 
   before(async function () {
-    [user, topic] = await Promise.all([
-      helper.createUser(),
-      helper.createTopic({}, true)
+    user = await helper.createUser();
+
+    [topic, dbTopic, deletedTopic, withoutAuthorTopic] = await Promise.all([
+      helper.createTopic({}, true),
+      helper.createTopic({ authorId: user._id }),
+      helper.createTopic({ authorId: user._id, deleted: true }),
+      helper.createTopic({ authorId: 'aaaaaaaaaaaaaaaaaaaaaaaa' })
     ])
 
     topic.t_content = topic.content
@@ -60,7 +64,7 @@ describe('test/controller/topic.test.js', function () {
       return request
         .post('/topic/create')
         .set('Cookie', user.cookie)
-        .send(Object.assign({}, topic, {title: ''}))
+        .send(Object.assign({}, topic, { title: '' }))
         .expect(422)
         .expect((res) => {
           assert(helper.includes(res.text, '标题不能是空的。'))
@@ -71,7 +75,7 @@ describe('test/controller/topic.test.js', function () {
       return request
         .post('/topic/create')
         .set('Cookie', user.cookie)
-        .send(Object.assign({}, topic, {title: 'x'}))
+        .send(Object.assign({}, topic, { title: 'x' }))
         .expect(422)
         .expect((res) => {
           assert(helper.includes(res.text, '标题字数太多或太少。'))
@@ -82,7 +86,7 @@ describe('test/controller/topic.test.js', function () {
       return request
         .post('/topic/create')
         .set('Cookie', user.cookie)
-        .send(Object.assign({}, topic, {tab: ''}))
+        .send(Object.assign({}, topic, { tab: '' }))
         .expect(422)
         .expect((res) => {
           assert(helper.includes(res.text, '必须选择一个版块。'))
@@ -93,7 +97,7 @@ describe('test/controller/topic.test.js', function () {
       return request
         .post('/topic/create')
         .set('Cookie', user.cookie)
-        .send(Object.assign({}, topic, {t_content: ''}))
+        .send(Object.assign({}, topic, { t_content: '' }))
         .expect(422)
         .expect((res) => {
           assert(helper.includes(res.text, '内容不可为空'))
@@ -102,7 +106,45 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('GET /topic/:tid', function () {
+    it('200: success', function () {
+      return request
+        .get('/topic/' + dbTopic._id)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, [
+            dbTopic.title,
+            config.site.tabs.find((pair) => { return pair[0] === dbTopic.tab })[1],
+            dbTopic.content,
+            user.name
+          ]))
+        })
+    })
 
+    it('404: topic not exist', function () {
+      return Promise.all([
+        request
+          .get('/topic/aaa' + dbTopic._id)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          }),
+        request
+          .get('/topic/' + deletedTopic._id)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          })
+      ])
+    })
+
+    it('404: topic without author', function () {
+      return request
+        .get('/topic/' + withoutAuthorTopic._id)
+        .expect(404)
+        .expect((res) => {
+          assert(helper.includes(res.text, '话题的作者丢了。'))
+        })
+    })
   })
 
   describe('GET /topic/:tid/edit', function () {
