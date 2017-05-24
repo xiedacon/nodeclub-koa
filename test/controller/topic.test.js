@@ -217,7 +217,150 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('POST /topic/:tid/edit', function () {
+    it('302: success', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', user.cookie)
+        .send({
+          title: dbTopic.title,
+          tab: dbTopic.tab,
+          t_content: dbTopic.content
+        })
+        .expect(302)
+        .expect((res) => {
+          assert(helper.includes(res.text, `/topic/${dbTopic._id}`))
+        })
+    })
 
+    it('403: without cookie', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/edit')
+        .send({
+          title: dbTopic.title,
+          tab: dbTopic.tab,
+          t_content: dbTopic.content
+        })
+        .expect(403)
+    })
+
+    it('404: topic not exist', function () {
+      return Promise.all([
+        request
+          .post('/topic/aaa' + dbTopic._id + '/edit')
+          .set('Cookie', user.cookie)
+          .send({
+            title: dbTopic.title,
+            tab: dbTopic.tab,
+            t_content: dbTopic.content
+          })
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          }),
+        request
+          .post('/topic/' + deletedTopic._id + '/edit')
+          .set('Cookie', user.cookie)
+          .send({
+            title: dbTopic.title,
+            tab: dbTopic.tab,
+            t_content: dbTopic.content
+          })
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          })
+      ])
+    })
+
+    it('422: title is empty', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', user.cookie)
+        .send({
+          title: '',
+          tab: dbTopic.tab,
+          t_content: dbTopic.content
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '标题不能是空的。'))
+        })
+    })
+
+    it('422: title is too long or short', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', user.cookie)
+        .send({
+          title: 'x',
+          tab: dbTopic.tab,
+          t_content: dbTopic.content
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '标题字数太多或太少。'))
+        })
+    })
+
+    it('422: tab not specify', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', user.cookie)
+        .send({
+          title: dbTopic.title,
+          tab: '',
+          t_content: dbTopic.content
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '必须选择一个版块。'))
+        })
+    })
+
+    it('422: t_content is empty', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', user.cookie)
+        .send({
+          title: dbTopic.title,
+          tab: dbTopic.tab,
+          t_content: ''
+        })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '内容不可为空'))
+        })
+    })
+
+    it('403: user not author', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', otherUser.cookie)
+        .send({
+          title: dbTopic.title,
+          tab: dbTopic.tab,
+          t_content: dbTopic.content
+        })
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '对不起，你不能编辑此话题。'))
+        })
+    })
+
+    it('302: user is admin', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/edit')
+        .set('Cookie', admin.cookie)
+        .send({
+          title: dbTopic.title,
+          tab: dbTopic.tab,
+          t_content: dbTopic.content
+        })
+        .expect(302)
+        .expect((res) => {
+          assert(helper.includes(res.text, `/topic/${dbTopic._id}`))
+        })
+    })
   })
 
   describe('POST /topic/:tid/delete', function () {
