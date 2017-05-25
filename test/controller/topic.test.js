@@ -5,18 +5,19 @@ const assert = require('power-assert')
 const Promise = require('bluebird')
 
 describe('test/controller/topic.test.js', function () {
-  let user, topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser, dbTopic1
+  let user, topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser, dbTopic1, dbTopic2
 
   before(async function () {
     user = await helper.createUser();
 
-    [topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser, dbTopic1] = await Promise.all([
+    [topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser, dbTopic1, dbTopic2] = await Promise.all([
       helper.createTopic({}, true),
       helper.createTopic({ authorId: user._id }),
       helper.createTopic({ authorId: user._id, deleted: true }),
       helper.createTopic({ authorId: 'aaaaaaaaaaaaaaaaaaaaaaaa' }),
       helper.createAdmin(),
       helper.createUser(),
+      helper.createTopic({ authorId: user._id }),
       helper.createTopic({ authorId: user._id })
     ])
 
@@ -367,14 +368,14 @@ describe('test/controller/topic.test.js', function () {
   describe('POST /topic/:tid/delete', function () {
     it('403: without cookie', function () {
       return request
-        .post('/topic/' + dbTopic._id + '/delete')
+        .post('/topic/' + dbTopic1._id + '/delete')
         .expect(403)
     })
 
     it('404: topic not exist', function () {
       return Promise.all([
         request
-          .post('/topic/aaa' + dbTopic._id + '/delete')
+          .post('/topic/aaa' + dbTopic1._id + '/delete')
           .set('Cookie', user.cookie)
           .expect(404)
           .expect((res) => {
@@ -392,7 +393,7 @@ describe('test/controller/topic.test.js', function () {
 
     it('403: user not author', function () {
       return request
-        .post('/topic/' + dbTopic._id + '/delete')
+        .post('/topic/' + dbTopic1._id + '/delete')
         .set('Cookie', otherUser.cookie)
         .expect(403)
         .expect((res) => {
@@ -402,7 +403,7 @@ describe('test/controller/topic.test.js', function () {
 
     it('200: success', function () {
       return request
-        .post('/topic/' + dbTopic._id + '/delete')
+        .post('/topic/' + dbTopic1._id + '/delete')
         .set('Cookie', user.cookie)
         .expect(200)
         .expect((res) => {
@@ -412,7 +413,7 @@ describe('test/controller/topic.test.js', function () {
 
     it('200: user is admin', function () {
       return request
-        .post('/topic/' + dbTopic1._id + '/delete')
+        .post('/topic/' + dbTopic2._id + '/delete')
         .set('Cookie', admin.cookie)
         .expect(200)
         .expect((res) => {
@@ -422,7 +423,44 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('POST /topic/collect', function () {
+    it('200: success', function () {
+      return request
+        .post('/topic/collect')
+        .set('Cookie', user.cookie)
+        .send({ topic_id: dbTopic._id })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'success'))
+        })
+    })
 
+    it('403: without cookie', function () {
+      return request
+        .post('/topic/collect')
+        .send({ topic_id: dbTopic._id })
+        .expect(403)
+    })
+
+    it('422: topic not exist or collected', function () {
+      return Promise.all([
+        request
+          .post('/topic/collect')
+          .set('Cookie', user.cookie)
+          .send({ topic_id: 'aaaaaaaaaaaaaaaaaaaaaaaa' })
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, 'failed'))
+          }),
+        request
+          .post('/topic/collect')
+          .set('Cookie', user.cookie)
+          .send({ topic_id: dbTopic._id })
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, 'failed'))
+          })
+      ])
+    })
   })
 
   describe('POST /topic/de_collect', function () {
