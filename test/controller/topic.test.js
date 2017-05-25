@@ -464,7 +464,44 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('POST /topic/de_collect', function () {
+    it('200: success', function () {
+      return request
+        .post('/topic/de_collect')
+        .set('Cookie', user.cookie)
+        .send({ topic_id: dbTopic._id })
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, 'success'))
+        })
+    })
 
+    it('403: without cookie', function () {
+      return request
+        .post('/topic/de_collect')
+        .send({ topic_id: dbTopic._id })
+        .expect(403)
+    })
+
+    it('422: topic not exist or collected', function () {
+      return Promise.all([
+        request
+          .post('/topic/de_collect')
+          .set('Cookie', user.cookie)
+          .send({ topic_id: 'aaaaaaaaaaaaaaaaaaaaaaaa' })
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, 'failed'))
+          }),
+        request
+          .post('/topic/de_collect')
+          .set('Cookie', user.cookie)
+          .send({ topic_id: dbTopic._id })
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, 'failed'))
+          })
+      ])
+    })
   })
 
   describe('POST /upload', function () {

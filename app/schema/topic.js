@@ -110,12 +110,14 @@ module.exports = {
     if (!helper.userRequired(ctx)) return
     let topicId = validator.trim(ctx.request.body.topic_id || '')
 
+    if (!helper.isValid(topicId)) return ctx.send({ status: 'failed' }, 422)
+
     let [topic, topicCollect] = await Promise.all([
       Topic.getById(topicId),
       TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
     ])
 
-    if (!topic || !topicCollect) return ctx.send({ status: 'failed' })
+    if (!topic || !topicCollect) return ctx.send({ status: 'failed' }, 422)
 
     Object.assign(ctx.query, { topic: topic })
 
