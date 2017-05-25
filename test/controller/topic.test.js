@@ -3,6 +3,8 @@
 const { helper, request, config } = require('../support.js')
 const assert = require('power-assert')
 const Promise = require('bluebird')
+const path = require('path')
+const fs = require('fs')
 
 describe('test/controller/topic.test.js', function () {
   let user, topic, dbTopic, deletedTopic, withoutAuthorTopic, admin, otherUser, dbTopic1, dbTopic2
@@ -505,7 +507,20 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('POST /upload', function () {
+    it('200: success', async function () {
+      let filename
+      await request
+        .post('/upload')
+        .attach('image', path.join(__dirname, '../../app/public/favicon.ico'))
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '"success":true'))
+          filename = JSON.parse(res.text).url
+        })
 
+      fs.accessSync(path.join(__dirname, '../../app/' + filename), 'rw')
+      return fs.unlinkSync(path.join(__dirname, '../../app/' + filename))
+    })
   })
 
   describe('POST /topic/:tid/top', function () {
