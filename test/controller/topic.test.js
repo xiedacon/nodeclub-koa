@@ -524,7 +524,41 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('POST /topic/:tid/top', function () {
+    it('200: success', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/top')
+        .set('Cookie', admin.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '此话题已置顶。'))
+        })
+    })
 
+    it('404: not admin', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/top')
+        .set('Cookie', user.cookie)
+        .expect(404)
+    })
+
+    it('404: topic not exist', function () {
+      return Promise.all([
+        request
+          .post('/topic/aaa' + dbTopic._id + '/top')
+          .set('Cookie', admin.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          }),
+        request
+          .post('/topic/' + deletedTopic._id + '/top')
+          .set('Cookie', admin.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          })
+      ])
+    })
   })
 
   describe('POST /topic/:tid/good', function () {
