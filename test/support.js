@@ -4,7 +4,7 @@ process.env.NODE_ENV = 'test'
 
 const app = require('../app.js')
 const request = require('supertest')(app.listen())
-const { User, Topic } = require('../app/service')
+const { User, Topic, Reply } = require('../app/service')
 const tools = require('../app/common/tools.js')
 const config = require('config-lite')
 
@@ -27,10 +27,16 @@ const template = {
       content: `${key} test content`,
       tab: tabs[parseInt(Math.random() * tabs.length)]
     }
+  },
+  get Reply () {
+    let key = uuid()
+    return {
+      content: `${key} test content`
+    }
   }
 }
 
-let defaultAuthor
+let defaultAuthor, defaultTopic
 
 const helper = {
   includes: (str, ...parts) => {
@@ -88,23 +94,45 @@ const helper = {
   createTopic: async (doc, unsave) => {
     doc = Object.assign(template.Topic, doc)
 
-    if (unsave) return doc
-
     doc.authorId = doc.authorId
       ? doc.authorId
       : (defaultAuthor || (defaultAuthor = await helper.createUser()))._id
+
+    if (unsave) return doc
 
     let topic = await Topic.newAndSave({
       title: doc.title,
       content: doc.content,
       tab: doc.tab,
       author_id: doc.authorId,
+      deleted: doc.deleted,
+      lock: doc.lock
+    })
+
+    return topic.toObject({ virtual: true })
+  },
+  createReply: async (doc, unsave) => {
+    doc = Object.assign(template.Reply, doc)
+
+    doc.topicId = doc.topicId
+      ? doc.topicId
+      : (defaultTopic || (defaultTopic = await helper.createTopic()))._id
+
+    doc.authorId = doc.authorId
+      ? doc.authorId
+      : (defaultAuthor || (defaultAuthor = await helper.createUser()))._id
+
+    if (unsave) return doc
+
+    let reply = await Reply.newAndSave({
+      content: doc.content,
+      topic_id: doc.topicId,
+      author_id: doc.authorId,
+      reply_id: doc.replyId,
       deleted: doc.deleted
     })
 
-    topic = topic.toObject({ virtual: true })
-
-    return topic
+    return reply.toObject({ virtual: true })
   }
 }
 

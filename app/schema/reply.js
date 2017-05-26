@@ -17,7 +17,7 @@ module.exports = {
     if (content === '') return ctx.renderError('回复内容不能为空!', 422)
 
     let topic = await Topic.getById(topicId)
-    if (!topic) return // just 404 page
+    if (!topic) return ctx.renderError('此主题不存在。', 422)
     if (topic.lock) return ctx.renderError('此主题已锁定。', 403)
 
     Object.assign(ctx.query, { topic: topic, content: content, replyId: replyId })
