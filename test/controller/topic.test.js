@@ -562,10 +562,78 @@ describe('test/controller/topic.test.js', function () {
   })
 
   describe('POST /topic/:tid/good', function () {
+    it('200: success', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/good')
+        .set('Cookie', admin.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '此话题已加精。'))
+        })
+    })
 
+    it('404: not admin', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/good')
+        .set('Cookie', user.cookie)
+        .expect(404)
+    })
+
+    it('404: topic not exist', function () {
+      return Promise.all([
+        request
+          .post('/topic/aaa' + dbTopic._id + '/good')
+          .set('Cookie', admin.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          }),
+        request
+          .post('/topic/' + deletedTopic._id + '/good')
+          .set('Cookie', admin.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          })
+      ])
+    })
   })
 
   describe('POST /topic/:tid/lock', function () {
+    it('200: success', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/lock')
+        .set('Cookie', admin.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, '此话题已锁定。'))
+        })
+    })
 
+    it('404: not admin', function () {
+      return request
+        .post('/topic/' + dbTopic._id + '/lock')
+        .set('Cookie', user.cookie)
+        .expect(404)
+    })
+
+    it('404: topic not exist', function () {
+      return Promise.all([
+        request
+          .post('/topic/aaa' + dbTopic._id + '/lock')
+          .set('Cookie', admin.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          }),
+        request
+          .post('/topic/' + deletedTopic._id + '/lock')
+          .set('Cookie', admin.cookie)
+          .expect(404)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此话题不存在或已被删除。'))
+          })
+      ])
+    })
   })
 })
