@@ -27,10 +27,12 @@ module.exports = {
   showEdit: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
 
-    let reply = await Reply.getById(ctx.params.reply_id)
-    if (!reply) return ctx.renderError('此回复不存在或已被删除。')
+    let replyId = ctx.params.reply_id
+    if (!helper.isValid(replyId)) return ctx.renderError('此回复不存在或已被删除。', 422)
+    let reply = await Reply.getById(replyId)
+    if (!reply) return ctx.renderError('此回复不存在或已被删除。', 422)
 
-    if (!ctx.session.user._id.equals(reply.author_id) && ctx.session.user.isAdmin) return ctx.renderError('对不起，你不能编辑此回复。', 403)
+    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.is_admin) return ctx.renderError('对不起，你不能编辑此回复。', 403)
 
     Object.assign(ctx.query, { reply: reply })
 
@@ -43,7 +45,7 @@ module.exports = {
     let reply = await Reply.getById(ctx.params.reply_id)
     if (!reply) return ctx.renderError('此回复不存在或已被删除。')
 
-    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.isAdmin) return ctx.renderError('对不起，你不能编辑此回复。', 403)
+    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.is_admin) return ctx.renderError('对不起，你不能编辑此回复。', 403)
 
     if (content === '') return ctx.renderError('回复的字数太少。', 400)
 
@@ -71,7 +73,7 @@ module.exports = {
     let reply = await Reply.getById(replyId)
     if (!reply) return ctx.send({ status: `no reply ${replyId} exists` }, 422)
 
-    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.isAdmin) return ctx.send({ status: 'failed' })
+    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.is_admin) return ctx.send({ status: 'failed' })
 
     Object.assign(ctx.query, { reply: reply })
 

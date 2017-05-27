@@ -5,14 +5,18 @@ const Promise = require('bluebird')
 const assert = require('power-assert')
 
 describe('test/controller/reply.test.js', function () {
-  let user, reply, lockedTopicId
+  let user, reply, lockedTopicId, dbReply, deletedReply, otherUser, admin
 
   before(async function () {
     user = await helper.createUser();
 
-    [reply, { _id: lockedTopicId }] = await Promise.all([
+    [reply, { _id: lockedTopicId }, dbReply, deletedReply, otherUser, admin] = await Promise.all([
       helper.createReply({ authorId: user._id }, true),
-      helper.createTopic({ lock: true })
+      helper.createTopic({ lock: true }),
+      helper.createReply({ authorId: user._id }),
+      helper.createReply({ authorId: user._id, deleted: true }),
+      helper.createUser(),
+      helper.createAdmin()
     ])
   })
 
@@ -80,7 +84,66 @@ describe('test/controller/reply.test.js', function () {
   })
 
   describe('GET /reply/:reply_id/edit', function () {
+    it('200: success', function () {
+      return request
+        .get('/reply/' + dbReply._id + '/edit')
+        .set('Cookie', user.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, [
+            '编辑回复',
+            dbReply.content
+          ]))
+        })
+    })
 
+    it('403: without cookie', function () {
+      return request
+        .get('/reply/' + dbReply._id + '/edit')
+        .expect(403)
+    })
+
+    it('422: reply not exist', function () {
+      return Promise.all([
+        request
+          .get('/reply/aaa/edit')
+          .set('Cookie', user.cookie)
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此回复不存在或已被删除。'))
+          }),
+        request
+          .get('/reply/' + deletedReply._id + '/edit')
+          .set('Cookie', user.cookie)
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此回复不存在或已被删除。'))
+          })
+      ])
+    })
+
+    it('403: user not author', function () {
+      return request
+        .get('/reply/' + dbReply._id + '/edit')
+        .set('Cookie', otherUser.cookie)
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '对不起，你不能编辑此回复。'))
+        })
+    })
+
+    it('200: user is admin', function () {
+      return request
+        .get('/reply/' + dbReply._id + '/edit')
+        .set('Cookie', admin.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, [
+            '编辑回复',
+            dbReply.content
+          ]))
+        })
+    })
   })
 
   describe('POST /reply/:reply_id/edit', function () {
