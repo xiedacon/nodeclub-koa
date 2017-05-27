@@ -147,7 +147,74 @@ describe('test/controller/reply.test.js', function () {
   })
 
   describe('POST /reply/:reply_id/edit', function () {
+    it('302: success', function () {
+      return request
+        .post('/reply/' + dbReply._id + '/edit')
+        .set('Cookie', user.cookie)
+        .send({ t_content: dbReply.content })
+        .expect(302)
+        .expect((res) => {
+          assert(helper.includes(res.text, `/topic/${dbReply.topic_id}#${dbReply._id}`))
+        })
+    })
 
+    it('403: without cookie', function () {
+      return request
+        .post('/reply/' + dbReply._id + '/edit')
+        .send({ t_content: dbReply.content })
+        .expect(403)
+    })
+
+    it('422: reply not exist', function () {
+      return Promise.all([
+        request
+          .post('/reply/aaa/edit')
+          .set('Cookie', user.cookie)
+          .send({ t_content: dbReply.content })
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此回复不存在或已被删除。'))
+          }),
+        request
+          .post('/reply/' + deletedReply._id + '/edit')
+          .set('Cookie', user.cookie)
+          .send({ t_content: dbReply.content })
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此回复不存在或已被删除。'))
+          })
+      ])
+    })
+
+    it('403: user not author', function () {
+      return request
+        .post('/reply/' + dbReply._id + '/edit')
+        .set('Cookie', otherUser.cookie)
+        .send({ t_content: dbReply.content })
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '对不起，你不能编辑此回复。'))
+        })
+    })
+
+    it('302: user is admin', function () {
+      return request
+        .post('/reply/' + dbReply._id + '/edit')
+        .send({ t_content: dbReply.content })
+        .set('Cookie', admin.cookie)
+        .expect(302)
+    })
+
+    it('422: content is empty', function () {
+      return request
+        .post('/reply/' + dbReply._id + '/edit')
+        .set('Cookie', admin.cookie)
+        .send({ t_content: '' })
+        .expect(422)
+        .expect((res) => {
+          assert(helper.includes(res.text, '回复的字数太少。'))
+        })
+    })
   })
 
   describe('POST /reply/:reply_id/delete', function () {
