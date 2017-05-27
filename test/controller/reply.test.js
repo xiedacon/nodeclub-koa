@@ -5,12 +5,12 @@ const Promise = require('bluebird')
 const assert = require('power-assert')
 
 describe('test/controller/reply.test.js', function () {
-  let user, reply, lockedTopicId, dbReply, deletedReply, otherUser, admin, dbReply1, dbReply2
+  let user, reply, lockedTopicId, dbReply, deletedReply, otherUser, admin, dbReply1, dbReply2, otherReply
 
   before(async function () {
     user = await helper.createUser();
 
-    [reply, { _id: lockedTopicId }, dbReply, deletedReply, otherUser, admin, dbReply1, dbReply2] = await Promise.all([
+    [reply, { _id: lockedTopicId }, dbReply, deletedReply, otherUser, admin, dbReply1, dbReply2, otherReply] = await Promise.all([
       helper.createReply({ authorId: user._id }, true),
       helper.createTopic({ lock: true }),
       helper.createReply({ authorId: user._id }),
@@ -18,7 +18,8 @@ describe('test/controller/reply.test.js', function () {
       helper.createUser(),
       helper.createAdmin(),
       helper.createReply({ authorId: user._id }),
-      helper.createReply({ authorId: user._id })
+      helper.createReply({ authorId: user._id }),
+      helper.createReply()
     ])
   })
 
@@ -277,6 +278,49 @@ describe('test/controller/reply.test.js', function () {
   })
 
   describe('POST /reply/:reply_id/up', function () {
+    it('200: success', function () {
+      return request
+        .post('/reply/' + otherReply._id + '/up')
+        .set('Cookie', user.cookie)
+        .expect(200)
+        .expect((res) => {
+          assert(helper.includes(res.text, ['success', 'true']))
+        })
+    })
 
+    it('403: without cookie', function () {
+      return request
+        .post('/reply/' + otherReply._id + '/up')
+        .expect(403)
+    })
+
+    it('422: reply not exist', function () {
+      return Promise.all([
+        request
+          .post('/reply/aaa/up')
+          .set('Cookie', user.cookie)
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此回复不存在或已被删除。'))
+          }),
+        request
+          .post('/reply/' + deletedReply._id + '/up')
+          .set('Cookie', user.cookie)
+          .expect(422)
+          .expect((res) => {
+            assert(helper.includes(res.text, '此回复不存在或已被删除。'))
+          })
+      ])
+    })
+
+    it('403: can not up oneself', function () {
+      return request
+        .post('/reply/' + dbReply._id + '/up')
+        .set('Cookie', user.cookie)
+        .expect(403)
+        .expect((res) => {
+          assert(helper.includes(res.text, '呵呵，不能帮自己点赞。'))
+        })
+    })
   })
 })

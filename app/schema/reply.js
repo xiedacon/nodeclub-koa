@@ -59,10 +59,12 @@ module.exports = {
   up: async (ctx, next) => {
     if (!helper.userRequired(ctx)) return
 
-    let reply = await Reply.getById(ctx.params.reply_id)
-    if (!reply) return ctx.renderError('此回复不存在或已被删除。')
+    let replyId = ctx.params.reply_id
+    if (!helper.isValid(replyId)) return ctx.renderError('此回复不存在或已被删除。', 422)
+    let reply = await Reply.getById(replyId)
+    if (!reply) return ctx.renderError('此回复不存在或已被删除。', 422)
     // 不能帮自己点赞
-    if (ctx.session.user._id.equals(reply.author_id)) return ctx.send({ success: false, message: '呵呵，不能帮自己点赞。' })
+    if (ctx.session.user._id.equals(reply.author_id)) return ctx.send({ success: false, message: '呵呵，不能帮自己点赞。' }, 403)
 
     Object.assign(ctx.query, { reply: reply, userId: ctx.session.user._id })
 
