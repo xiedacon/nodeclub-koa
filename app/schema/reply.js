@@ -72,10 +72,11 @@ module.exports = {
     if (!helper.userRequired(ctx)) return
     let replyId = ctx.params.reply_id
 
+    if (!helper.isValid(replyId)) return ctx.send({ status: `no reply ${replyId} exists` }, 422)
     let reply = await Reply.getById(replyId)
     if (!reply) return ctx.send({ status: `no reply ${replyId} exists` }, 422)
 
-    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.is_admin) return ctx.send({ status: 'failed' })
+    if (!ctx.session.user._id.equals(reply.author_id) && !ctx.session.user.is_admin) return ctx.send({ status: 'failed' }, 403)
 
     Object.assign(ctx.query, { reply: reply })
 
