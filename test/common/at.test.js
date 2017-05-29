@@ -2,7 +2,7 @@
 
 const at = require('../../app/common/at.js')
 const Message = require('../../app/common/message.js')
-const User = require('../../app/service/user.js')
+const { User } = require('../../app/service')
 const { helper } = require('../support.js')
 const mm = require('mm')
 const assert = require('power-assert')
