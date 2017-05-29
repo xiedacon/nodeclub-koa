@@ -23,13 +23,8 @@ module.exports = {
    * @param {String} authorId 回复作者
    * @param {String} [replyId] 回复ID，当二级回复时设定该值
    */
-  newAndSave: (content, topicId, authorId, replyId) => {
-    return new Reply({
-      content: content,
-      topic_id: topicId,
-      author_id: authorId,
-      reply_id: replyId
-    }).save()
+  newAndSave: (doc) => {
+    return new Reply(doc).save()
   },
   /**
    * 根据topicId查询到最新的一条未删除回复

@@ -47,7 +47,7 @@ function makePerDayLimiter (identityName, identityFn) {
         ctx.send(JSON.stringify({
           success: false,
           error_msg: `频率限制：当前操作每天可以进行 ${limitCount} 次`
-        }))
+        }), 403)
       } else {
         ctx.renderError(`频率限制：当前操作每天可以进行 ${limitCount} 次`, 403)
       }

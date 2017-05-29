@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "test": "npm run test-local",
-    "test-local": "standard && mocha ./test/* --require intelli-espower-loader",
-    "test-cov": "standard && istanbul cover _mocha -- ./test/* --compilers js:babel-core/register --require intelli-espower-loader"
+    "test-local": "standard && mocha ./test/* --require intelli-espower-loader --timeout 10000",
+    "test-cov": "standard && istanbul cover _mocha -- ./test/* --compilers js:babel-core/register --require intelli-espower-loader --timeout 10000"
   },
   "standard": {
     "ignore": [

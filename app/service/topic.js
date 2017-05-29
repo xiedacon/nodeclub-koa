@@ -60,13 +60,8 @@ module.exports = exports = {
   update: (con, doc, opt) => {
     return Topic.update(con, { $set: doc }, opt)
   },
-  newAndSave: (title, content, tab, authorId) => {
-    return new Topic({
-      title: title,
-      content: content,
-      tab: tab,
-      author_id: authorId
-    }).save()
+  newAndSave: (doc) => {
+    return new Topic(doc).save()
   },
   updateLastReply: (topicId, replyId) => {
     return Topic.update(
@@ -78,7 +73,7 @@ module.exports = exports = {
     )
   },
   reduceCount: async (id) => {
-    let reply = (await Reply.findOne({ topic_id: id }, {}, { sort: { create_at: -1 } })) || { _id: null, create_at: (await Topic.getById(id)).create_at }
+    let reply = (await Reply.findOne({ topic_id: id }, {}, { sort: { create_at: -1 } })) || { _id: null, create_at: (await Topic.findById(id)).create_at }
     return Topic.update(
       { _id: id },
       { $inc: { reply_count: -1 }, last_reply: reply._id, last_reply_at: reply.create_at }

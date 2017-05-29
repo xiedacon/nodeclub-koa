@@ -15,7 +15,12 @@ module.exports = {
     let replyAuthor = ctx.session.user
 
     return Promise.join(
-      Reply.newAndSave(content, topic._id, replyAuthor._id, replyId),
+      Reply.newAndSave({
+        content: content,
+        topic_id: topic._id,
+        author_id: replyAuthor._id,
+        reply_id: replyId
+      }),
       User.getById(topic.author_id),
       async (reply, topicAuthor) => {
         replyAuthor.score += 5

@@ -151,7 +151,12 @@ module.exports = {
     user.topic_count += 1
 
     return Promise.join(
-      Topic.newAndSave(title, content, tab, user._id),
+      Topic.newAndSave({
+        title: title,
+        content: content,
+        tab: tab,
+        author_id: user._id
+      }),
       User.update(
         { _id: user.id },
         { score: user.score, topic_count: user.topic_count }),
@@ -177,7 +182,10 @@ module.exports = {
     let topic = ctx.query.topic
     let user = ctx.session.user
 
-    await TopicCollect.newAndSave(user._id, topic._id)
+    await TopicCollect.newAndSave({
+      user_id: user._id,
+      topic_id: topic._id
+    })
 
     user.collect_topic_count += 1
     topic.collect_count += 1
