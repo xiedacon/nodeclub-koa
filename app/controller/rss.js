@@ -23,7 +23,7 @@ module.exports = {
           item: await Promise.map(
             Topic.findByQuery({}, { limit: rss.max_rss_items, sort: '-create_at' }),
             async (topic) => {
-              let author = await User.getById(topic.author_id)
+              let author = (await User.getById(topic.author_id)) || {}
               return {
                 title: topic.title,
                 link: `${rss.link}/topic/${topic._id}`,

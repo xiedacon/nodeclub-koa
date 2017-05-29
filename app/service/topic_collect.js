@@ -7,11 +7,8 @@ module.exports = {
     (opt = opt || {}).sort = { create_at: -1 }
     return TopicCollect.find({ user_id: userId }, {}, opt)
   },
-  newAndSave: (userId, topicId) => {
-    return new TopicCollect({
-      user_id: userId,
-      topic_id: topicId
-    }).save()
+  newAndSave: (doc) => {
+    return new TopicCollect(doc).save()
   },
   remove: (userId, topicId) => {
     return TopicCollect.remove({ user_id: userId, topic_id: topicId })

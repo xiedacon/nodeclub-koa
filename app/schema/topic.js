@@ -93,12 +93,14 @@ module.exports = {
     if (!helper.userRequired(ctx)) return
     let topicId = validator.trim(ctx.request.body.topic_id || '')
 
+    if (!helper.isValid(topicId)) return ctx.send({ status: 'failed' }, 422)
+
     let [topic, topicCollect] = await Promise.all([
       Topic.getById(topicId),
       TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
     ])
 
-    if (!topic || topicCollect) return ctx.send({ status: 'failed' })
+    if (!topic || topicCollect) return ctx.send({ status: 'failed' }, 422)
 
     Object.assign(ctx.query, { topic: topic })
 
@@ -108,12 +110,14 @@ module.exports = {
     if (!helper.userRequired(ctx)) return
     let topicId = validator.trim(ctx.request.body.topic_id || '')
 
+    if (!helper.isValid(topicId)) return ctx.send({ status: 'failed' }, 422)
+
     let [topic, topicCollect] = await Promise.all([
       Topic.getById(topicId),
       TopicCollect.getByQuery({ user_id: ctx.session.user._id, topic_id: topicId })
     ])
 
-    if (!topic || !topicCollect) return ctx.send({ status: 'failed' })
+    if (!topic || !topicCollect) return ctx.send({ status: 'failed' }, 422)
 
     Object.assign(ctx.query, { topic: topic })
 
@@ -126,7 +130,7 @@ module.exports = {
     let topic = await checkTopicExist(ctx, ctx.params.tid)
     if (!topic) return
 
-    if (!topic.author_id.equals(user._id) && !user.is_admin) return ctx.send({ success: false, message: '无权限' })
+    if (!topic.author_id.equals(user._id) && !user.is_admin) return ctx.send({ success: false, message: '无权限' }, 403)
 
     Object.assign(ctx.query, { topic: topic })
 
