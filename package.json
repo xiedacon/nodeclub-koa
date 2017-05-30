@@ -7,7 +7,7 @@
     "start": "node app.js",
     "test": "npm run test-local",
     "test-local": "standard && mocha ./test/* --require intelli-espower-loader --timeout 10000",
-    "test-cov": "standard && istanbul cover _mocha -- ./test/* --compilers js:babel-core/register --require intelli-espower-loader --timeout 10000"
+    "test-cov": "standard && istanbul cover _mocha -- ./test/* --require intelli-espower-loader --timeout 10000"
   },
   "standard": {
     "ignore": [
@@ -73,6 +73,7 @@
     "mm": "^2.1.0",
     "mocha": "^3.3.0",
     "power-assert": "^1.4.2",
+    "rewire": "^2.5.2",
     "standard": "^10.0.2",
     "supertest": "^3.0.0"
   }

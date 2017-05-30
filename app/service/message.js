@@ -11,12 +11,6 @@ module.exports = {
     return Message.count({ master_id: id, has_read: false })
   },
   /**
-   * 根据消息Id获取消息
-   * @param {String} id 消息ID
-   */
-  getById: (id) => { },
-  getRelations: (message) => { },
-  /**
    * 根据用户ID，获取已读消息列表
    * @param {String} userId 用户ID
    */

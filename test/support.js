@@ -142,5 +142,6 @@ module.exports = {
   helper: helper,
   tools: tools,
   User: User,
-  Topic: Topic
+  Topic: Topic,
+  uuid: uuid
 }
