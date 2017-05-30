@@ -26,13 +26,6 @@ module.exports = {
   newAndSave: (doc) => {
     return new Reply(doc).save()
   },
-  /**
-   * 根据topicId查询到最新的一条未删除回复
-   * @param topicId 主题ID
-   */
-  getLastReplyByTopId: (topicId) => {
-    return Reply.findOne({ topic_id: topicId })
-  },
   update: (con, doc, opt) => {
     return Reply.update(con, { $set: doc }, opt)
   },
