@@ -25,9 +25,8 @@ module.exports = exports = {
 
     let ignoreRegexs = [
       /```.+?```/g, // 去除单行的 ```
-      /^```[\s\S]+?^```/gm, // ``` 里面的是 pre 标签内容
+      /^ *```[\s\S]+?^ *```/gm, // ``` 里面的是 pre 标签内容
       /`[\s\S]+?`/g, // 同一行中，`some code` 中内容也不该被解析
-      /^ {4}.*/gm, // 4个空格也是 pre 标签，在这里 . 不会匹配换行
       /\b\S*?@[^\s]*?\..+?\b/g, // somebody@gmail.com 会被去除
       /\[@.+?\]\(\/.+?\)/g // 已经被 link 的 username
     ]
@@ -63,7 +62,7 @@ module.exports = exports = {
 
     if (!users) return
     return Promise.map(users.filter((user) => {
-      return !user._id.equals(authorId)
+      return user._id.toString() !== authorId.toString()
     }), (user) => {
       return Message.sendAtMessage(user._id, authorId, topicId, replyId)
     })
