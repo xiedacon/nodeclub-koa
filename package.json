@@ -61,7 +61,7 @@
     "url": "git+https://github.com/xiedacon/nodeclub-koa.git"
   },
   "author": "xiedacon",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/xiedacon/nodeclub-koa/issues"
   },

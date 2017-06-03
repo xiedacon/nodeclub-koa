@@ -3,9 +3,9 @@
 [![Build Status](https://travis-ci.org/xiedacon/nodeclub-koa.svg?branch=master)](https://travis-ci.org/xiedacon/nodeclub-koa)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![codecov](https://codecov.io/gh/xiedacon/nodeclub-koa/branch/master/graph/badge.svg)](https://codecov.io/gh/xiedacon/nodeclub-koa)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/xiedacon/nodeclub-koa/blob/master/LICENSE)
 
 使用koa2重写的nodeclub
-
 
 ### 使用
 
@@ -69,11 +69,11 @@
 
 ### TODO
 
-* 升级为 [art-template@4](https://github.com/aui/art-template)
-* 集成测试和测试覆盖率
-* 重构
-* 尝试将busboy中间件改为Promise的形式
-* 尝试将controller跟schema合为一层，形成
+* [ ] 升级为 [art-template@4](https://github.com/aui/art-template)
+* [x] 集成测试和测试覆盖率
+* [x] 重构
+* [ ] 尝试将busboy中间件改为Promise的形式
+* [ ] 尝试将controller跟schema合为一层，形成
 
   ```
   - controller
@@ -88,3 +88,6 @@
       - _id.schema.js
   ```
 
+### 协议
+
+[MIT](https://github.com/xiedacon/nodeclub-koa/blob/master/LICENSE)
