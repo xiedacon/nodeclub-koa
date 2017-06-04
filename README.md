@@ -60,12 +60,14 @@
 
 ##### 测试
 
-> TODO
-
-* standard
-* codecov
-* mocha
+* standard ==> 代码格式
+* codecov ==> 测试覆盖率
+* istanbul ==> 测试覆盖率
+* mocha 
 * power-assert
+* supertest
+* mm ==> mock测试
+* rewire ==> 私有方法测试
 
 ### TODO
 
