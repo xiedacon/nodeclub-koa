@@ -7,7 +7,9 @@
     "start": "node app.js",
     "test": "npm run test-local",
     "test-local": "standard && mocha ./test/* --require intelli-espower-loader --timeout 10000",
-    "test-cov": "standard && istanbul cover _mocha -- ./test/* --require intelli-espower-loader --timeout 10000"
+    "test-cov": "standard && istanbul cover _mocha -- ./test/* --require intelli-espower-loader --timeout 10000",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "standard": {
     "ignore": [
@@ -41,7 +43,7 @@
     "koa-router": "^7.1.1",
     "koa-session2": "^2.2.3",
     "less": "^2.7.2",
-    "log4js": "^1.1.1",
+    "log4js": "^2.0.0",
     "markdown-it": "^8.3.1",
     "moment": "^2.18.1",
     "mongoose": "^4.9.2",
@@ -54,7 +56,8 @@
     "uuid": "^3.0.1",
     "validator": "^7.0.0",
     "xmlbuilder": "^9.0.0",
-    "xss": "^0.3.3"
+    "xss": "^0.3.3",
+    "snyk": "^1.41.1"
   },
   "repository": {
     "type": "git",
@@ -76,5 +79,6 @@
     "rewire": "^2.5.2",
     "standard": "^10.0.2",
     "supertest": "^3.0.0"
-  }
+  },
+  "snyk": true
 }
