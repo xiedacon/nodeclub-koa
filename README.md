@@ -10,10 +10,10 @@
 ### 使用
 
 ```
-1. 安装 Node.js最新版[必须] MongoDB[必须] Redis[必须]
-2. git clone https://github.com/xiedacon/nodeclub-koa.git
-3. cd nodeclub-koa
-4. npm install
+1. git clone https://github.com/xiedacon/nodeclub-koa.git
+2. cd nodeclub-koa
+3. npm install
+4. docker-compose up
 5. npm start
 6. visit http://localhost:3000
 7. done!
