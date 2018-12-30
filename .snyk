@@ -1,0 +1,17 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.13.3
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:hoek:20180212':
+    - log4js > loggly > request > hawk > hoek:
+        patched: '2018-12-30T15:06:39.638Z'
+    - log4js > loggly > request > hawk > boom > hoek:
+        patched: '2018-12-30T15:06:39.638Z'
+    - log4js > loggly > request > hawk > sntp > hoek:
+        patched: '2018-12-30T15:06:39.638Z'
+    - log4js > loggly > request > hawk > cryptiles > boom > hoek:
+        patched: '2018-12-30T15:06:39.638Z'
+  'npm:tunnel-agent:20170305':
+    - log4js > loggly > request > tunnel-agent:
+        patched: '2018-12-30T15:06:39.638Z'
