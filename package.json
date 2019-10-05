@@ -57,7 +57,7 @@
     "validator": "^9.4.1",
     "xmlbuilder": "^9.0.0",
     "xss": "^0.3.3",
-    "snyk": "^1.192.3"
+    "snyk": "^1.231.0"
   },
   "repository": {
     "type": "git",
