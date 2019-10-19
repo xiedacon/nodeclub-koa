@@ -46,7 +46,7 @@
     "log4js": "^3.0.0",
     "markdown-it": "^10.0.0",
     "moment": "^2.18.1",
-    "mongoose": "^4.9.2",
+    "mongoose": "^5.7.5",
     "multiline": "^1.0.2",
     "nodemailer": "^4.0.1",
     "nodemailer-smtp-transport": "^2.7.4",
