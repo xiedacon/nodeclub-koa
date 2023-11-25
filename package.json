@@ -29,10 +29,10 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.0",
-    "busboy": "^0.2.14",
+    "busboy": "^1.0.0",
     "bytes": "^2.5.0",
     "colors": "^1.1.2",
-    "config-lite": "^1.5.0",
+    "config-lite": "^4.0.0",
     "data2xml": "^1.2.5",
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
