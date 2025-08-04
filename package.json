@@ -34,7 +34,7 @@
     "colors": "^1.1.2",
     "config-lite": "^1.5.0",
     "data2xml": "^1.2.5",
-    "koa": "^2.2.0",
+    "koa": "^3.0.1",
     "koa-bodyparser": "^4.2.0",
     "koa-csrf": "^3.0.5",
     "koa-helmet": "^3.1.0",
